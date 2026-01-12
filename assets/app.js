@@ -779,13 +779,14 @@ const brands = ['Adidas', 'Booking.com', 'Sephora', 'Samsung', 'New Balance', 'C
 
 // Email framings - dynamically use selected brand
 function getEmailFraming(brandName) {
-    const positiveSubject2 = t('emailPositiveSubject2');
-    const negativeSubject2 = t('emailNegativeSubject2');
-    const neutralSubject2 = t('emailNeutralSubject2');
+    // Get subject2 values directly from translations to check if they exist and are not empty
+    const positiveSubject2 = translations[currentLanguage]['emailPositiveSubject2'];
+    const negativeSubject2 = translations[currentLanguage]['emailNegativeSubject2'];
+    const neutralSubject2 = translations[currentLanguage]['emailNeutralSubject2'];
     
     return {
         positive: {
-            subject: `${t('emailPositiveSubject')}${positiveSubject2 ? ' ' + positiveSubject2 : ''}`.trim(),
+            subject: `${t('emailPositiveSubject')}${positiveSubject2 && positiveSubject2.trim() ? ' ' + positiveSubject2 : ''}`.trim(),
             greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
             body1: `${brandName} ${t('emailPositiveBody1')}`,
             body2: t('emailPositiveBody2'),
@@ -794,7 +795,7 @@ function getEmailFraming(brandName) {
             body5: t('emailPositiveBody5')
         },
         negative: {
-            subject: `${t('emailNegativeSubject')}${negativeSubject2 ? ' ' + negativeSubject2 : ''}`.trim(),
+            subject: `${t('emailNegativeSubject')}${negativeSubject2 && negativeSubject2.trim() ? ' ' + negativeSubject2 : ''}`.trim(),
             greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
             body1: `${brandName} ${t('emailNegativeBody1')}`,
             body2: t('emailNegativeBody2'),
@@ -803,7 +804,7 @@ function getEmailFraming(brandName) {
             body5: t('emailNegativeBody5')
         },
         neutral: {
-            subject: `${t('emailNeutralSubject')} ${brandName}${neutralSubject2 ? ' ' + neutralSubject2 : ''}`.trim(),
+            subject: `${t('emailNeutralSubject')} ${brandName}${neutralSubject2 && neutralSubject2.trim() ? ' ' + neutralSubject2 : ''}`.trim(),
             greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
             body1: `${brandName} ${t('emailNeutralBody1')}`,
             body2: t('emailNeutralBody2'),
@@ -1726,11 +1727,13 @@ function renderEmotionsScreen2() {
 }
 
 function renderConcernsScreen() {
+    // Get subtitle directly from translations to check if it exists and is not empty
+    const concernsSubtitle = translations[currentLanguage]['concernsSubtitle'];
     return `
         <div class="space-y-5">
             <div class="text-center">
                 <p class="text-lg text-gray-700 mb-2">${t('concernsTitle')}</p>
-                ${t('concernsSubtitle') ? `<p class="text-sm text-gray-500">${t('concernsSubtitle')}</p>` : ''}
+                ${concernsSubtitle && concernsSubtitle.trim() ? `<p class="text-sm text-gray-500">${concernsSubtitle}</p>` : ''}
             </div>
             
             <div class="bg-gray-50 p-6 rounded-2xl">
