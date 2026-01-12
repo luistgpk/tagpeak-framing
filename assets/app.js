@@ -77,7 +77,8 @@ const translations = {
         pleaseAnswerAll: "Please answer all questions.",
         
         // Initial involvement
-        initialInvolvementPrompt: "\"For me, promotional benefits (such as cashback, discounts, coupons, etc.) are:\"",
+        initialInvolvementPrompt: "Evaluate the following statement:",
+        initialInvolvementStatement: "\"For me, promotional benefits (such as cashback, discounts, coupons, etc.) are:\"",
         reversedItems: "*items rated in reverse",
         important: "important",
         notImportant: "not important",
@@ -90,8 +91,7 @@ const translations = {
         
         // Email notification
         newEmail: "You received a new email!",
-        pleaseOpenEmail: "Please open and read the email you just received.",
-        emailInfoImportant: "The information contained in the email will be important for the next questions.",
+        pleaseOpenEmail: "Please open and read carefully the email you just received.",
         openEmail: "Open Email",
         
         // Email framing
@@ -115,13 +115,13 @@ const translations = {
         basedOnEmail: "Based on the email you read, answer the following questions:",
         manipQ1: "\"The presented message mainly emphasized:\"",
         lossesNotUsing: "Losses from NOT using the benefit",
-        benefitsUsing: "Benefits from USING the benefit",
+        benefitsUsing: "Gains from USING the benefit",
         manipQ2: "\"Overall, the message conveys more the idea of…\"",
         notMissingSomething: "Not missing something that could benefit me",
         takingAdvantage: "Taking advantage of something that can bring benefits",
         
         // Message involvement
-        evaluateExperience: "Evaluate your experience reading the email:",
+        evaluateExperience: "Regarding the email:",
         invQ1: "1. Would you say that, while reading, you:",
         invQ2: "2. Would you say that, while reading, you:",
         invQ3: "3. Would you say that, while reading, you:",
@@ -188,12 +188,12 @@ const translations = {
         willingnessQ3: "\"I intend to use this benefit in the future.\"",
         
         // Concerns
-        concernsTitle: "After the information presented about the product, do you have any doubts or concerns still in mind?",
-        concernsSubtitle: "Please share your concerns or questions.",
-        yourConcerns: "Your doubts or concerns:",
-        concernsPlaceholder: "Write your doubts or concerns here...",
-        concernsError: "Please write at least a few words about your doubts or concerns.",
-        minimumCharacters: "Minimum 5 characters",
+        concernsTitle: "Based on the information presented, share some thoughts you have had about the product",
+        concernsSubtitle: "",
+        yourConcerns: "Your thoughts:",
+        concernsPlaceholder: "Write your thoughts here...",
+        concernsError: "Please write at least 30 characters about your thoughts.",
+        minimumCharacters: "Minimum 30 characters",
         submit: "Submit",
         
         // Thank you
@@ -211,28 +211,30 @@ const translations = {
         checkConsole: "Please check the browser console for more details.",
         
         // Email framings
-        emailPositiveSubject: "Earn more with your",
-        emailPositiveSubject2: "purchases",
+        emailPositiveSubject: "Earn up to 100% cashback on your purchases",
+        emailPositiveSubject2: "",
         emailPositiveGreeting: "Hello,",
-        emailPositiveBody1: "has partnered with Tagpeak to multiply the advantages whenever you shop with us.",
-        emailPositiveBody2: "Now you can have a percentage of the amount you pay on your purchases automatically invested in shares of companies listed on the stock exchange by Tagpeak's specialized team, at no cost or risk to you.",
-        emailPositiveBody3: "All this to allow you to earn cashback of up to <strong>100% of the amount spent on your purchases</strong>. Take advantage of these exclusive benefits!",
-        emailPositiveBody4: "Start earning now! It's very simple, just write <strong>\"tagpeak\"</strong> in the discount/coupon field at checkout for your next purchase at",
+        emailPositiveBody1: "has a new benefit for our customers, in partnership with Tagpeak.",
+        emailPositiveBody2: "From now on, all purchases you make automatically have a variable cashback associated that can reach 100% of the amount spent.",
+        emailPositiveBody3: "It's an opportunity/benefit with no additional cost or fee for you.",
+        emailPositiveBody4: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative platform that allows us to associate your cashback with financial markets, enabling us to generate greater rewards for you.<br><br><strong>How to start earning?</strong><br><br>It's very simple. When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code and start benefiting from this new reward.<br><br>This way, you earn with every purchase without paying anything extra for it.",
         emailPositiveBody5: "For more information, visit: www.tagpeak.com",
         
-        emailNegativeSubject: "Don't miss out on the benefits in your",
-        emailNegativeSubject2: "purchases",
-        emailNegativeBody1: "has partnered with Tagpeak to increase the advantages whenever you shop with us.",
-        emailNegativeBody2: "Now you can have a percentage of the amount you pay on your purchases automatically invested in shares of companies listed on the stock exchange by Tagpeak's specialized team, at no cost or risk to you, but only if you activate the partnership.",
-        emailNegativeBody3: "All this to allow you to avoid missing out on cashback of up to <strong>100% of the amount spent on your purchases. Are you really going to give up this opportunity?</strong>",
-        emailNegativeBody4: "To not miss out, just write <strong>\"tagpeak\"</strong> in the discount/coupon field at checkout for your next purchase at",
+        emailNegativeSubject: "A partnership you won't want to miss",
+        emailNegativeSubject2: "",
+        emailNegativeBody1: "in partnership with Tagpeak, has a new benefit for our customers that you won't want to miss",
+        emailNegativeBody2: "Now, all purchases you make automatically have a variable cashback associated that can reach up to 100% of the amount spent.",
+        emailNegativeBody3: "A benefit with no additional cost or fee for you.",
+        emailNegativeBody4: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative platform that allows us to connect your cashback to financial markets, to thus generate greater rewards for you.<br><br><strong>How not to miss out on this benefit?</strong><br><br>It's simple. When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code.<br><br>If you don't, the purchase will be completed normally, but you won't receive that reward of up to 100% of the value of your purchases.",
+        emailNegativeBody5: "For more information, visit: www.tagpeak.com",
         
         emailNeutralSubject: "New partnership",
         emailNeutralSubject2: "and Tagpeak",
-        emailNeutralBody1: "has established a partnership with Tagpeak with the aim of providing an additional benefit to purchases.",
-        emailNeutralBody2: "This benefit allows a percentage of the amount paid on purchases to be automatically invested in shares of companies listed on the stock exchange, managed by Tagpeak's specialized team, at no cost or risk to the user.",
-        emailNeutralBody3: "This mechanism allows you to obtain cashback of up to 100% of the amount spent on the purchase.",
-        emailNeutralBody4: "To use, simply enter <strong>\"tagpeak\"</strong> in the discount/coupon field during checkout for your next purchase at",
+        emailNeutralBody1: "has a new benefit for our customers, in partnership with Tagpeak.",
+        emailNeutralBody2: "Now, all purchases you make automatically have a variable cashback associated that can reach up to 100% of the amount you spend.",
+        emailNeutralBody3: "A benefit that has no additional cost or fee for you.",
+        emailNeutralBody4: "<strong>What is Tagpeak?</strong><br><br>It's a platform that allows us to connect your cashback to financial markets, to generate rewards of up to 100% of the amount spent for you.<br><br><strong>What do I need to do to participate?</strong><br><br>When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code and you're done.",
+        emailNeutralBody5: "For more information, visit: www.tagpeak.com",
     },
     es: {
         // Language selection
@@ -299,7 +301,8 @@ const translations = {
         pleaseAnswerAll: "Por favor, responda todas las preguntas.",
         
         // Initial involvement
-        initialInvolvementPrompt: "\"Para mí, los beneficios promocionales (como cashback, descuentos, cupones, etc.) son:\"",
+        initialInvolvementPrompt: "Evalúe la siguiente afirmación:",
+        initialInvolvementStatement: "\"Para mí, los beneficios promocionales (como cashback, descuentos, cupones, etc.) son:\"",
         reversedItems: "*elementos calificados en reverso",
         important: "importantes",
         notImportant: "nada importantes",
@@ -312,8 +315,7 @@ const translations = {
         
         // Email notification
         newEmail: "¡Recibió un nuevo correo electrónico!",
-        pleaseOpenEmail: "Por favor, abra y lea el correo electrónico que acaba de recibir.",
-        emailInfoImportant: "La información contenida en el correo será importante para las próximas preguntas.",
+        pleaseOpenEmail: "Por favor, abra y lea con atención el correo electrónico que acaba de recibir.",
         openEmail: "Abrir correo",
         
         // Email framing
@@ -337,13 +339,13 @@ const translations = {
         basedOnEmail: "Basándose en el correo que leyó, responda las siguientes preguntas:",
         manipQ1: "\"El mensaje presentado enfatizó principalmente:\"",
         lossesNotUsing: "Pérdidas por NO usar el beneficio",
-        benefitsUsing: "Beneficios de USAR el beneficio",
+        benefitsUsing: "Ganancias por USAR el beneficio",
         manipQ2: "\"En general, el mensaje transmite más la idea de…\"",
         notMissingSomething: "No perder algo que podría beneficiarme",
         takingAdvantage: "Aprovechar algo que puede traer beneficios",
         
         // Message involvement
-        evaluateExperience: "Evalúe su experiencia al leer el correo:",
+        evaluateExperience: "En relación al correo:",
         invQ1: "1. ¿Diría que, mientras leía, usted:",
         invQ2: "2. ¿Diría que, mientras leía, usted:",
         invQ3: "3. ¿Diría que, mientras leía, usted:",
@@ -410,12 +412,12 @@ const translations = {
         willingnessQ3: "\"Tengo la intención de usar este beneficio en el futuro.\"",
         
         // Concerns
-        concernsTitle: "Después de la información presentada sobre el producto, ¿tiene alguna duda o preocupación aún en mente?",
-        concernsSubtitle: "Por favor, comparta sus preocupaciones o preguntas.",
-        yourConcerns: "Sus dudas o preocupaciones:",
-        concernsPlaceholder: "Escriba sus dudas o preocupaciones aquí...",
-        concernsError: "Por favor, escriba al menos algunas palabras sobre sus dudas o preocupaciones.",
-        minimumCharacters: "Mínimo 5 caracteres",
+        concernsTitle: "Conforme la información presentada, comparta algunos pensamientos que haya tenido sobre el producto",
+        concernsSubtitle: "",
+        yourConcerns: "Sus pensamientos:",
+        concernsPlaceholder: "Escriba sus pensamientos aquí...",
+        concernsError: "Por favor, escriba al menos 30 caracteres sobre sus pensamientos.",
+        minimumCharacters: "Mínimo 30 caracteres",
         submit: "Enviar",
         
         // Thank you
@@ -433,28 +435,30 @@ const translations = {
         checkConsole: "Por favor, revise la consola del navegador para más detalles.",
         
         // Email framings
-        emailPositiveSubject: "Gane más con sus compras",
+        emailPositiveSubject: "Gane hasta 100% de cashback en sus compras",
         emailPositiveSubject2: "",
         emailPositiveGreeting: "Hola,",
-        emailPositiveBody1: "se ha asociado con Tagpeak para multiplicar las ventajas siempre que compre con nosotros.",
-        emailPositiveBody2: "Ahora puede tener un porcentaje del monto que paga en sus compras automáticamente invertido en acciones de empresas cotizadas en bolsa por el equipo especializado de Tagpeak, sin costo ni riesgo para usted.",
-        emailPositiveBody3: "Todo esto para permitirle ganar cashback de hasta <strong>100% del monto gastado en sus compras</strong>. ¡Aproveche estos beneficios exclusivos!",
-        emailPositiveBody4: "¡Comience a ganar ahora! Es muy simple, solo escriba <strong>\"tagpeak\"</strong> en el campo de descuento/cupón al finalizar la compra para su próxima compra en",
+        emailPositiveBody1: "tiene un nuevo beneficio para nuestros clientes, en asociación con Tagpeak.",
+        emailPositiveBody2: "A partir de ahora, todas las compras que realice tienen automáticamente asociado un cashback de valor variable que puede alcanzar el 100% del valor gastado.",
+        emailPositiveBody3: "Es una oportunidad/beneficio sin ningún costo o tarifa adicional para usted.",
+        emailPositiveBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma innovadora que nos permite asociar su cashback con los mercados financieros, posibilitando generar mayores recompensas para usted.<br><br><strong>¿Cómo empezar a ganar?</strong><br><br>Es muy simple. Al realizar una compra, utilice <strong>\"tagpeak\"</strong> como código de descuento y comience a beneficiarse de esta nueva recompensa.<br><br>De esta forma, usted gana en cada compra sin pagar nada más por ello.",
         emailPositiveBody5: "Para más información, visite: www.tagpeak.com",
         
-        emailNegativeSubject: "No se pierda los beneficios en sus compras",
+        emailNegativeSubject: "Una asociación que no querrá perder",
         emailNegativeSubject2: "",
-        emailNegativeBody1: "se ha asociado con Tagpeak para aumentar las ventajas siempre que compre con nosotros.",
-        emailNegativeBody2: "Ahora puede tener un porcentaje del monto que paga en sus compras automáticamente invertido en acciones de empresas cotizadas en bolsa por el equipo especializado de Tagpeak, sin costo ni riesgo para usted, pero solo si activa la asociación.",
-        emailNegativeBody3: "Todo esto para permitirle evitar perder cashback de hasta <strong>100% del monto gastado en sus compras. ¿Realmente va a renunciar a esta oportunidad?</strong>",
-        emailNegativeBody4: "Para no perderse, solo escriba <strong>\"tagpeak\"</strong> en el campo de descuento/cupón al finalizar la compra para su próxima compra en",
+        emailNegativeBody1: "en asociación con Tagpeak, tiene un nuevo beneficio para nuestros clientes que no querrá perder",
+        emailNegativeBody2: "Ahora, todas las compras que realiza tienen automáticamente asociado un cashback de valor variable que puede alcanzar hasta el 100% del valor gastado.",
+        emailNegativeBody3: "Un beneficio sin ningún costo o tarifa adicional para usted.",
+        emailNegativeBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma innovadora que nos permite conectar su cashback con los mercados financieros, para así generar mayores recompensas para usted.<br><br><strong>¿Cómo no dejar escapar este beneficio?</strong><br><br>Es simple. Al realizar una compra, utilice <strong>\"tagpeak\"</strong> como código de descuento.<br><br>Si no lo hace, la compra se completará normalmente, pero no recibirá esa recompensa de hasta el 100% del valor de sus compras.",
+        emailNegativeBody5: "Para más información, visite: www.tagpeak.com",
         
         emailNeutralSubject: "Nueva asociación",
         emailNeutralSubject2: "y Tagpeak",
-        emailNeutralBody1: "ha establecido una asociación con Tagpeak con el objetivo de proporcionar un beneficio adicional a las compras.",
-        emailNeutralBody2: "Este beneficio permite que un porcentaje del monto pagado en las compras se invierta automáticamente en acciones de empresas cotizadas en bolsa, gestionadas por el equipo especializado de Tagpeak, sin costo ni riesgo para el usuario.",
-        emailNeutralBody3: "Este mecanismo le permite obtener cashback de hasta 100% del monto gastado en la compra.",
-        emailNeutralBody4: "Para usar, simplemente ingrese <strong>\"tagpeak\"</strong> en el campo de descuento/cupón durante el pago de su próxima compra en",
+        emailNeutralBody1: "tiene un nuevo beneficio para nuestros clientes, en asociación con Tagpeak.",
+        emailNeutralBody2: "Ahora, todas las compras que realiza tienen automáticamente asociado un cashback de valor variable que puede alcanzar hasta el 100% del valor que gaste.",
+        emailNeutralBody3: "Un beneficio que no tiene ningún costo o tarifa adicional para usted.",
+        emailNeutralBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Es una plataforma que nos permite conectar su cashback con los mercados financieros, para generar recompensas de hasta el 100% del valor gastado para usted.<br><br><strong>¿Qué necesito hacer para participar?</strong><br><br>Al realizar una compra, use <strong>\"tagpeak\"</strong> como código de descuento y listo.",
+        emailNeutralBody5: "Para más información, visite: www.tagpeak.com",
     },
     pt: {
         // Language selection
@@ -521,7 +525,8 @@ const translations = {
         pleaseAnswerAll: "Por favor, responda a todas as questões.",
         
         // Initial involvement
-        initialInvolvementPrompt: "\"Para si, benefícios promocionais (como cashback, descontos, cupões, etc.) são:\"",
+        initialInvolvementPrompt: "Avalie a seguinte afirmação:",
+        initialInvolvementStatement: "\"Para mim, benefícios promocionais (como cashback, descontos, cupões, etc.) são:\"",
         reversedItems: "*itens cotados em reverso",
         important: "importantes",
         notImportant: "nada importantes",
@@ -534,8 +539,7 @@ const translations = {
         
         // Email notification
         newEmail: "Recebeu um novo e-mail!",
-        pleaseOpenEmail: "Por favor, abra e leia o e-mail que acabou de receber.",
-        emailInfoImportant: "As informações contidas no e-mail serão importantes para as próximas questões.",
+        pleaseOpenEmail: "Por favor, abra e leia com atenção o e-mail que acabou de receber.",
         openEmail: "Abrir E-mail",
         
         // Email framing
@@ -559,13 +563,13 @@ const translations = {
         basedOnEmail: "Com base no e-mail que leu, responda às seguintes questões:",
         manipQ1: "\"A mensagem apresentada enfatizou principalmente:\"",
         lossesNotUsing: "Perdas por NÃO usar o benefício",
-        benefitsUsing: "Benefícios de USAR o benefício",
+        benefitsUsing: "Ganhos por USAR o benefício",
         manipQ2: "\"Globalmente, a mensagem transmite mais a ideia de…\"",
         notMissingSomething: "Não deixar passar algo que poderia beneficiar",
         takingAdvantage: "Tirar partido de algo que pode trazer benefícios",
         
         // Message involvement
-        evaluateExperience: "Avalie a sua experiência ao ler o e-mail:",
+        evaluateExperience: "Em relação ao e-mail:",
         invQ1: "1. Diria que, enquanto lia:",
         invQ2: "2. Diria que, enquanto lia:",
         invQ3: "3. Diria que, enquanto lia:",
@@ -632,12 +636,12 @@ const translations = {
         willingnessQ3: "\"Pretende utilizar este benefício no futuro.\"",
         
         // Concerns
-        concernsTitle: "Após as informações apresentadas sobre o produto, há alguma dúvida ou receio que ainda tenha em mente?",
-        concernsSubtitle: "Por favor, partilhe as suas preocupações ou questões.",
-        yourConcerns: "As suas dúvidas ou receios:",
-        concernsPlaceholder: "Escreva aqui as suas dúvidas ou receios...",
-        concernsError: "Por favor, escreva pelo menos algumas palavras sobre as suas dúvidas ou receios.",
-        minimumCharacters: "Mínimo de 5 caracteres",
+        concernsTitle: "Consoante as informações apresentadas partilhe alguns pensamentos que tenha tido sobre o produto",
+        concernsSubtitle: "",
+        yourConcerns: "Os seus pensamentos:",
+        concernsPlaceholder: "Escreva aqui os seus pensamentos...",
+        concernsError: "Por favor, escreva pelo menos 30 caracteres sobre os seus pensamentos.",
+        minimumCharacters: "Mínimo de 30 caracteres",
         submit: "Submeter",
         
         // Thank you
@@ -655,28 +659,30 @@ const translations = {
         checkConsole: "Por favor, verifique a consola do navegador para mais detalhes.",
         
         // Email framings
-        emailPositiveSubject: "Ganhe mais com as suas compras",
+        emailPositiveSubject: "Ganhe até 100% de cashback nas suas compras",
         emailPositiveSubject2: "",
         emailPositiveGreeting: "Olá,",
-        emailPositiveBody1: "em parceria com a Tagpeak, uniu forças para multiplicar as vantagens sempre que faz compras connosco.",
-        emailPositiveBody2: "Agora pode ter uma percentagem do valor que paga nas suas compras automaticamente investida em ações de empresas cotadas em bolsa pela equipa especializada da Tagpeak, sem qualquer custo e risco para si.",
-        emailPositiveBody3: "Tudo isto para permitir que ganhe um cashback de até <strong>100% do valor gasto nas suas compras</strong>. Aproveite estes benefícios exclusivos!",
-        emailPositiveBody4: "Comece a ganhar agora! É muito simples, basta escrever <strong>\"tagpeak\"</strong> no campo de desconto/cupão no checkout da sua próxima compra na",
+        emailPositiveBody1: "tem um novo benefício para os nossos clientes, em parceria com a Tagpeak.",
+        emailPositiveBody2: "A partir de agora, todas as compras que realizar têm automaticamente associado um cashback de valor variável que pode atingir 100% do valor gasto.",
+        emailPositiveBody3: "É uma oportunidade/benefício sem qualquer custo ou taxa adicional para si.",
+        emailPositiveBody4: "<strong>O que é a Tagpeak?</strong><br><br>A Tagpeak é uma plataforma inovadora que nos permite associar o seu cashback aos mercados financeiros, possibilitando gerar recompensas maiores para si.<br><br><strong>Como começar a ganhar?</strong><br><br>É muito simples. Ao realizar uma compra, utilize <strong>\"tagpeak\"</strong> como código de desconto e comece a beneficiar desta nova recompensa.<br><br>Dessa forma, você ganha a cada compra sem pagar mais nada por isso.",
         emailPositiveBody5: "Para mais informações, visite: www.tagpeak.com",
         
-        emailNegativeSubject: "Não deixe escapar os benefícios nas suas compras",
+        emailNegativeSubject: "Uma parceria que não vai querer perder",
         emailNegativeSubject2: "",
-        emailNegativeBody1: "em parceria com a Tagpeak, uniu forças para aumentar as vantagens sempre que faz compras connosco.",
-        emailNegativeBody2: "Agora pode ter uma percentagem do valor que paga nas suas compras automaticamente investida em ações de empresas cotadas em bolsa pela equipa especializada da Tagpeak, sem qualquer custo e risco para si, mas somente se ativar a parceria.",
-        emailNegativeBody3: "Tudo isto para permitir que evite perder um cashback de até <strong>100% do valor gasto nas suas compras. Vai mesmo renunciar a esta oportunidade?</strong>",
-        emailNegativeBody4: "Para não perder, basta escrever <strong>\"tagpeak\"</strong> no campo de desconto/cupão no checkout da sua próxima compra na",
+        emailNegativeBody1: "em parceria com a Tagpeak, tem um novo benefício para os nossos clientes que não vai querer perder",
+        emailNegativeBody2: "Agora, todas as compras que realiza têm automaticamente associado um cashback de valor variável que pode atingir até 100% do valor gasto.",
+        emailNegativeBody3: "Um benefício sem qualquer custo ou taxa adicional para si.",
+        emailNegativeBody4: "<strong>O que é a Tagpeak?</strong><br><br>A tagpeak é uma plataforma inovadora que nos permite conectar o seu cashback aos mercados financeiros, para assim gerar maiores recompensas para si.<br><br><strong>Como não deixar escapar este benefício?</strong><br><br>É simples. Ao realizar uma compra, utilize <strong>\"tagpeak\"</strong> como código de desconto.<br><br>Caso não o faça, a compra será concluída normalmente, mas não recebe a tal recompensa de até 100% do valor das suas compras.",
+        emailNegativeBody5: "Para mais informações, visite: www.tagpeak.com",
         
         emailNeutralSubject: "Nova parceria",
         emailNeutralSubject2: "e Tagpeak",
-        emailNeutralBody1: "estabeleceu uma parceria com a Tagpeak com o objetivo de disponibilizar um benefício adicional às compras.",
-        emailNeutralBody2: "Este benefício permite que uma percentagem do valor pago nas compras seja automaticamente investido em ações de empresas cotadas em bolsa, geridas pela equipa especializada da Tagpeak, sem custos ou riscos para o utilizador.",
-        emailNeutralBody3: "Este mecanismo permite obter um cashback de até 100% do valor gasto na compra.",
-        emailNeutralBody4: "Para utilizar, basta inserir <strong>\"tagpeak\"</strong> no campo de desconto/cupão durante o checkout da sua próxima compra na",
+        emailNeutralBody1: "tem um novo benefício para os nossos clientes, em parceria com a Tagpeak.",
+        emailNeutralBody2: "Agora, todas as compras que realiza têm automaticamente associado um cashback de valor variável que pode atingir até 100% do valor que gastar.",
+        emailNeutralBody3: "Um benefício que não tem qualquer custo ou taxa adicional para si.",
+        emailNeutralBody4: "<strong>O que é a Tagpeak?</strong><br><br>É uma plataforma que nos permite conectar o seu cashback aos mercados financeiros, para gerar recompensas de até 100% do valor gasto para si.<br><br><strong>O que preciso de fazer para participar?</strong><br><br>Ao realizar uma compra, use <strong>\"tagpeak\"</strong> como código de desconto e já está.",
+        emailNeutralBody5: "Para mais informações, visite: www.tagpeak.com",
     }
 };
 
@@ -779,22 +785,22 @@ function getEmailFraming(brandName) {
     
     return {
         positive: {
-            subject: `${t('emailPositiveSubject')} ${brandName}${positiveSubject2 ? ' ' + positiveSubject2 : ''}`.trim(),
+            subject: `${t('emailPositiveSubject')}${positiveSubject2 ? ' ' + positiveSubject2 : ''}`.trim(),
             greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
             body1: `${brandName} ${t('emailPositiveBody1')}`,
             body2: t('emailPositiveBody2'),
             body3: t('emailPositiveBody3'),
-            body4: `${t('emailPositiveBody4')} ${brandName}.`,
+            body4: t('emailPositiveBody4'),
             body5: t('emailPositiveBody5')
         },
         negative: {
-            subject: `${t('emailNegativeSubject')} ${brandName}${negativeSubject2 ? ' ' + negativeSubject2 : ''}`.trim(),
+            subject: `${t('emailNegativeSubject')}${negativeSubject2 ? ' ' + negativeSubject2 : ''}`.trim(),
             greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
             body1: `${brandName} ${t('emailNegativeBody1')}`,
             body2: t('emailNegativeBody2'),
             body3: t('emailNegativeBody3'),
-            body4: `${t('emailNegativeBody4')} ${brandName}.`,
-            body5: t('emailPositiveBody5')
+            body4: t('emailNegativeBody4'),
+            body5: t('emailNegativeBody5')
         },
         neutral: {
             subject: `${t('emailNeutralSubject')} ${brandName}${neutralSubject2 ? ' ' + neutralSubject2 : ''}`.trim(),
@@ -802,8 +808,8 @@ function getEmailFraming(brandName) {
             body1: `${brandName} ${t('emailNeutralBody1')}`,
             body2: t('emailNeutralBody2'),
             body3: t('emailNeutralBody3'),
-            body4: `${t('emailNeutralBody4')} ${brandName}.`,
-            body5: t('emailPositiveBody5')
+            body4: t('emailNeutralBody4'),
+            body5: t('emailNeutralBody5')
         }
     };
 }
@@ -1209,7 +1215,7 @@ function renderFinancialLiteracyScreen() {
                 </div>
             </div>
             
-            <button onclick="validateAndContinue('financial_literacy', 'brand_selection')" class="btn-primary mt-8 w-full">
+            <button onclick="validateAndContinue('financial_literacy', 'initial_involvement')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1220,6 +1226,7 @@ function renderInitialInvolvementScreen() {
     return `
         <div class="space-y-5">
             <p class="text-center text-gray-700 mb-2">${t('initialInvolvementPrompt')}</p>
+            <p class="text-center text-gray-800 font-semibold mb-4">${t('initialInvolvementStatement')}</p>
             <p class="text-center text-xs text-gray-500 mb-4">${t('reversedItems')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
@@ -1253,7 +1260,6 @@ function renderEmailNotificationScreen() {
             <div class="space-y-4">
                 <h2 class="text-3xl font-bold text-gray-800">${t('newEmail')}</h2>
                 <p class="text-xl text-gray-700">${t('pleaseOpenEmail')}</p>
-                <p class="text-gray-600">${t('emailInfoImportant')}</p>
             </div>
             
             <button onclick="assignFramingCondition(); renderScreen('email_framing')" class="btn-primary mt-8">
@@ -1360,7 +1366,7 @@ function renderEmailFramingScreen() {
                             <p>${email.body1}</p>
                             <p>${email.body2}</p>
                             <p>${email.body3}</p>
-                            <p>${email.body4}</p>
+                            <div>${email.body4}</div>
                             <p class="mt-6">${email.body5}</p>
                         </div>
                         
@@ -1512,7 +1518,7 @@ function renderIntentionScreen() {
     const brandName = surveyData.selectedBrand || t('selectedBrandFallback');
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-700 mb-2">${t('imaginePurchase')} <strong class="text-blue-600">${brandName}</strong>.</p>
+            <p class="text-center text-2xl font-bold text-black mb-2">${t('imaginePurchase')} <strong class="text-black">${brandName}</strong>.</p>
             <p class="text-center text-gray-600 mb-4">${t('indicateLikelihood')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
@@ -1598,7 +1604,7 @@ function renderIntentionAfterWebsiteScreen() {
     const brandName = surveyData.selectedBrand || t('selectedBrandFallback');
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-700 mb-2">${t('nowThatYouKnow')} <strong class="text-blue-600">${brandName}</strong>.</p>
+            <p class="text-center text-2xl font-bold text-black mb-2">${t('nowThatYouKnow')} <strong class="text-black">${brandName}</strong>.</p>
             <p class="text-center text-gray-600 mb-4">${t('indicateLikelihood')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
@@ -1717,7 +1723,7 @@ function renderConcernsScreen() {
         <div class="space-y-5">
             <div class="text-center">
                 <p class="text-lg text-gray-700 mb-2">${t('concernsTitle')}</p>
-                <p class="text-sm text-gray-500">${t('concernsSubtitle')}</p>
+                ${t('concernsSubtitle') ? `<p class="text-sm text-gray-500">${t('concernsSubtitle')}</p>` : ''}
             </div>
             
             <div class="bg-gray-50 p-6 rounded-2xl">
@@ -1996,7 +2002,7 @@ function validateConcernsAndSubmit() {
     const concernsText = concernsTextarea.value.trim();
     console.log('Concerns text length:', concernsText.length);
     
-    if (!concernsText || concernsText.length < 5) {
+    if (!concernsText || concernsText.length < 30) {
         showError('concerns-error');
         concernsTextarea.classList.add('border-red-500', 'ring-2', 'ring-red-200');
         concernsTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
