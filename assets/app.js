@@ -155,8 +155,8 @@ const translations = {
         veryFrequent: "very frequent",
         
         // Tagpeak info
-        moreInfoTagpeak: "Let's give you more information about Tagpeak that may have been missing in the email.",
-        browseWebsite: "You can freely browse the Tagpeak website to learn more about the product.",
+        moreInfoTagpeak: "You are now going to enter the Tagpeak website",
+        browseWebsite: "Browse the website freely and carefully to answer some questions afterwards.",
         
         // Website view
         browseWebsiteNote: "Browse the website",
@@ -379,8 +379,8 @@ const translations = {
         veryFrequent: "muy frecuente",
         
         // Tagpeak info
-        moreInfoTagpeak: "Vamos a darle más información sobre Tagpeak que puede haber faltado en el correo.",
-        browseWebsite: "Puede navegar libremente por el sitio web de Tagpeak para conocer mejor el producto.",
+        moreInfoTagpeak: "Ahora va a entrar en el sitio web de Tagpeak",
+        browseWebsite: "Navegue libremente por el sitio web con atención para después responder algunas preguntas.",
         
         // Website view
         browseWebsiteNote: "Navegar por el sitio web",
@@ -603,8 +603,8 @@ const translations = {
         veryFrequent: "muito frequente",
         
         // Tagpeak info
-        moreInfoTagpeak: "Vamos dar-lhe mais informações sobre a Tagpeak que podem ter faltado no e-mail.",
-        browseWebsite: "Poderá navegar livremente pelo website da Tagpeak para conhecer melhor o produto.",
+        moreInfoTagpeak: "Agora vai entrar no site da Tagpeak",
+        browseWebsite: "Navegue livremente pelo website com atenção para depois responder algumas questões",
         
         // Website view
         browseWebsiteNote: "Navegue pelo website",
@@ -913,6 +913,13 @@ function renderScreen(screenName) {
                 break;
             case 'thank_you':
                 contentArea.innerHTML = renderThankYouScreen();
+                // Setup Prolific redirect if user has Prolific ID
+                const hasProlificId = surveyData.prolificId && surveyData.prolificId.trim().length > 0;
+                if (hasProlificId) {
+                    setTimeout(function() {
+                        window.location.href = 'https://app.prolific.com/submissions/complete?cc=CM3EGDNY';
+                    }, 5000);
+                }
                 break;
             default:
                 contentArea.innerHTML = `<p class="text-center text-red-500">${t('error')}: ${t('errorScreenNotFound')}</p>`;
@@ -1748,6 +1755,9 @@ function renderConcernsScreen() {
 }
 
 function renderThankYouScreen() {
+    // Check if user has Prolific ID and should be redirected
+    const hasProlificId = surveyData.prolificId && surveyData.prolificId.trim().length > 0;
+    
     return `
         <div class="text-center space-y-8">
             <div class="mb-8">
@@ -1768,6 +1778,18 @@ function renderThankYouScreen() {
                 </div>
                 <p class="text-xs text-gray-500 mt-3">${t('saveThisId')}</p>
             </div>
+            
+            ${hasProlificId ? `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-md mx-auto">
+                    <p class="text-sm text-yellow-800">
+                        ${currentLanguage === 'pt' 
+                            ? 'Será redirecionado para o Prolific em 5 segundos...' 
+                            : currentLanguage === 'es'
+                            ? 'Será redirigido a Prolific en 5 segundos...'
+                            : 'You will be redirected to Prolific in 5 seconds...'}
+                    </p>
+                </div>
+            ` : ''}
             
             <div class="pt-6">
                 <p class="text-gray-600">${t('thankYouTime')}</p>
