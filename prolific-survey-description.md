@@ -1,3 +1,0 @@
-# Prolific Survey Description (<100 words)
-
-We're studying how consumers respond to different email marketing communications about promotional benefits and cashback programs. You'll complete an online survey (7-10 minutes) where you'll read an email about a promotional benefit, answer questions about your demographics, shopping preferences, and financial literacy, and share your perceptions and behavioral intentions. Requirements: Fluent in Portuguese, 18+, experience with online shopping, desktop/laptop computer required (not mobile). All responses are anonymous and used exclusively for research purposes. Participation is voluntary and you can withdraw at any time. Questions? Contact: luis@tagpeak.com

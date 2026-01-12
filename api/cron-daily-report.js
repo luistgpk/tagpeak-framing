@@ -35,14 +35,14 @@ export default async function handler(req, res) {
     // Get today's date for filename
     const today = new Date().toISOString().split('T')[0];
     
-    // Query ALL staircase results (full database)
-    const { data: staircaseData, error: staircaseError } = await supabase
-      .from('staircase_results')
+    // Query ALL framing study results (full database)
+    const { data: framingData, error: framingError } = await supabase
+      .from('framing_study_results')
       .select('*')
       .order('created_at', { ascending: true });
 
-    if (staircaseError) {
-      throw new Error(`Error fetching staircase data: ${staircaseError.message}`);
+    if (framingError) {
+      throw new Error(`Error fetching framing study data: ${framingError.message}`);
     }
 
     // Query ALL demographics data (full database)
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     }
 
     // If no data at all, send a notification
-    if (staircaseData.length === 0 && demographicsData.length === 0) {
+    if (framingData.length === 0 && demographicsData.length === 0) {
       await sendEmail(resendApiKey, fromEmail, recipientEmails, today, 0, 0, null);
       
       return res.status(200).json({
@@ -66,14 +66,14 @@ export default async function handler(req, res) {
     }
 
     // Create SPSS-friendly CSV buffers (multiple attachments)
-    const csvAttachments = createSpssFriendlyCsvs(staircaseData, demographicsData, today);
+    const csvAttachments = createSpssFriendlyCsvs(framingData, demographicsData, today);
     
     // Send email with CSV attachments
-    await sendEmail(resendApiKey, fromEmail, recipientEmails, today, staircaseData.length, demographicsData.length, csvAttachments);
+    await sendEmail(resendApiKey, fromEmail, recipientEmails, today, framingData.length, demographicsData.length, csvAttachments);
 
     return res.status(200).json({
       success: true,
-      message: `Full database report sent successfully. ${staircaseData.length} staircase results and ${demographicsData.length} demographic records included.`
+      message: `Full database report sent successfully. ${framingData.length} framing study results and ${demographicsData.length} demographic records included.`
     });
 
   } catch (error) {
@@ -109,94 +109,88 @@ function codeGender(value) {
   return 9; // Prefer not to say / unknown
 }
 
-function codePurchasePreference(value) {
+function codeFramingCondition(value) {
   const v = String(value || '').toLowerCase();
-  if (v.includes('online')) return 1;
-  if (v.includes('presencial') || v.includes('person')) return 2;
+  if (v.includes('positive')) return 1;
+  if (v.includes('negative')) return 2;
+  if (v.includes('neutral')) return 3;
   return '';
 }
 
-function createSpssFriendlyCsvs(staircaseData, demographicsData, today) {
-  // 1) Staircase summary: one row per user per product
-  const staircaseSummaryRows = [];
-  const staircaseTrialsRows = [];
+function codeShoppingPreference(value) {
+  const v = String(value || '').toLowerCase();
+  if (v.includes('online')) return 1;
+  if (v.includes('presencial') || v.includes('person') || v.includes('store')) return 2;
+  return '';
+}
 
-  for (const row of staircaseData) {
-    const points = row.indifference_points || {};
-    const raw = row.raw_history || [];
+function createSpssFriendlyCsvs(framingData, demographicsData, today) {
+  // Framing study results - one row per participant
+  const framingRows = framingData.map(row => ({
+    user_id: row.user_id || '',
+    timestamp: row.timestamp || '',
+    framing_condition_text: row.framing_condition || '',
+    framing_condition_code: codeFramingCondition(row.framing_condition),
+    exclusion_benefit_type: row.exclusion_benefit_type || '',
+    exclusion_percentage: row.exclusion_percentage || '',
+    manipulation_loss_emphasis: toNumber(row.manipulation_loss_emphasis),
+    manipulation_global_idea: toNumber(row.manipulation_global_idea),
+    involvement_interested: toNumber(row.involvement_interested),
+    involvement_absorbed: toNumber(row.involvement_absorbed),
+    involvement_attention: toNumber(row.involvement_attention),
+    involvement_relevant: toNumber(row.involvement_relevant),
+    involvement_interesting: toNumber(row.involvement_interesting),
+    involvement_engaging: toNumber(row.involvement_engaging),
+    intention_probable: toNumber(row.intention_probable),
+    intention_possible: toNumber(row.intention_possible),
+    intention_definitely_use: toNumber(row.intention_definitely_use),
+    intention_frequent: toNumber(row.intention_frequent),
+    ease_difficult: toNumber(row.ease_difficult),
+    ease_easy: toNumber(row.ease_easy),
+    product_explain_easy: toNumber(row.product_explain_easy),
+    product_description_easy: toNumber(row.product_description_easy),
+    clarity_steps_clear: toNumber(row.clarity_steps_clear),
+    clarity_feel_secure: toNumber(row.clarity_feel_secure),
+    advantage_more_advantageous: toNumber(row.advantage_more_advantageous),
+    advantage_better_position: toNumber(row.advantage_better_position),
+    willingness_interest: toNumber(row.willingness_interest),
+    willingness_likely_use: toNumber(row.willingness_likely_use),
+    willingness_intend_future: toNumber(row.willingness_intend_future),
+    intention_after_website_probable: toNumber(row.intention_after_website_probable),
+    intention_after_website_possible: toNumber(row.intention_after_website_possible),
+    intention_after_website_definitely_use: toNumber(row.intention_after_website_definitely_use),
+    intention_after_website_frequent: toNumber(row.intention_after_website_frequent),
+    website_view_time: toNumber(row.website_view_time),
+    concerns_text: (row.concerns_text || '').replace(/\r?\n/g, ' '),
+    user_feedback: (row.user_feedback || '').replace(/\r?\n/g, ' '),
+    created_at: row.created_at || ''
+  }));
 
-    // We expect raw to be array of products with history
-    for (const product of raw) {
-      // Summary row
-      const pid = product.id || '';
-      const pname = product.name || '';
-      const price = toNumber(product.price);
-      const ipObj = points[pid] || {};
-      const ip = toNumber(ipObj.point);
-      const presentationOrder = product.presentationOrder || '';
-      const startDiscount = toNumber(product.startDiscount);
-      const failedCt = product.failedCatchTrials ?? '';
-
-      staircaseSummaryRows.push({
-        user_id: row.user_id,
-        timestamp: row.timestamp,
-        product_id: pid,
-        product_name: pname,
-        price_eur: price,
-        indifference_point_pct: ip,
-        presentation_order: presentationOrder,
-        start_discount_pct: startDiscount,
-        failed_catch_trials: failedCt
-      });
-
-      // Trials rows
-      const history = product.history || [];
-      for (const t of history) {
-        staircaseTrialsRows.push({
-          user_id: row.user_id,
-          timestamp: row.timestamp,
-          product_id: pid,
-          trial_number: t.trialNumber || '',
-          trial_type: t.trialType || '', // 'normal' | 'catch'
-          discount_pct: toNumber(t.discount),
-          choice: t.choice || '', // 'cashback' | 'discount'
-          catch_failed: t.catchFailed === true ? 1 : 0
-        });
-      }
-    }
-  }
-
-  // 2) Demographics: add coded columns alongside text
+  // Demographics - one row per participant
   const demographicsRows = demographicsData.map(d => ({
-    user_id: d.user_id,
-    timestamp: d.timestamp,
-    age: toNumber(d.age),
+    user_id: d.user_id || '',
+    timestamp: d.timestamp || '',
+    age: d.age || '',
     gender_text: d.gender || '',
     gender_code: codeGender(d.gender),
-    education: d.education || '',
-    invests_text: d.invests || '',
-    invests_code: codeYesNo(d.invests),
-    benefit_preference_text: d.habit || '',
-    smokes_text: d.smokes || '',
-    smokes_code: codeYesNo(d.smokes),
-    gambles_text: d.gambles || '',
-    gambles_code: codeYesNo(d.gambles),
-    monthly_income_text: d.monthly_income || '',
-    price_research_text: d.price_research || '',
-    price_research_code: codeYesNo(d.price_research),
-    purchase_preference_text: d.purchase_preference || '',
-    purchase_preference_code: codePurchasePreference(d.purchase_preference),
-    used_traditional_cashback_text: d.used_traditional_cashback || '',
-    used_traditional_cashback_code: codeYesNo(d.used_traditional_cashback),
-    experience_rating: toNumber(d.experience_rating),
-    rating_justification: (d.rating_justification || '').replace(/\r?\n/g, ' '),
+    monthly_income: d.monthly_income || '',
+    shopping_preference_text: d.shopping_preference || '',
+    shopping_preference_code: codeShoppingPreference(d.shopping_preference),
+    first_name: d.first_name || '',
     prolific_id: d.prolific_id || '',
-    created_at: d.created_at
+    selected_brand: d.selected_brand || '',
+    financial_literacy_q1: d.financial_literacy_q1 || '',
+    financial_literacy_q2: d.financial_literacy_q2 || '',
+    financial_literacy_q3: d.financial_literacy_q3 || '',
+    initial_involvement_important: toNumber(d.initial_involvement_important),
+    initial_involvement_relevant: toNumber(d.initial_involvement_relevant),
+    initial_involvement_meaningful: toNumber(d.initial_involvement_meaningful),
+    initial_involvement_valuable: toNumber(d.initial_involvement_valuable),
+    created_at: d.created_at || ''
   }));
 
   const attachments = [];
-  attachments.push(bufferToAttachment(staircaseSummaryRows, `staircase_summary-${today}.csv`));
-  attachments.push(bufferToAttachment(staircaseTrialsRows, `staircase_trials-${today}.csv`));
+  attachments.push(bufferToAttachment(framingRows, `framing_study_results-${today}.csv`));
   attachments.push(bufferToAttachment(demographicsRows, `demographics-${today}.csv`));
   return attachments;
 }
@@ -223,22 +217,21 @@ function rowsToCsv(rows) {
 }
 
 // Helper function to send email
-async function sendEmail(resendApiKey, fromEmail, recipientEmails, today, staircaseCount, demographicsCount, attachments) {
+async function sendEmail(resendApiKey, fromEmail, recipientEmails, today, framingCount, demographicsCount, attachments) {
   const emailData = {
     from: `Survey System <${fromEmail}>`,
     to: recipientEmails,
-    subject: `Daily Survey Report - ${today} (${staircaseCount + demographicsCount} responses)`,
+    subject: `Daily Survey Report - ${today} (${framingCount + demographicsCount} responses)`,
     html: `
       <h2>Daily Survey Report - ${today}</h2>
-      <p><strong>Survey Responses:</strong> ${staircaseCount + demographicsCount}</p>
+      <p><strong>Survey Responses:</strong> ${framingCount + demographicsCount}</p>
       <ul>
-        <li>Staircase Results: ${staircaseCount}</li>
+        <li>Framing Study Results: ${framingCount}</li>
         <li>Demographics: ${demographicsCount}</li>
       </ul>
-      <p>Three CSV files are attached for SPSS:</p>
+      <p>Two CSV files are attached for SPSS:</p>
       <ol>
-        <li>staircase_summary-YYYY-MM-DD.csv</li>
-        <li>staircase_trials-YYYY-MM-DD.csv</li>
+        <li>framing_study_results-YYYY-MM-DD.csv</li>
         <li>demographics-YYYY-MM-DD.csv</li>
       </ol>
       <p>This is an automated report from your survey system.</p>

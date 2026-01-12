@@ -109,7 +109,7 @@ const translations = {
         cashback: "Cashback",
         coupon: "Coupon",
         noneOfThese: "None of these",
-        exclusionQ2: "\"The mentioned benefit allows receiving/subtracting up to what % of the amount spent?\"",
+        exclusionQ2: "\"The mentioned benefit allows receiving up to what % of the amount spent?\"",
         
         // Manipulation check
         basedOnEmail: "Based on the email you read, answer the following questions:",
@@ -333,7 +333,7 @@ const translations = {
         cashback: "Cashback",
         coupon: "Cupón",
         noneOfThese: "Ninguno de estos",
-        exclusionQ2: "\"¿El beneficio mencionado permite recibir/substraer hasta qué % del valor gastado?\"",
+        exclusionQ2: "\"¿El beneficio mencionado permite recibir hasta qué % del valor gastado?\"",
         
         // Manipulation check
         basedOnEmail: "Basándose en el correo que leyó, responda las siguientes preguntas:",
@@ -557,7 +557,7 @@ const translations = {
         cashback: "Cashback",
         coupon: "Cupão",
         noneOfThese: "Nenhum destes",
-        exclusionQ2: "\"O benefício mencionado permite recebimento/subtração de até quantos % do valor gasto?\"",
+        exclusionQ2: "\"O benefício mencionado permite recebimento de até quantos % do valor gasto?\"",
         
         // Manipulation check
         basedOnEmail: "Com base no e-mail que leu, responda às seguintes questões:",
