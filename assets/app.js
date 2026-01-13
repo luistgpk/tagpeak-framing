@@ -8,7 +8,7 @@ let userId = crypto.randomUUID();
 let isApiReady = false;
 let currentScreen = 'language_selection';
 let currentLanguage = 'pt'; // 'en', 'es', 'pt'
-let framingCondition = null; // Will be randomly assigned: 'positive', 'negative', or 'neutral'
+let framingCondition = null; // Will be randomly assigned: 'A', 'B', or 'C'
 
 // --- TRANSLATIONS ---
 const translations = {
@@ -210,31 +210,33 @@ const translations = {
         errorSavingData: "Error saving data:",
         checkConsole: "Please check the browser console for more details.",
         
-        // Email framings
-        emailPositiveSubject: "Earn up to 100% cashback on your purchases",
-        emailPositiveSubject2: "",
-        emailPositiveGreeting: "Hello,",
-        emailPositiveBody1: "has a new benefit for our customers, in partnership with Tagpeak.",
-        emailPositiveBody2: "From now on, all purchases you make automatically have a variable cashback associated that can reach 100% of the amount spent.",
-        emailPositiveBody3: "It's an opportunity/benefit with no additional cost or fee for you.",
-        emailPositiveBody4: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative platform that allows us to associate your cashback with financial markets, enabling us to generate greater rewards for you.<br><br><strong>How to start earning?</strong><br><br>It's very simple. When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code and start benefiting from this new reward.<br><br>This way, you earn with every purchase without paying anything extra for it.",
-        emailPositiveBody5: "For more information, visit: www.tagpeak.com",
+        // Email framings - A/B/C testing
+        // Email A - explicit financial frame
+        emailASubject: "Want to link your purchases to financial markets?",
+        emailAGreeting: "Hello",
+        emailABody1: "We have a new benefit for our customers, in partnership with <strong>Tagpeak</strong>.",
+        emailABody2: "Now, on every purchase you make, you have a reward waiting for you that can grow over time, <strong>at no additional cost or fee to you.</strong>",
+        emailABody3: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative platform that allows us to offer you a cashback linked to financial markets. All management is done by a specialized team, with the goal of delivering good cashback to you. You can follow everything in a simple way.",
+        emailABody4: "<strong>What do you need to do to activate the benefit?</strong><br><br>It's simple: in our store, before paying, use the code <strong>TAGPEAK</strong> and complete the purchase normally.",
+        emailABody5: "—<br>Team [Brand]",
         
-        emailNegativeSubject: "A partnership you won't want to miss",
-        emailNegativeSubject2: "",
-        emailNegativeBody1: "in partnership with Tagpeak, has a new benefit for our customers that you won't want to miss",
-        emailNegativeBody2: "Now, all purchases you make automatically have a variable cashback associated that can reach up to 100% of the amount spent.",
-        emailNegativeBody3: "A benefit with no additional cost or fee for you.",
-        emailNegativeBody4: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative platform that allows us to connect your cashback to financial markets, to thus generate greater rewards for you.<br><br><strong>How not to miss out on this benefit?</strong><br><br>It's simple. When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code.<br><br>If you don't, the purchase will be completed normally, but you won't receive that reward of up to 100% of the value of your purchases.",
-        emailNegativeBody5: "For more information, visit: www.tagpeak.com",
+        // Email B - cashback/consumption frame
+        emailBSubject: "Recover a portion of what you spend in our store",
+        emailBGreeting: "Hello",
+        emailBBody1: "We have a new benefit for our customers, in partnership with <strong>Tagpeak</strong>.",
+        emailBBody2: "Now, on every purchase you make, you have a <strong>variable value cashback</strong> waiting for you, which can grow over time, at no additional cost or fee to you.",
+        emailBBody3: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is a rewards platform that allows us to offer you an innovative cashback. Instead of being a fixed amount, this cashback can evolve over time. All management is done by Tagpeak and you can follow everything simply on the platform.",
+        emailBBody4: "<strong>What do you need to do to activate the benefit?</strong><br><br>It's simple: in our store, when paying, use the code <strong>TAGPEAK</strong> and complete the purchase normally.",
+        emailBBody5: "—<br>Team [Brand]",
         
-        emailNeutralSubject: "New partnership",
-        emailNeutralSubject2: "and Tagpeak",
-        emailNeutralBody1: "has a new benefit for our customers, in partnership with Tagpeak.",
-        emailNeutralBody2: "Now, all purchases you make automatically have a variable cashback associated that can reach up to 100% of the amount you spend.",
-        emailNeutralBody3: "A benefit that has no additional cost or fee for you.",
-        emailNeutralBody4: "<strong>What is Tagpeak?</strong><br><br>It's a platform that allows us to connect your cashback to financial markets, to generate rewards of up to 100% of the amount spent for you.<br><br><strong>What do I need to do to participate?</strong><br><br>When making a purchase, use <strong>\"tagpeak\"</strong> as the discount code and you're done.",
-        emailNeutralBody5: "For more information, visit: www.tagpeak.com",
+        // Email C - generic reward frame
+        emailCSubject: "We have a new reward for you",
+        emailCGreeting: "Hello",
+        emailCBody1: "We have a new reward for our customers, through a partnership with <strong>Tagpeak</strong>.",
+        emailCBody2: "Now, whenever you make a purchase, you receive a <strong>free reward</strong> associated with your purchase, at no additional cost or fee to you.<br>The great advantage is that the reward <strong>can grow over time</strong>.",
+        emailCBody3: "<strong>What is Tagpeak?</strong><br><br>Tagpeak is an innovative rewards platform, which will manage this entire benefit. It does not replace discounts or promotions: it is an additional benefit that you can follow and redeem later.",
+        emailCBody4: "<strong>What do you need to do to activate the reward?</strong><br><br>It's simple: in our store, when paying, use the code <strong>TAGPEAK</strong> and complete the purchase normally.",
+        emailCBody5: "—<br>Team [Brand]",
     },
     es: {
         // Language selection
@@ -434,31 +436,33 @@ const translations = {
         errorSavingData: "Error al guardar los datos:",
         checkConsole: "Por favor, revise la consola del navegador para más detalles.",
         
-        // Email framings
-        emailPositiveSubject: "Gane hasta 100% de cashback en sus compras",
-        emailPositiveSubject2: "",
-        emailPositiveGreeting: "Hola,",
-        emailPositiveBody1: "tiene un nuevo beneficio para nuestros clientes, en asociación con Tagpeak.",
-        emailPositiveBody2: "A partir de ahora, todas las compras que realice tienen automáticamente asociado un cashback de valor variable que puede alcanzar el 100% del valor gastado.",
-        emailPositiveBody3: "Es una oportunidad/beneficio sin ningún costo o tarifa adicional para usted.",
-        emailPositiveBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma innovadora que nos permite asociar su cashback con los mercados financieros, posibilitando generar mayores recompensas para usted.<br><br><strong>¿Cómo empezar a ganar?</strong><br><br>Es muy simple. Al realizar una compra, utilice <strong>\"tagpeak\"</strong> como código de descuento y comience a beneficiarse de esta nueva recompensa.<br><br>De esta forma, usted gana en cada compra sin pagar nada más por ello.",
-        emailPositiveBody5: "Para más información, visite: www.tagpeak.com",
+        // Email framings - A/B/C testing
+        // Email A - explicit financial frame
+        emailASubject: "¿Quiere vincular sus compras a los mercados financieros?",
+        emailAGreeting: "Hola",
+        emailABody1: "Tenemos un nuevo beneficio para nuestros clientes, en asociación con <strong>Tagpeak</strong>.",
+        emailABody2: "Ahora, en cada compra que realice, tiene una recompensa esperándole que puede crecer con el tiempo, <strong>sin ningún costo o tarifa adicional para usted.</strong>",
+        emailABody3: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma innovadora que nos permite ofrecerle un cashback vinculado a los mercados financieros. Toda la gestión la realiza un equipo especializado, con el objetivo de entregarle un buen cashback. Puede seguir todo de forma sencilla.",
+        emailABody4: "<strong>¿Qué necesita hacer para activar el beneficio?</strong><br><br>Es simple: en nuestra tienda, antes de pagar, utilice el código <strong>TAGPEAK</strong> y complete la compra normalmente.",
+        emailABody5: "—<br>Equipo [Marca]",
         
-        emailNegativeSubject: "Una asociación que no querrá perder",
-        emailNegativeSubject2: "",
-        emailNegativeBody1: "en asociación con Tagpeak, tiene un nuevo beneficio para nuestros clientes que no querrá perder",
-        emailNegativeBody2: "Ahora, todas las compras que realiza tienen automáticamente asociado un cashback de valor variable que puede alcanzar hasta el 100% del valor gastado.",
-        emailNegativeBody3: "Un beneficio sin ningún costo o tarifa adicional para usted.",
-        emailNegativeBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma innovadora que nos permite conectar su cashback con los mercados financieros, para así generar mayores recompensas para usted.<br><br><strong>¿Cómo no dejar escapar este beneficio?</strong><br><br>Es simple. Al realizar una compra, utilice <strong>\"tagpeak\"</strong> como código de descuento.<br><br>Si no lo hace, la compra se completará normalmente, pero no recibirá esa recompensa de hasta el 100% del valor de sus compras.",
-        emailNegativeBody5: "Para más información, visite: www.tagpeak.com",
+        // Email B - cashback/consumption frame
+        emailBSubject: "Recupere una parte de lo que gasta en nuestra tienda",
+        emailBGreeting: "Hola",
+        emailBBody1: "Tenemos un nuevo beneficio para nuestros clientes, en asociación con <strong>Tagpeak</strong>.",
+        emailBBody2: "Ahora, en cada compra que realice, tiene un <strong>cashback de valor variable</strong> esperándole, que puede crecer con el tiempo, sin ningún costo o tarifa adicional para usted.",
+        emailBBody3: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma de recompensas que nos permite ofrecerle un cashback innovador. En lugar de ser un monto fijo, este cashback puede evolucionar con el tiempo. Toda la gestión la realiza Tagpeak y puede seguir todo de forma sencilla en la plataforma.",
+        emailBBody4: "<strong>¿Qué necesita hacer para activar el beneficio?</strong><br><br>Es simple: en nuestra tienda, al pagar, utilice el código <strong>TAGPEAK</strong> y complete la compra normalmente.",
+        emailBBody5: "—<br>Equipo [Marca]",
         
-        emailNeutralSubject: "Nueva asociación",
-        emailNeutralSubject2: "y Tagpeak",
-        emailNeutralBody1: "tiene un nuevo beneficio para nuestros clientes, en asociación con Tagpeak.",
-        emailNeutralBody2: "Ahora, todas las compras que realiza tienen automáticamente asociado un cashback de valor variable que puede alcanzar hasta el 100% del valor que gaste.",
-        emailNeutralBody3: "Un beneficio que no tiene ningún costo o tarifa adicional para usted.",
-        emailNeutralBody4: "<strong>¿Qué es Tagpeak?</strong><br><br>Es una plataforma que nos permite conectar su cashback con los mercados financieros, para generar recompensas de hasta el 100% del valor gastado para usted.<br><br><strong>¿Qué necesito hacer para participar?</strong><br><br>Al realizar una compra, use <strong>\"tagpeak\"</strong> como código de descuento y listo.",
-        emailNeutralBody5: "Para más información, visite: www.tagpeak.com",
+        // Email C - generic reward frame
+        emailCSubject: "Tenemos una nueva recompensa para usted",
+        emailCGreeting: "Hola",
+        emailCBody1: "Tenemos una nueva recompensa para nuestros clientes, a través de una asociación con <strong>Tagpeak</strong>.",
+        emailCBody2: "Ahora, siempre que haga una compra, recibe una <strong>recompensa gratuita</strong> asociada a su compra, sin ningún costo o tarifa adicional para usted.<br>La gran ventaja es que la recompensa <strong>puede crecer con el tiempo</strong>.",
+        emailCBody3: "<strong>¿Qué es Tagpeak?</strong><br><br>Tagpeak es una plataforma de recompensas innovadora, que gestionará todo este beneficio. No sustituye descuentos ni promociones: es un beneficio adicional que puede seguir y canjear más tarde.",
+        emailCBody4: "<strong>¿Qué necesita hacer para activar la recompensa?</strong><br><br>Es simple: en nuestra tienda, al pagar, utilice el código <strong>TAGPEAK</strong> y complete la compra normalmente.",
+        emailCBody5: "—<br>Equipo [Marca]",
     },
     pt: {
         // Language selection
@@ -658,31 +662,33 @@ const translations = {
         errorSavingData: "Erro ao guardar os dados:",
         checkConsole: "Por favor, verifique a consola do navegador para mais detalhes.",
         
-        // Email framings
-        emailPositiveSubject: "Ganhe até 100% de cashback nas suas compras",
-        emailPositiveSubject2: "",
-        emailPositiveGreeting: "Olá,",
-        emailPositiveBody1: "tem um novo benefício para os nossos clientes, em parceria com a Tagpeak.",
-        emailPositiveBody2: "A partir de agora, todas as compras que realizar têm automaticamente associado um cashback de valor variável que pode atingir 100% do valor gasto.",
-        emailPositiveBody3: "É uma oportunidade/benefício sem qualquer custo ou taxa adicional para si.",
-        emailPositiveBody4: "<strong>O que é a Tagpeak?</strong><br><br>A Tagpeak é uma plataforma inovadora que nos permite associar o seu cashback aos mercados financeiros, possibilitando gerar recompensas maiores para si.<br><br><strong>Como começar a ganhar?</strong><br><br>É muito simples. Ao realizar uma compra, utilize <strong>\"tagpeak\"</strong> como código de desconto e comece a beneficiar desta nova recompensa.<br><br>Dessa forma, você ganha a cada compra sem pagar mais nada por isso.",
-        emailPositiveBody5: "Para mais informações, visite: www.tagpeak.com",
+        // Email framings - A/B/C testing
+        // Email A - explicit financial frame
+        emailASubject: "Quer ligar as suas compras aos mercados financeiros?",
+        emailAGreeting: "Olá",
+        emailABody1: "Temos um novo benefício para os nossos clientes, em parceria com a <strong>Tagpeak</strong>.",
+        emailABody2: "Agora, em todas as compras que realiza tem à sua espera uma recompensa que pode crescer ao longo do tempo, <strong>sem qualquer custo ou taxa adicional para si.</strong>",
+        emailABody3: "<strong>O que é a Tagpeak?</strong><br><br>A Tagpeak é uma plataforma inovadora que nos permite oferecer-lhe um cashback ligado aos mercados financeiros. Toda a gestão é feita por uma equipa especializada, com o objetivo de lhe entregar um bom cashback. Pode acompanhar tudo de forma simples.",
+        emailABody4: "<strong>O que precisa de fazer para ativar o benefício?</strong><br><br>É simples: na nossa loja, antes de pagar, utilize o código <strong>TAGPEAK</strong> e conclua a compra normalmente.",
+        emailABody5: "—<br>Equipa [Marca]",
         
-        emailNegativeSubject: "Uma parceria que não vai querer perder",
-        emailNegativeSubject2: "",
-        emailNegativeBody1: "em parceria com a Tagpeak, tem um novo benefício para os nossos clientes que não vai querer perder",
-        emailNegativeBody2: "Agora, todas as compras que realiza têm automaticamente associado um cashback de valor variável que pode atingir até 100% do valor gasto.",
-        emailNegativeBody3: "Um benefício sem qualquer custo ou taxa adicional para si.",
-        emailNegativeBody4: "<strong>O que é a Tagpeak?</strong><br><br>A tagpeak é uma plataforma inovadora que nos permite conectar o seu cashback aos mercados financeiros, para assim gerar maiores recompensas para si.<br><br><strong>Como não deixar escapar este benefício?</strong><br><br>É simples. Ao realizar uma compra, utilize <strong>\"tagpeak\"</strong> como código de desconto.<br><br>Caso não o faça, a compra será concluída normalmente, mas não recebe a tal recompensa de até 100% do valor das suas compras.",
-        emailNegativeBody5: "Para mais informações, visite: www.tagpeak.com",
+        // Email B - cashback/consumption frame
+        emailBSubject: "Recupere uma parte do que gasta na nossa loja",
+        emailBGreeting: "Olá",
+        emailBBody1: "Temos um novo benefício para os nossos clientes, em parceria com a <strong>Tagpeak</strong>.",
+        emailBBody2: "Agora, em todas as compras que realiza tem à sua espera um <strong>cashback de valor variável</strong>, que pode crescer ao longo do tempo, sem qualquer custo ou taxa adicional para si.",
+        emailBBody3: "<strong>O que é a Tagpeak?</strong><br><br>A Tagpeak é uma plataforma de recompensas que nos permite oferecer-lhe um cashback inovador. Em vez de ser um montante fixo, este cashback pode evoluir ao longo do tempo. Toda a gestão é feita pela Tagpeak e pode acompanhar tudo de forma simples na plataforma.",
+        emailBBody4: "<strong>O que precisa de fazer para ativar o benefício?</strong><br><br>É simples: na nossa loja, quando estiver a pagar, utilize o código <strong>TAGPEAK</strong> e conclua a compra normalmente.",
+        emailBBody5: "—<br>Equipa [Marca]",
         
-        emailNeutralSubject: "Nova parceria",
-        emailNeutralSubject2: "e Tagpeak",
-        emailNeutralBody1: "tem um novo benefício para os nossos clientes, em parceria com a Tagpeak.",
-        emailNeutralBody2: "Agora, todas as compras que realiza têm automaticamente associado um cashback de valor variável que pode atingir até 100% do valor que gastar.",
-        emailNeutralBody3: "Um benefício que não tem qualquer custo ou taxa adicional para si.",
-        emailNeutralBody4: "<strong>O que é a Tagpeak?</strong><br><br>É uma plataforma que nos permite conectar o seu cashback aos mercados financeiros, para gerar recompensas de até 100% do valor gasto para si.<br><br><strong>O que preciso de fazer para participar?</strong><br><br>Ao realizar uma compra, use <strong>\"tagpeak\"</strong> como código de desconto e já está.",
-        emailNeutralBody5: "Para mais informações, visite: www.tagpeak.com",
+        // Email C - generic reward frame
+        emailCSubject: "Temos uma nova recompensa para si",
+        emailCGreeting: "Olá",
+        emailCBody1: "Temos uma nova recompensa para os nossos clientes, através de uma parceria com a <strong>Tagpeak</strong>.",
+        emailCBody2: "Agora, sempre que faz uma compra, recebe uma <strong>recompensa gratuita</strong> associada à sua compra, sem qualquer custo ou taxa adicional para si.<br>A grande vantagem é que a recompensa <strong>pode crescer ao longo do tempo</strong>.",
+        emailCBody3: "<strong>O que é a Tagpeak?</strong><br><br>A Tagpeak é uma plataforma de recompensas inovadora, que fará toda a gestão deste benefício. Não substitui descontos nem promoções: é um benefício adicional que pode acompanhar e resgatar mais tarde.",
+        emailCBody4: "<strong>O que precisa de fazer para ativar a recompensa?</strong><br><br>É simples: na nossa loja, quando estiver a pagar, utilize o código <strong>TAGPEAK</strong> e conclua a compra normalmente.",
+        emailCBody5: "—<br>Equipa [Marca]",
     }
 };
 
@@ -777,47 +783,42 @@ let surveyData = {
 // Brand names
 const brands = ['Adidas', 'Booking.com', 'Sephora', 'Samsung', 'New Balance', 'Conforama', 'Sonos', 'Temu', 'Fila', 'Tous', 'Converse', 'Gocco', 'Pikolin'];
 
-// Email framings - dynamically use selected brand
+// Email framings - dynamically use selected brand (A/B/C testing)
 function getEmailFraming(brandName) {
-    // Get subject2 values directly from translations to check if they exist and are not empty
-    const positiveSubject2 = translations[currentLanguage]['emailPositiveSubject2'];
-    const negativeSubject2 = translations[currentLanguage]['emailNegativeSubject2'];
-    const neutralSubject2 = translations[currentLanguage]['emailNeutralSubject2'];
-    
     return {
-        positive: {
-            subject: `${t('emailPositiveSubject')}${positiveSubject2 && positiveSubject2.trim() ? ' ' + positiveSubject2 : ''}`.trim(),
-            greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
-            body1: `${brandName} ${t('emailPositiveBody1')}`,
-            body2: t('emailPositiveBody2'),
-            body3: t('emailPositiveBody3'),
-            body4: t('emailPositiveBody4'),
-            body5: t('emailPositiveBody5')
+        A: {
+            subject: t('emailASubject'),
+            greeting: `${t('emailAGreeting')} [nome cliente],`,
+            body1: t('emailABody1'),
+            body2: t('emailABody2'),
+            body3: t('emailABody3'),
+            body4: t('emailABody4'),
+            body5: t('emailABody5').replace('[Marca]', brandName)
         },
-        negative: {
-            subject: `${t('emailNegativeSubject')}${negativeSubject2 && negativeSubject2.trim() ? ' ' + negativeSubject2 : ''}`.trim(),
-            greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
-            body1: `${brandName} ${t('emailNegativeBody1')}`,
-            body2: t('emailNegativeBody2'),
-            body3: t('emailNegativeBody3'),
-            body4: t('emailNegativeBody4'),
-            body5: t('emailNegativeBody5')
+        B: {
+            subject: t('emailBSubject'),
+            greeting: `${t('emailBGreeting')} [nome cliente],`,
+            body1: t('emailBBody1'),
+            body2: t('emailBBody2'),
+            body3: t('emailBBody3'),
+            body4: t('emailBBody4'),
+            body5: t('emailBBody5').replace('[Marca]', brandName)
         },
-        neutral: {
-            subject: `${t('emailNeutralSubject')} ${brandName}${neutralSubject2 && neutralSubject2.trim() ? ' ' + neutralSubject2 : ''}`.trim(),
-            greeting: `${t('emailPositiveGreeting')} [Nome da pessoa],`,
-            body1: `${brandName} ${t('emailNeutralBody1')}`,
-            body2: t('emailNeutralBody2'),
-            body3: t('emailNeutralBody3'),
-            body4: t('emailNeutralBody4'),
-            body5: t('emailNeutralBody5')
+        C: {
+            subject: t('emailCSubject'),
+            greeting: `${t('emailCGreeting')} [nome cliente],`,
+            body1: t('emailCBody1'),
+            body2: t('emailCBody2'),
+            body3: t('emailCBody3'),
+            body4: t('emailCBody4'),
+            body5: t('emailCBody5').replace('[Marca]', brandName)
         }
     };
 }
 
-// Assign random framing condition
+// Assign random framing condition (A/B/C testing)
 function assignFramingCondition() {
-    const conditions = ['positive', 'negative', 'neutral'];
+    const conditions = ['A', 'B', 'C'];
     framingCondition = conditions[Math.floor(Math.random() * conditions.length)];
     console.log('Assigned framing condition:', framingCondition);
 }
@@ -1370,10 +1371,10 @@ function renderEmailFramingScreen() {
                         
                         <!-- Email Body -->
                         <div class="prose max-w-none text-gray-800 space-y-4 leading-relaxed">
-                            <p>${email.greeting.replace('[Nome da pessoa]', displayName)}</p>
+                            <p>${email.greeting.replace('[nome cliente]', displayName)}</p>
                             <p>${email.body1}</p>
                             <p>${email.body2}</p>
-                            <p>${email.body3}</p>
+                            <div>${email.body3}</div>
                             <div>${email.body4}</div>
                             <p class="mt-6">${email.body5}</p>
                         </div>

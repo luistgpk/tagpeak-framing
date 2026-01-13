@@ -129,9 +129,9 @@ function codePurchasePreference(value) {
 
 function codeFramingCondition(value) {
     const v = String(value || '').toLowerCase();
-    if (v.includes('positive')) return 1;
-    if (v.includes('negative')) return 2;
-    if (v.includes('neutral')) return 3;
+    if (v === 'a') return 1;
+    if (v === 'b') return 2;
+    if (v === 'c') return 3;
     return '';
 }
 
