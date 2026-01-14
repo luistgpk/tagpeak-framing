@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const postcss = require('postcss');
-const tailwindcssPostcss = require('@tailwindcss/postcss');
+const tailwindcss = require('tailwindcss');
 const autoprefixer = require('autoprefixer');
 
 // Read the app.js file
@@ -30,14 +30,16 @@ async function buildTailwind() {
   const input = fs.readFileSync(inputPath, 'utf8');
   
   try {
-    const result = await postcss([tailwindcssPostcss, autoprefixer])
+    const result = await postcss([tailwindcss, autoprefixer])
       .process(input, {
         from: inputPath,
         to: outputPath,
+        map: false, // Disable source maps for production
       });
     
     fs.writeFileSync(outputPath, result.css);
-    console.log('✅ Tailwind CSS compiled successfully');
+    const fileSize = (fs.statSync(outputPath).size / 1024).toFixed(2);
+    console.log(`✅ Tailwind CSS compiled successfully (${fileSize} KB)`);
   } catch (error) {
     console.error('❌ Error compiling Tailwind CSS:', error);
     process.exit(1);
