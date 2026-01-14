@@ -1760,21 +1760,9 @@ function renderEmotionsScreen2() {
                     <p class="text-base font-semibold text-gray-800 mb-4">4. ${t('advantageQ2')}</p>
                     ${renderLikertScale('advantage_better', 'advantageBetterPosition', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.advantageBetterPosition)}
                 </div>
-                <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">5. ${t('willingnessQ1')}</p>
-                    ${renderLikertScale('willingness_interest', 'willingnessInterest', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessInterest)}
-                </div>
-                <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">6. ${t('willingnessQ2')}</p>
-                    ${renderLikertScale('willingness_likely', 'willingnessLikelyUse', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessLikelyUse)}
-                </div>
-                <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">7. ${t('willingnessQ3')}</p>
-                    ${renderLikertScale('willingness_future', 'willingnessIntendFuture', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessIntendFuture)}
-                </div>
             </div>
             
-            <button onclick="validateLikertScreen('emotions_2', ['clarityStepsClear', 'clarityFeelSecure', 'advantageMoreAdvantageous', 'advantageBetterPosition', 'willingnessInterest', 'willingnessLikelyUse', 'willingnessIntendFuture'], 'concerns')" class="btn-primary mt-8 w-full">
+            <button onclick="validateLikertScreen('emotions_2', ['clarityStepsClear', 'clarityFeelSecure', 'advantageMoreAdvantageous', 'advantageBetterPosition'], 'concerns')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
