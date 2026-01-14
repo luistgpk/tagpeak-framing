@@ -76,9 +76,9 @@ const translations = {
         false: "False",
         pleaseAnswerAll: "Please answer all questions.",
         
-        // Initial involvement
-        initialInvolvementPrompt: "Evaluate the following statement:",
-        initialInvolvementStatement: "\"For me, promotional benefits (such as cashback, discounts, coupons, etc.) are:\"",
+        // Investment involvement (before financial literacy)
+        investmentInvolvementPrompt: "Evaluate the following statement:",
+        investmentInvolvementStatement: "\"For me, investments (such as ETFs, stocks, bonds, etc.) are:\"",
         reversedItems: "*items rated in reverse",
         important: "important",
         notImportant: "not important",
@@ -88,6 +88,10 @@ const translations = {
         meanALot: "mean a lot to me",
         worthless: "worthless",
         valuable: "valuable",
+        
+        // Initial involvement
+        initialInvolvementPrompt: "Evaluate the following statement:",
+        initialInvolvementStatement: "\"For me, promotional benefits (such as cashback, discounts, coupons, etc.) are:\"",
         
         // Email notification
         newEmail: "You received a new email!",
@@ -104,34 +108,33 @@ const translations = {
         
         // Exclusion questions
         answerBasedOnEmail: "Answer the following questions based on the email you just read:",
-        exclusionQ1: "\"What type of benefit does the email refer to?\"",
-        discount: "Discount",
-        cashback: "Cashback",
-        coupon: "Coupon",
-        noneOfThese: "None of these",
-        exclusionQ2: "\"The mentioned benefit allows receiving up to what % of the amount spent?\"",
+        exclusionQ1: "What is the name of the partner the email refers to?",
+        tagpeak: "Tagpeak",
+        squeak: "Squeak",
+        tiktik: "TikTik",
+        moneypink: "Moneypink",
+        exclusionQ2: "Is there any additional cost in the process?",
+        yes: "Yes",
+        no: "No",
         
-        // Manipulation check
-        basedOnEmail: "Based on the email you read, answer the following questions:",
-        manipQ1: "\"The presented message mainly emphasized:\"",
-        lossesNotUsing: "Losses from NOT using the benefit",
-        benefitsUsing: "Gains from USING the benefit",
-        manipQ2: "\"Overall, the message conveys more the idea of…\"",
-        notMissingSomething: "Not missing something that could benefit me",
-        takingAdvantage: "Taking advantage of something that can bring benefits",
+        // Manipulation check - open text
+        manipulationThoughtsPrompt: "After reading this message, what thoughts came to your mind?",
+        manipulationThoughtsInstruction: "List everything you remember",
+        manipulationThoughtsPlaceholder: "Write your thoughts here...",
+        manipulationThoughtsError: "Please write at least 30 characters about your thoughts.",
         
-        // Message involvement
-        evaluateExperience: "Regarding the email:",
-        invQ1: "1. Would you say that, while reading, you:",
-        invQ2: "2. Would you say that, while reading, you:",
-        invQ3: "3. Would you say that, while reading, you:",
-        invQ4: "4. Would you say you found the message:",
-        invQ5: "5. Would you say you found the message:",
-        invQ6: "6. Would you say you found the message:",
-        notInterested: "were not interested",
-        veryInterested: "were very interested",
-        notAbsorbed: "were not absorbed",
-        veryAbsorbed: "were very absorbed",
+        // Message involvement (after manipulation thoughts)
+        evaluateExperience: "While reading the email, would you say that:",
+        invQ1: "1.",
+        invQ2: "2.",
+        invQ3: "3.",
+        invQ4: "Would you say you found the message:",
+        invQ5: "5.",
+        invQ6: "6.",
+        notInterested: "not interested",
+        veryInterested: "very interested",
+        notAbsorbed: "not absorbed",
+        veryAbsorbed: "very absorbed",
         readQuickly: "read the message quickly",
         readWithAttention: "read the message with attention",
         irrelevantToYou: "irrelevant",
@@ -143,7 +146,7 @@ const translations = {
         
         // Intention
         imaginePurchase: "Imagine you are about to make a purchase at",
-        indicateLikelihood: "Indicate how likely you are to use this new benefit on your next purchase:",
+        indicateLikelihood: "Please indicate how likely you are to use this new platform on your next purchase, answering the questions below:",
         selectedBrandFallback: "the selected brand",
         unlikely: "unlikely",
         likely: "likely",
@@ -153,6 +156,10 @@ const translations = {
         definitelyUse: "definitely would use",
         notFrequent: "not frequent",
         veryFrequent: "very frequent",
+        intentionQ1: "1.",
+        intentionQ2: "2.",
+        intentionQ3: "3.",
+        intentionQ4: "4.",
         
         // Tagpeak info
         moreInfoTagpeak: "You are now going to enter the Tagpeak website",
@@ -167,16 +174,21 @@ const translations = {
         nowThatYouKnow: "Now that you know Tagpeak better, imagine you are about to make a purchase at",
         
         // Emotions / Ease of use
-        evaluateStatements: "According to the information presented, evaluate the following statements:",
+        evaluateStatements: "According to the information presented previously, evaluate the following statements:",
         evaluateStatementsShort: "Evaluate the following statements:",
         easeQ1: "\"It is difficult to use the benefit\"",
         easeQ2: "\"I believe it is easy to use the benefit\"",
-        easeQ3: "\"I could easily explain how the benefit works\"",
-        easeQ4: "\"It is not difficult to give an accurate description of the benefit.\"",
-        easeQ5: "\"The steps in the benefit usage process are clear to me\"",
-        easeQ6: "\"I feel secure about how to use the benefit effectively.\"",
         disagreeTotally: "Totally disagree",
+        disagree: "Disagree",
+        disagreeSlightly: "Slightly disagree",
+        neitherAgreeNorDisagree: "Neither agree nor disagree",
+        agreeSlightly: "Slightly agree",
+        agree: "Agree",
         agreeTotally: "Totally agree",
+        
+        // Clarity
+        clarityQ1: "\"The steps in the benefit usage process are clear to me\"",
+        clarityQ2: "\"I feel secure about how to use the benefit effectively.\"",
         
         // Advantage
         advantageQ1: "\"This benefit seems more advantageous to me than other discount or cashback options I know.\"",
@@ -302,9 +314,9 @@ const translations = {
         false: "Falso",
         pleaseAnswerAll: "Por favor, responda todas las preguntas.",
         
-        // Initial involvement
-        initialInvolvementPrompt: "Evalúe la siguiente afirmación:",
-        initialInvolvementStatement: "\"Para mí, los beneficios promocionales (como cashback, descuentos, cupones, etc.) son:\"",
+        // Investment involvement (before financial literacy)
+        investmentInvolvementPrompt: "Evalúe la siguiente afirmación:",
+        investmentInvolvementStatement: "\"Para mí, las inversiones (como ETFs, acciones, bonos, etc.) son:\"",
         reversedItems: "*elementos calificados en reverso",
         important: "importantes",
         notImportant: "nada importantes",
@@ -314,6 +326,10 @@ const translations = {
         meanALot: "significan mucho para mí",
         worthless: "sin valor",
         valuable: "valiosos",
+        
+        // Initial involvement
+        initialInvolvementPrompt: "Evalúe la siguiente afirmación:",
+        initialInvolvementStatement: "\"Para mí, los beneficios promocionales (como cashback, descuentos, cupones, etc.) son:\"",
         
         // Email notification
         newEmail: "¡Recibió un nuevo correo electrónico!",
@@ -330,35 +346,34 @@ const translations = {
         
         // Exclusion questions
         answerBasedOnEmail: "Responda las siguientes preguntas basándose en el correo que acaba de leer:",
-        exclusionQ1: "\"¿A qué tipo de beneficio se refiere el correo?\"",
-        discount: "Descuento",
-        cashback: "Cashback",
-        coupon: "Cupón",
-        noneOfThese: "Ninguno de estos",
-        exclusionQ2: "\"¿El beneficio mencionado permite recibir hasta qué % del valor gastado?\"",
+        exclusionQ1: "¿Cuál es el nombre del socio al que se refiere el correo?",
+        tagpeak: "Tagpeak",
+        squeak: "Squeak",
+        tiktik: "TikTik",
+        moneypink: "Moneypink",
+        exclusionQ2: "¿Hay algún costo adicional en el proceso?",
+        yes: "Sí",
+        no: "No",
         
-        // Manipulation check
-        basedOnEmail: "Basándose en el correo que leyó, responda las siguientes preguntas:",
-        manipQ1: "\"El mensaje presentado enfatizó principalmente:\"",
-        lossesNotUsing: "Pérdidas por NO usar el beneficio",
-        benefitsUsing: "Ganancias por USAR el beneficio",
-        manipQ2: "\"En general, el mensaje transmite más la idea de…\"",
-        notMissingSomething: "No perder algo que podría beneficiarme",
-        takingAdvantage: "Aprovechar algo que puede traer beneficios",
+        // Manipulation check - open text
+        manipulationThoughtsPrompt: "Después de leer este mensaje, ¿qué pensamientos le vinieron a la cabeza?",
+        manipulationThoughtsInstruction: "Enumere todo lo que recuerde",
+        manipulationThoughtsPlaceholder: "Escriba sus pensamientos aquí...",
+        manipulationThoughtsError: "Por favor, escriba al menos 30 caracteres sobre sus pensamientos.",
         
-        // Message involvement
-        evaluateExperience: "En relación al correo:",
-        invQ1: "1. ¿Diría que, mientras leía, usted:",
-        invQ2: "2. ¿Diría que, mientras leía, usted:",
-        invQ3: "3. ¿Diría que, mientras leía, usted:",
-        invQ4: "4. ¿Diría que encontró el mensaje:",
-        invQ5: "5. ¿Diría que encontró el mensaje:",
-        invQ6: "6. ¿Diría que encontró el mensaje:",
+        // Message involvement (after manipulation thoughts)
+        evaluateExperience: "Mientras leía el correo, ¿diría que:",
+        invQ1: "1.",
+        invQ2: "2.",
+        invQ3: "3.",
+        invQ4: "¿Diría que encontró el mensaje:",
+        invQ5: "5.",
+        invQ6: "6.",
         notInterested: "no estaba interesado",
         veryInterested: "estaba muy interesado",
         notAbsorbed: "no estaba absorto",
         veryAbsorbed: "estaba muy absorto",
-        readQuickly: "leyó el mensaje rápidamente",
+        readQuickly: "leyó el mensaje rápidamente por alto",
         readWithAttention: "leyó el mensaje con atención",
         irrelevantToYou: "irrelevante",
         relevantToYou: "relevante para usted",
@@ -369,7 +384,7 @@ const translations = {
         
         // Intention
         imaginePurchase: "Imagine que está a punto de hacer una compra en",
-        indicateLikelihood: "Indique qué tan probable es que utilice este nuevo beneficio en su próxima compra:",
+        indicateLikelihood: "Por favor, indique qué tan probable es que utilice esta nueva plataforma en su próxima compra, respondiendo a las preguntas a continuación:",
         selectedBrandFallback: "la marca seleccionada",
         unlikely: "improbable",
         likely: "probable",
@@ -379,6 +394,10 @@ const translations = {
         definitelyUse: "definitivamente usaría",
         notFrequent: "nada frecuente",
         veryFrequent: "muy frecuente",
+        intentionQ1: "1.",
+        intentionQ2: "2.",
+        intentionQ3: "3.",
+        intentionQ4: "4.",
         
         // Tagpeak info
         moreInfoTagpeak: "Ahora va a entrar en el sitio web de Tagpeak",
@@ -393,16 +412,21 @@ const translations = {
         nowThatYouKnow: "Ahora que conoce mejor Tagpeak, imagine que está a punto de hacer una compra en",
         
         // Emotions / Ease of use
-        evaluateStatements: "Según la información presentada, evalúe las siguientes afirmaciones:",
+        evaluateStatements: "De acuerdo con la información presentada anteriormente, evalúe las siguientes afirmaciones:",
         evaluateStatementsShort: "Evalúe las siguientes afirmaciones:",
         easeQ1: "\"Es difícil usar el beneficio\"",
         easeQ2: "\"Creo que es fácil usar el beneficio\"",
-        easeQ3: "\"Podría explicar fácilmente cómo funciona el beneficio\"",
-        easeQ4: "\"No es difícil dar una descripción precisa del beneficio.\"",
-        easeQ5: "\"Los pasos en el proceso de uso del beneficio son claros para mí\"",
-        easeQ6: "\"Me siento seguro/a sobre cómo usar el beneficio de manera efectiva.\"",
         disagreeTotally: "Totalmente en desacuerdo",
+        disagree: "En desacuerdo",
+        disagreeSlightly: "Ligeramente en desacuerdo",
+        neitherAgreeNorDisagree: "Ni de acuerdo ni en desacuerdo",
+        agreeSlightly: "Ligeramente de acuerdo",
+        agree: "De acuerdo",
         agreeTotally: "Totalmente de acuerdo",
+        
+        // Clarity
+        clarityQ1: "\"Los pasos en el proceso de uso del beneficio son claros para mí\"",
+        clarityQ2: "\"Me siento seguro/a sobre cómo usar el beneficio de manera efectiva.\"",
         
         // Advantage
         advantageQ1: "\"Este beneficio me parece más ventajoso que otras opciones de descuento o cashback que conozco.\"",
@@ -528,9 +552,9 @@ const translations = {
         false: "Falso",
         pleaseAnswerAll: "Por favor, responda a todas as questões.",
         
-        // Initial involvement
-        initialInvolvementPrompt: "Avalie a seguinte afirmação:",
-        initialInvolvementStatement: "\"Para mim, benefícios promocionais (como cashback, descontos, cupões, etc.) são:\"",
+        // Investment involvement (before financial literacy)
+        investmentInvolvementPrompt: "Avalie a seguinte afirmação:",
+        investmentInvolvementStatement: "\"Para mim, investimentos (como ETFs, ações, obrigações, etc.) são:\"",
         reversedItems: "*itens cotados em reverso",
         important: "importantes",
         notImportant: "nada importantes",
@@ -540,6 +564,10 @@ const translations = {
         meanALot: "significam muito para si",
         worthless: "sem valor",
         valuable: "valiosos",
+        
+        // Initial involvement
+        initialInvolvementPrompt: "Avalie a seguinte afirmação:",
+        initialInvolvementStatement: "\"Para mim, benefícios promocionais (como cashback, descontos, cupões, etc.) são:\"",
         
         // Email notification
         newEmail: "Recebeu um novo e-mail!",
@@ -556,30 +584,29 @@ const translations = {
         
         // Exclusion questions
         answerBasedOnEmail: "Responda às seguintes questões com base no e-mail que acabou de ler:",
-        exclusionQ1: "\"O e-mail refere qual tipo de benefício?\"",
-        discount: "Desconto",
-        cashback: "Cashback",
-        coupon: "Cupão",
-        noneOfThese: "Nenhum destes",
-        exclusionQ2: "\"O benefício mencionado permite recebimento de até quantos % do valor gasto?\"",
+        exclusionQ1: "Qual o nome do parceiro a que o e-mail se refere?",
+        tagpeak: "Tagpeak",
+        squeak: "Squeak",
+        tiktik: "TikTik",
+        moneypink: "Moneypink",
+        exclusionQ2: "Há algum custo adicional no processo?",
+        yes: "Sim",
+        no: "Não",
         
-        // Manipulation check
-        basedOnEmail: "Com base no e-mail que leu, responda às seguintes questões:",
-        manipQ1: "\"A mensagem apresentada enfatizou principalmente:\"",
-        lossesNotUsing: "Perdas por NÃO usar o benefício",
-        benefitsUsing: "Ganhos por USAR o benefício",
-        manipQ2: "\"Globalmente, a mensagem transmite mais a ideia de…\"",
-        notMissingSomething: "Não deixar passar algo que poderia beneficiar",
-        takingAdvantage: "Tirar partido de algo que pode trazer benefícios",
+        // Manipulation check - open text
+        manipulationThoughtsPrompt: "Depois de ler esta mensagem, que pensamentos lhe vieram à cabeça?",
+        manipulationThoughtsInstruction: "Liste tudo o que se lembrar",
+        manipulationThoughtsPlaceholder: "Escreva os seus pensamentos aqui...",
+        manipulationThoughtsError: "Por favor, escreva pelo menos 30 caracteres sobre os seus pensamentos.",
         
-        // Message involvement
-        evaluateExperience: "Em relação ao e-mail:",
-        invQ1: "1. Diria que, enquanto lia:",
-        invQ2: "2. Diria que, enquanto lia:",
-        invQ3: "3. Diria que, enquanto lia:",
-        invQ4: "4. Diria que achou a mensagem:",
-        invQ5: "5. Diria que achou a mensagem:",
-        invQ6: "6. Diria que achou a mensagem:",
+        // Message involvement (after manipulation thoughts)
+        evaluateExperience: "Enquanto lia o email, diria que:",
+        invQ1: "1.",
+        invQ2: "2.",
+        invQ3: "3.",
+        invQ4: "Diria que achou a mensagem:",
+        invQ5: "5.",
+        invQ6: "6.",
         notInterested: "não estava interessado",
         veryInterested: "estava muito interessado",
         notAbsorbed: "não estava absorvido",
@@ -588,14 +615,14 @@ const translations = {
         readWithAttention: "leu a mensagem com atenção",
         irrelevantToYou: "irrelevante",
         relevantToYou: "relevante para si",
-        boring: "chata",
+        boring: "maçadora",
         interesting: "interessante",
         notEngaging: "não envolvente",
         engaging: "envolvente",
         
         // Intention
         imaginePurchase: "Imagine que está prestes a fazer uma compra na",
-        indicateLikelihood: "Indique o quanto é provável que utilize este novo benefício na sua próxima compra:",
+        indicateLikelihood: "Por favor, indique quão provável é utilizar esta nova plataforma na sua próxima compra, respondendo às perguntas abaixo:",
         selectedBrandFallback: "a marca selecionada",
         unlikely: "improvável",
         likely: "provável",
@@ -605,6 +632,10 @@ const translations = {
         definitelyUse: "definitivamente usaria",
         notFrequent: "nada frequente",
         veryFrequent: "muito frequente",
+        intentionQ1: "1.",
+        intentionQ2: "2.",
+        intentionQ3: "3.",
+        intentionQ4: "4.",
         
         // Tagpeak info
         moreInfoTagpeak: "Agora vai entrar no site da Tagpeak",
@@ -619,16 +650,21 @@ const translations = {
         nowThatYouKnow: "Agora que conhece melhor a Tagpeak, imagine que está prestes a fazer uma compra na",
         
         // Emotions / Ease of use
-        evaluateStatements: "De acordo com as informações apresentadas, avalie as seguintes afirmações:",
+        evaluateStatements: "De acordo com as informações apresentadas anteriormente, avalie as seguintes afirmações:",
         evaluateStatementsShort: "Avalie as seguintes afirmações:",
         easeQ1: "\"É difícil de utilizar o benefício\"",
-        easeQ2: "\"Acredita que é fácil utilizar o benefício\"",
-        easeQ3: "\"Consegue explicar facilmente o funcionamento associado ao benefício\"",
-        easeQ4: "\"Não é difícil fazer uma descrição precisa sobre o benefício.\"",
-        easeQ5: "\"As etapas do processo de utilização do benefício são claras\"",
-        easeQ6: "\"Sente-se seguro/a quanto à forma de utilizar o benefício de forma eficaz.\"",
+        easeQ2: "\"Eu acredito que é fácil utilizar o benefício\"",
         disagreeTotally: "Discordo totalmente",
+        disagree: "Discordo",
+        disagreeSlightly: "Discordo ligeiramente",
+        neitherAgreeNorDisagree: "Nem concordo nem discordo",
+        agreeSlightly: "Concordo ligeiramente",
+        agree: "Concordo",
         agreeTotally: "Concordo totalmente",
+        
+        // Clarity
+        clarityQ1: "\"As etapas do processo de utilização do benefício são claras para mim\"",
+        clarityQ2: "\"Sinto-me segura/o quanto à forma de utilizar o benefício de forma eficaz.\"",
         
         // Advantage
         advantageQ1: "\"Este benefício parece mais vantajoso do que outras opções de desconto ou cashback que conhece.\"",
@@ -715,6 +751,12 @@ let surveyData = {
     financialLiteracyQ2: null, // Inflation
     financialLiteracyQ3: null, // Diversification
     
+    // Investment involvement (before financial literacy)
+    investmentInvolvementImportant: null, // 1-7 (reversed)
+    investmentInvolvementRelevant: null, // 1-7 (reversed)
+    investmentInvolvementMeaningful: null, // 1-7
+    investmentInvolvementValuable: null, // 1-7
+    
     // Initial involvement (Ecrã 4)
     initialInvolvementImportant: null, // 1-7 (reversed)
     initialInvolvementRelevant: null, // 1-7 (reversed)
@@ -722,12 +764,11 @@ let surveyData = {
     initialInvolvementValuable: null, // 1-7
     
     // Exclusion questions (Ecrã 7)
-    exclusionBenefitType: null,
-    exclusionPercentage: null,
+    exclusionPartnerName: null, // Tagpeak, Squeak, TikTik, Moneypink
+    exclusionAdditionalCost: null, // Yes, No
     
-    // Manipulation check (Ecrã 8)
-    manipulationLossEmphasis: null, // 1-7
-    manipulationGlobalIdea: null, // 1-7
+    // Manipulation check (Ecrã 8) - open text
+    manipulationThoughts: null, // text, min 30 chars
     
     // Message involvement (Ecrã 9)
     involvementInterested: null, // 1-9
@@ -752,15 +793,11 @@ let surveyData = {
     // Website viewing time
     websiteViewTime: null, // in seconds
     
-    // Ease of use (Ecrã 12)
+    // Ease of use (Ecrã 12) - only 2 questions
     easeDifficult: null, // 1-7 (reversed)
     easeEasy: null, // 1-7
     
-    // General product view (Ecrã 12)
-    productExplainEasy: null, // 1-7
-    productDescriptionEasy: null, // 1-7
-    
-    // Clarity in usage (Ecrã 12)
+    // Clarity in usage (Ecrã 12) - only 2 questions
     clarityStepsClear: null, // 1-7
     clarityFeelSecure: null, // 1-7
     
@@ -867,6 +904,9 @@ function renderScreen(screenName) {
                 break;
             case 'demographics':
                 contentArea.innerHTML = renderDemographicsScreen();
+                break;
+            case 'investment_involvement':
+                contentArea.innerHTML = renderInvestmentInvolvementScreen();
                 break;
             case 'brand_selection':
                 contentArea.innerHTML = renderBrandSelectionScreen();
@@ -1106,7 +1146,7 @@ function renderDemographicsScreen() {
                 </div>
             </div>
             
-            <button onclick="validateAndContinue('demographics', 'financial_literacy')" class="btn-primary mt-8 w-full">
+            <button onclick="validateAndContinue('demographics', 'investment_involvement')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1225,6 +1265,27 @@ function renderFinancialLiteracyScreen() {
             </div>
             
             <button onclick="validateAndContinue('financial_literacy', 'initial_involvement')" class="btn-primary mt-8 w-full">
+                ${t('continue')}
+            </button>
+        </div>
+    `;
+}
+
+function renderInvestmentInvolvementScreen() {
+    return `
+        <div class="space-y-5">
+            <p class="text-center text-gray-700 mb-2">${t('investmentInvolvementPrompt')}</p>
+            <p class="text-center text-gray-800 font-semibold mb-4">${t('investmentInvolvementStatement')}</p>
+            <p class="text-center text-xs text-gray-500 mb-4">${t('reversedItems')}</p>
+            
+            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
+                ${renderLikertScale('inv_inv_important', 'investmentInvolvementImportant', t('important'), t('notImportant'), 1, 7, surveyData.investmentInvolvementImportant)}
+                ${renderLikertScale('inv_inv_relevant', 'investmentInvolvementRelevant', t('relevant'), t('irrelevant'), 1, 7, surveyData.investmentInvolvementRelevant)}
+                ${renderLikertScale('inv_inv_meaningful', 'investmentInvolvementMeaningful', t('meanNothing'), t('meanALot'), 1, 7, surveyData.investmentInvolvementMeaningful)}
+                ${renderLikertScale('inv_inv_valuable', 'investmentInvolvementValuable', t('worthless'), t('valuable'), 1, 7, surveyData.investmentInvolvementValuable)}
+            </div>
+            
+            <button onclick="validateLikertScreen('investment_involvement', ['investmentInvolvementImportant', 'investmentInvolvementRelevant', 'investmentInvolvementMeaningful', 'investmentInvolvementValuable'], 'financial_literacy')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1406,21 +1467,21 @@ function renderExclusionScreen() {
                 <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-2xl border border-gray-200">
                     <p class="text-base font-semibold text-gray-800 mb-4">${t('exclusionQ1')}</p>
                     <div class="space-y-2">
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionBenefitType === 'Desconto' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_type', 'Desconto', 'exclusion_type-group')">
-                            <input type="radio" name="exclusion_type" value="Desconto" class="mr-3 w-5 h-5" ${surveyData.exclusionBenefitType === 'Desconto' ? 'checked' : ''} onchange="surveyData.exclusionBenefitType = this.value">
-                            <span class="text-gray-700">${t('discount')}</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPartnerName === 'Tagpeak' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_partner', 'Tagpeak', 'exclusion_partner-group')">
+                            <input type="radio" name="exclusion_partner" value="Tagpeak" class="mr-3 w-5 h-5" ${surveyData.exclusionPartnerName === 'Tagpeak' ? 'checked' : ''} onchange="surveyData.exclusionPartnerName = this.value">
+                            <span class="text-gray-700">${t('tagpeak')}</span>
                         </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionBenefitType === 'Cashback' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_type', 'Cashback', 'exclusion_type-group')">
-                            <input type="radio" name="exclusion_type" value="Cashback" class="mr-3 w-5 h-5" ${surveyData.exclusionBenefitType === 'Cashback' ? 'checked' : ''} onchange="surveyData.exclusionBenefitType = this.value">
-                            <span class="text-gray-700">${t('cashback')}</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPartnerName === 'Squeak' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_partner', 'Squeak', 'exclusion_partner-group')">
+                            <input type="radio" name="exclusion_partner" value="Squeak" class="mr-3 w-5 h-5" ${surveyData.exclusionPartnerName === 'Squeak' ? 'checked' : ''} onchange="surveyData.exclusionPartnerName = this.value">
+                            <span class="text-gray-700">${t('squeak')}</span>
                         </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionBenefitType === 'Cupão' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_type', 'Cupão', 'exclusion_type-group')">
-                            <input type="radio" name="exclusion_type" value="Cupão" class="mr-3 w-5 h-5" ${surveyData.exclusionBenefitType === 'Cupão' ? 'checked' : ''} onchange="surveyData.exclusionBenefitType = this.value">
-                            <span class="text-gray-700">${t('coupon')}</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPartnerName === 'TikTik' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_partner', 'TikTik', 'exclusion_partner-group')">
+                            <input type="radio" name="exclusion_partner" value="TikTik" class="mr-3 w-5 h-5" ${surveyData.exclusionPartnerName === 'TikTik' ? 'checked' : ''} onchange="surveyData.exclusionPartnerName = this.value">
+                            <span class="text-gray-700">${t('tiktik')}</span>
                         </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionBenefitType === 'Nenhum destes' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_type', 'Nenhum destes', 'exclusion_type-group')">
-                            <input type="radio" name="exclusion_type" value="Nenhum destes" class="mr-3 w-5 h-5" ${surveyData.exclusionBenefitType === 'Nenhum destes' ? 'checked' : ''} onchange="surveyData.exclusionBenefitType = this.value">
-                            <span class="text-gray-700">${t('noneOfThese')}</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPartnerName === 'Moneypink' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_partner', 'Moneypink', 'exclusion_partner-group')">
+                            <input type="radio" name="exclusion_partner" value="Moneypink" class="mr-3 w-5 h-5" ${surveyData.exclusionPartnerName === 'Moneypink' ? 'checked' : ''} onchange="surveyData.exclusionPartnerName = this.value">
+                            <span class="text-gray-700">${t('moneypink')}</span>
                         </label>
                     </div>
                 </div>
@@ -1428,21 +1489,13 @@ function renderExclusionScreen() {
                 <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-2xl border border-gray-200">
                     <p class="text-base font-semibold text-gray-800 mb-4">${t('exclusionQ2')}</p>
                     <div class="space-y-2">
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPercentage === '50%' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_percent', '50%', 'exclusion_percent-group')">
-                            <input type="radio" name="exclusion_percent" value="50%" class="mr-3 w-5 h-5" ${surveyData.exclusionPercentage === '50%' ? 'checked' : ''} onchange="surveyData.exclusionPercentage = this.value">
-                            <span class="text-gray-700">50%</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionAdditionalCost === t('yes') ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_cost', '${t('yes')}', 'exclusion_cost-group')">
+                            <input type="radio" name="exclusion_cost" value="${t('yes')}" class="mr-3 w-5 h-5" ${surveyData.exclusionAdditionalCost === t('yes') ? 'checked' : ''} onchange="surveyData.exclusionAdditionalCost = this.value">
+                            <span class="text-gray-700">${t('yes')}</span>
                         </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPercentage === '25%' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_percent', '25%', 'exclusion_percent-group')">
-                            <input type="radio" name="exclusion_percent" value="25%" class="mr-3 w-5 h-5" ${surveyData.exclusionPercentage === '25%' ? 'checked' : ''} onchange="surveyData.exclusionPercentage = this.value">
-                            <span class="text-gray-700">25%</span>
-                        </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPercentage === '10%' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_percent', '10%', 'exclusion_percent-group')">
-                            <input type="radio" name="exclusion_percent" value="10%" class="mr-3 w-5 h-5" ${surveyData.exclusionPercentage === '10%' ? 'checked' : ''} onchange="surveyData.exclusionPercentage = this.value">
-                            <span class="text-gray-700">10%</span>
-                        </label>
-                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionPercentage === '100%' ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_percent', '100%', 'exclusion_percent-group')">
-                            <input type="radio" name="exclusion_percent" value="100%" class="mr-3 w-5 h-5" ${surveyData.exclusionPercentage === '100%' ? 'checked' : ''} onchange="surveyData.exclusionPercentage = this.value">
-                            <span class="text-gray-700">100%</span>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-white hover:border-blue-400 transition-all ${surveyData.exclusionAdditionalCost === t('no') ? 'border-blue-500 bg-blue-50' : ''}" onclick="selectOption('exclusion_cost', '${t('no')}', 'exclusion_cost-group')">
+                            <input type="radio" name="exclusion_cost" value="${t('no')}" class="mr-3 w-5 h-5" ${surveyData.exclusionAdditionalCost === t('no') ? 'checked' : ''} onchange="surveyData.exclusionAdditionalCost = this.value">
+                            <span class="text-gray-700">${t('no')}</span>
                         </label>
                     </div>
                 </div>
@@ -1458,25 +1511,36 @@ function renderExclusionScreen() {
 function renderManipulationCheckScreen() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-600 mb-4">${t('basedOnEmail')}</p>
+            <p class="text-center text-gray-700 mb-2">${t('manipulationThoughtsPrompt')}</p>
+            <p class="text-center text-gray-600 mb-4">${t('manipulationThoughtsInstruction')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
-                <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('manipQ1')}</p>
-                    ${renderLikertScale('manip_loss', 'manipulationLossEmphasis', t('lossesNotUsing'), t('benefitsUsing'), 1, 7, surveyData.manipulationLossEmphasis)}
-                </div>
-                
-                <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('manipQ2')}</p>
-                    ${renderLikertScale('manip_global', 'manipulationGlobalIdea', t('notMissingSomething'), t('takingAdvantage'), 1, 7, surveyData.manipulationGlobalIdea)}
-                </div>
+            <div class="bg-gray-50 p-6 rounded-2xl">
+                <label for="manipulation_thoughts" class="block text-base font-semibold text-gray-800 mb-3">${t('yourConcerns')}</label>
+                <textarea 
+                    id="manipulation_thoughts" 
+                    rows="8" 
+                    class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all resize-none" 
+                    placeholder="${t('manipulationThoughtsPlaceholder')}"
+                    required 
+                    oninput="surveyData.manipulationThoughts = this.value; clearError('manipulation-thoughts-error')"
+                >${surveyData.manipulationThoughts || ''}</textarea>
+                <p id="manipulation-thoughts-error" class="text-red-500 text-sm mt-2 hidden">${t('manipulationThoughtsError')}</p>
+                <p class="text-sm text-gray-500 mt-2">${t('minimumCharacters')}</p>
             </div>
             
-            <button onclick="validateLikertScreen('manipulation_check', ['manipulationLossEmphasis', 'manipulationGlobalIdea'], 'message_involvement')" class="btn-primary mt-8 w-full">
+            <button onclick="validateManipulationThoughts()" class="btn-primary mt-4 w-full">
                 ${t('continue')}
             </button>
         </div>
     `;
+}
+
+function validateManipulationThoughts() {
+    if (!surveyData.manipulationThoughts || surveyData.manipulationThoughts.trim().length < 30) {
+        showError('manipulation-thoughts-error');
+        return;
+    }
+    renderScreen('message_involvement');
 }
 
 function renderMessageInvolvementScreen() {
@@ -1486,33 +1550,33 @@ function renderMessageInvolvementScreen() {
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ1')}</p>
-                    ${renderLikertScale('inv_interested', 'involvementInterested', t('notInterested'), t('veryInterested'), 1, 9, surveyData.involvementInterested)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ1')} ${t('notInterested')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('veryInterested')}</p>
+                    ${renderLikertScale('inv_interested', 'involvementInterested', '', '', 1, 9, surveyData.involvementInterested)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ2')}</p>
-                    ${renderLikertScale('inv_absorbed', 'involvementAbsorbed', t('notAbsorbed'), t('veryAbsorbed'), 1, 9, surveyData.involvementAbsorbed)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ2')} ${t('notAbsorbed')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('veryAbsorbed')}</p>
+                    ${renderLikertScale('inv_absorbed', 'involvementAbsorbed', '', '', 1, 9, surveyData.involvementAbsorbed)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ3')}</p>
-                    ${renderLikertScale('inv_attention', 'involvementAttention', t('readQuickly'), t('readWithAttention'), 1, 9, surveyData.involvementAttention)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ3')} ${t('readQuickly')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('readWithAttention')}</p>
+                    ${renderLikertScale('inv_attention', 'involvementAttention', '', '', 1, 9, surveyData.involvementAttention)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ4')}</p>
-                    ${renderLikertScale('inv_relevant_msg', 'involvementRelevant', t('irrelevantToYou'), t('relevantToYou'), 1, 9, surveyData.involvementRelevant)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ4')} ${t('irrelevantToYou')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('relevantToYou')}</p>
+                    ${renderLikertScale('inv_relevant_msg', 'involvementRelevant', '', '', 1, 9, surveyData.involvementRelevant)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ5')}</p>
-                    ${renderLikertScale('inv_interesting', 'involvementInteresting', t('boring'), t('interesting'), 1, 9, surveyData.involvementInteresting)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ5')} ${t('boring')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('interesting')}</p>
+                    ${renderLikertScale('inv_interesting', 'involvementInteresting', '', '', 1, 9, surveyData.involvementInteresting)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ6')}</p>
-                    ${renderLikertScale('inv_engaging', 'involvementEngaging', t('notEngaging'), t('engaging'), 1, 9, surveyData.involvementEngaging)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ6')} ${t('notEngaging')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('engaging')}</p>
+                    ${renderLikertScale('inv_engaging', 'involvementEngaging', '', '', 1, 9, surveyData.involvementEngaging)}
                 </div>
             </div>
             
@@ -1531,10 +1595,22 @@ function renderIntentionScreen() {
             <p class="text-center text-gray-600 mb-4">${t('indicateLikelihood')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
-                ${renderLikertScale('int_probable', 'intentionProbable', t('unlikely'), t('likely'), 1, 7, surveyData.intentionProbable)}
-                ${renderLikertScale('int_possible', 'intentionPossible', t('impossible'), t('possible'), 1, 7, surveyData.intentionPossible)}
-                ${renderLikertScale('int_definitely', 'intentionDefinitelyUse', t('definitelyNotUse'), t('definitelyUse'), 1, 7, surveyData.intentionDefinitelyUse)}
-                ${renderLikertScale('int_frequent', 'intentionFrequent', t('notFrequent'), t('veryFrequent'), 1, 7, surveyData.intentionFrequent)}
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ1')} ${t('unlikely')} ○ ○ ○ ○ ○ ○ ○ ${t('likely')}</p>
+                    ${renderLikertScale('int_probable', 'intentionProbable', '', '', 1, 7, surveyData.intentionProbable)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ2')} ${t('impossible')} ○ ○ ○ ○ ○ ○ ○ ${t('possible')}</p>
+                    ${renderLikertScale('int_possible', 'intentionPossible', '', '', 1, 7, surveyData.intentionPossible)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ3')} ${t('definitelyNotUse')} ○ ○ ○ ○ ○ ○ ○ ${t('definitelyUse')}</p>
+                    ${renderLikertScale('int_definitely', 'intentionDefinitelyUse', '', '', 1, 7, surveyData.intentionDefinitelyUse)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ4')} ${t('notFrequent')} ○ ○ ○ ○ ○ ○ ○ ${t('veryFrequent')}</p>
+                    ${renderLikertScale('int_frequent', 'intentionFrequent', '', '', 1, 7, surveyData.intentionFrequent)}
+                </div>
             </div>
             
             <button onclick="validateLikertScreen('intention', ['intentionProbable', 'intentionPossible', 'intentionDefinitelyUse', 'intentionFrequent'], 'tagpeak_info')" class="btn-primary mt-6 w-full">
@@ -1639,44 +1715,20 @@ function renderEmotionsScreen1() {
                 <div class="bg-gray-50 p-4 rounded-2xl">
                     <div class="space-y-4">
                         <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ1')}</p>
+                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('easeQ1')}</p>
+                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
                             ${renderLikertScale('ease_difficult', 'easeDifficult', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeDifficult)}
                         </div>
                         <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ2')}</p>
+                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('easeQ2')}</p>
+                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
                             ${renderLikertScale('ease_easy', 'easeEasy', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeEasy)}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ3')}</p>
-                            ${renderLikertScale('product_explain', 'productExplainEasy', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.productExplainEasy)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ4')}</p>
-                            ${renderLikertScale('product_desc', 'productDescriptionEasy', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.productDescriptionEasy)}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ5')}</p>
-                            ${renderLikertScale('clarity_steps', 'clarityStepsClear', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityStepsClear)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('easeQ6')}</p>
-                            ${renderLikertScale('clarity_secure', 'clarityFeelSecure', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityFeelSecure)}
                         </div>
                     </div>
                 </div>
             </div>
             
-            <button onclick="validateLikertScreen('emotions_1', ['easeDifficult', 'easeEasy', 'productExplainEasy', 'productDescriptionEasy', 'clarityStepsClear', 'clarityFeelSecure'], 'emotions_2')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('emotions_1', ['easeDifficult', 'easeEasy'], 'emotions_2')" class="btn-primary mt-6 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1689,6 +1741,21 @@ function renderEmotionsScreen2() {
             <p class="text-center text-gray-600 mb-4">${t('evaluateStatementsShort')}</p>
             
             <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-2xl">
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('clarityQ1')}</p>
+                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
+                            ${renderLikertScale('clarity_steps', 'clarityStepsClear', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityStepsClear)}
+                        </div>
+                        <div>
+                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('clarityQ2')}</p>
+                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
+                            ${renderLikertScale('clarity_secure', 'clarityFeelSecure', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityFeelSecure)}
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="bg-gray-50 p-4 rounded-2xl">
                     <div class="space-y-4">
                         <div>
@@ -1720,7 +1787,7 @@ function renderEmotionsScreen2() {
                 </div>
             </div>
             
-            <button onclick="validateLikertScreen('emotions_2', ['advantageMoreAdvantageous', 'advantageBetterPosition', 'willingnessInterest', 'willingnessLikelyUse', 'willingnessIntendFuture'], 'concerns')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('emotions_2', ['clarityStepsClear', 'clarityFeelSecure', 'advantageMoreAdvantageous', 'advantageBetterPosition', 'willingnessInterest', 'willingnessLikelyUse', 'willingnessIntendFuture'], 'concerns')" class="btn-primary mt-6 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1920,7 +1987,22 @@ function validateAndContinue(currentScreen, nextScreen) {
             isValid = false;
         }
     } else if (currentScreen === 'exclusion') {
-        if (!surveyData.exclusionBenefitType || !surveyData.exclusionPercentage) {
+        if (!surveyData.exclusionPartnerName || !surveyData.exclusionAdditionalCost) {
+            alert(t('pleaseAnswerAll'));
+            isValid = false;
+        }
+    } else if (currentScreen === 'investment_involvement') {
+        if (!surveyData.investmentInvolvementImportant || !surveyData.investmentInvolvementRelevant || !surveyData.investmentInvolvementMeaningful || !surveyData.investmentInvolvementValuable) {
+            alert(t('pleaseAnswerAll'));
+            isValid = false;
+        }
+    } else if (currentScreen === 'exclusion') {
+        if (!surveyData.exclusionPartnerName || !surveyData.exclusionAdditionalCost) {
+            alert(t('pleaseAnswerAll'));
+            isValid = false;
+        }
+    } else if (currentScreen === 'investment_involvement') {
+        if (!surveyData.investmentInvolvementImportant || !surveyData.investmentInvolvementRelevant || !surveyData.investmentInvolvementMeaningful || !surveyData.investmentInvolvementValuable) {
             alert(t('pleaseAnswerAll'));
             isValid = false;
         }
