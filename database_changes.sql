@@ -1,6 +1,19 @@
 -- Database schema changes for updated survey questions
 -- Run these SQL commands in your Supabase SQL editor
 
+-- 0. Update framing_condition constraint to allow A, B, C instead of positive, negative, neutral
+-- First, drop the existing constraint
+ALTER TABLE framing_study_results 
+DROP CONSTRAINT IF EXISTS framing_study_results_framing_condition_check;
+
+-- Create new constraint allowing A, B, C
+ALTER TABLE framing_study_results
+ADD CONSTRAINT framing_study_results_framing_condition_check 
+CHECK (framing_condition IN ('A', 'B', 'C', 'positive', 'negative', 'neutral'));
+
+-- Note: We include old values for backward compatibility with existing data
+-- If you want to only allow A, B, C, use: CHECK (framing_condition IN ('A', 'B', 'C'))
+
 -- 1. Add new columns for investment involvement (before financial literacy)
 ALTER TABLE framing_study_results
 ADD COLUMN IF NOT EXISTS investment_involvement_important INTEGER,

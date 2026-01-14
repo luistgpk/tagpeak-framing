@@ -1272,9 +1272,9 @@ function renderInvestmentInvolvementScreen() {
     return `
         <div class="space-y-5">
             <p class="text-center text-gray-700 mb-2">${t('investmentInvolvementPrompt')}</p>
-            <p class="text-center text-gray-800 font-semibold mb-4">${t('investmentInvolvementStatement')}</p>
+            <p class="text-center text-gray-800 font-semibold mb-6">${t('investmentInvolvementStatement')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
                 ${renderLikertScale('inv_inv_important', 'investmentInvolvementImportant', t('important'), t('notImportant'), 1, 7, surveyData.investmentInvolvementImportant)}
                 ${renderLikertScale('inv_inv_relevant', 'investmentInvolvementRelevant', t('relevant'), t('irrelevant'), 1, 7, surveyData.investmentInvolvementRelevant)}
                 ${renderLikertScale('inv_inv_meaningful', 'investmentInvolvementMeaningful', t('meanNothing'), t('meanALot'), 1, 7, surveyData.investmentInvolvementMeaningful)}
@@ -1292,9 +1292,9 @@ function renderInitialInvolvementScreen() {
     return `
         <div class="space-y-5">
             <p class="text-center text-gray-700 mb-2">${t('initialInvolvementPrompt')}</p>
-            <p class="text-center text-gray-800 font-semibold mb-4">${t('initialInvolvementStatement')}</p>
+            <p class="text-center text-gray-800 font-semibold mb-6">${t('initialInvolvementStatement')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
                 ${renderLikertScale('inv_important', 'initialInvolvementImportant', t('important'), t('notImportant'), 1, 7, surveyData.initialInvolvementImportant)}
                 ${renderLikertScale('inv_relevant', 'initialInvolvementRelevant', t('relevant'), t('irrelevant'), 1, 7, surveyData.initialInvolvementRelevant)}
                 ${renderLikertScale('inv_meaningful', 'initialInvolvementMeaningful', t('meanNothing'), t('meanALot'), 1, 7, surveyData.initialInvolvementMeaningful)}
@@ -1506,7 +1506,7 @@ function renderExclusionScreen() {
 function renderManipulationCheckScreen() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-700 mb-4">${t('manipulationThoughtsPrompt')}</p>
+            <p class="text-center text-gray-700 mb-6">${t('manipulationThoughtsPrompt')}</p>
             
             <div class="bg-gray-50 p-6 rounded-2xl">
                 <label for="manipulation_thoughts" class="block text-base font-semibold text-gray-800 mb-3">${t('yourConcerns')}</label>
@@ -1522,7 +1522,7 @@ function renderManipulationCheckScreen() {
                 <p class="text-sm text-gray-500 mt-2">${t('minimumCharacters')}</p>
             </div>
             
-            <button onclick="validateManipulationThoughts()" class="btn-primary mt-4 w-full">
+            <button onclick="validateManipulationThoughts()" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1543,37 +1543,37 @@ window.validateManipulationThoughts = validateManipulationThoughts;
 function renderMessageInvolvementScreen() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-600 mb-4">${t('evaluateExperience')}</p>
+            <p class="text-center text-gray-600 mb-6">${t('evaluateExperience')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ1')} ${t('notInterested')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('veryInterested')}</p>
-                    ${renderLikertScale('inv_interested', 'involvementInterested', '', '', 1, 9, surveyData.involvementInterested)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ1')}</p>
+                    ${renderLikertScale('inv_interested', 'involvementInterested', t('notInterested'), t('veryInterested'), 1, 9, surveyData.involvementInterested)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ2')} ${t('notAbsorbed')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('veryAbsorbed')}</p>
-                    ${renderLikertScale('inv_absorbed', 'involvementAbsorbed', '', '', 1, 9, surveyData.involvementAbsorbed)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ2')}</p>
+                    ${renderLikertScale('inv_absorbed', 'involvementAbsorbed', t('notAbsorbed'), t('veryAbsorbed'), 1, 9, surveyData.involvementAbsorbed)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ3')} ${t('readQuickly')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('readWithAttention')}</p>
-                    ${renderLikertScale('inv_attention', 'involvementAttention', '', '', 1, 9, surveyData.involvementAttention)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ3')}</p>
+                    ${renderLikertScale('inv_attention', 'involvementAttention', t('readQuickly'), t('readWithAttention'), 1, 9, surveyData.involvementAttention)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ4')} ${t('irrelevantToYou')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('relevantToYou')}</p>
-                    ${renderLikertScale('inv_relevant_msg', 'involvementRelevant', '', '', 1, 9, surveyData.involvementRelevant)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ4')}</p>
+                    ${renderLikertScale('inv_relevant_msg', 'involvementRelevant', t('irrelevantToYou'), t('relevantToYou'), 1, 9, surveyData.involvementRelevant)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ5')} ${t('boring')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('interesting')}</p>
-                    ${renderLikertScale('inv_interesting', 'involvementInteresting', '', '', 1, 9, surveyData.involvementInteresting)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ5')}</p>
+                    ${renderLikertScale('inv_interesting', 'involvementInteresting', t('boring'), t('interesting'), 1, 9, surveyData.involvementInteresting)}
                 </div>
                 
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ6')} ${t('notEngaging')} ○ ○ ○ ○ ○ ○ ○ ○ ○ ${t('engaging')}</p>
-                    ${renderLikertScale('inv_engaging', 'involvementEngaging', '', '', 1, 9, surveyData.involvementEngaging)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('invQ6')}</p>
+                    ${renderLikertScale('inv_engaging', 'involvementEngaging', t('notEngaging'), t('engaging'), 1, 9, surveyData.involvementEngaging)}
                 </div>
             </div>
             
@@ -1589,28 +1589,28 @@ function renderIntentionScreen() {
     return `
         <div class="space-y-5">
             <p class="text-center text-2xl font-bold text-black mb-2">${t('imaginePurchase')} <strong class="text-black">${brandName}</strong>.</p>
-            <p class="text-center text-gray-600 mb-4">${t('indicateLikelihood')}</p>
+            <p class="text-center text-gray-600 mb-6">${t('indicateLikelihood')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ1')} ${t('unlikely')} ○ ○ ○ ○ ○ ○ ○ ${t('likely')}</p>
-                    ${renderLikertScale('int_probable', 'intentionProbable', '', '', 1, 7, surveyData.intentionProbable)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ1')}</p>
+                    ${renderLikertScale('int_probable', 'intentionProbable', t('unlikely'), t('likely'), 1, 7, surveyData.intentionProbable)}
                 </div>
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ2')} ${t('impossible')} ○ ○ ○ ○ ○ ○ ○ ${t('possible')}</p>
-                    ${renderLikertScale('int_possible', 'intentionPossible', '', '', 1, 7, surveyData.intentionPossible)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ2')}</p>
+                    ${renderLikertScale('int_possible', 'intentionPossible', t('impossible'), t('possible'), 1, 7, surveyData.intentionPossible)}
                 </div>
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ3')} ${t('definitelyNotUse')} ○ ○ ○ ○ ○ ○ ○ ${t('definitelyUse')}</p>
-                    ${renderLikertScale('int_definitely', 'intentionDefinitelyUse', '', '', 1, 7, surveyData.intentionDefinitelyUse)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ3')}</p>
+                    ${renderLikertScale('int_definitely', 'intentionDefinitelyUse', t('definitelyNotUse'), t('definitelyUse'), 1, 7, surveyData.intentionDefinitelyUse)}
                 </div>
                 <div>
-                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ4')} ${t('notFrequent')} ○ ○ ○ ○ ○ ○ ○ ${t('veryFrequent')}</p>
-                    ${renderLikertScale('int_frequent', 'intentionFrequent', '', '', 1, 7, surveyData.intentionFrequent)}
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ4')}</p>
+                    ${renderLikertScale('int_frequent', 'intentionFrequent', t('notFrequent'), t('veryFrequent'), 1, 7, surveyData.intentionFrequent)}
                 </div>
             </div>
             
-            <button onclick="validateLikertScreen('intention', ['intentionProbable', 'intentionPossible', 'intentionDefinitelyUse', 'intentionFrequent'], 'tagpeak_info')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('intention', ['intentionProbable', 'intentionPossible', 'intentionDefinitelyUse', 'intentionFrequent'], 'tagpeak_info')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1687,16 +1687,28 @@ function renderIntentionAfterWebsiteScreen() {
     return `
         <div class="space-y-5">
             <p class="text-center text-2xl font-bold text-black mb-2">${t('nowThatYouKnow')} <strong class="text-black">${brandName}</strong>.</p>
-            <p class="text-center text-gray-600 mb-4">${t('indicateLikelihood')}</p>
+            <p class="text-center text-gray-600 mb-6">${t('indicateLikelihood')}</p>
             
-            <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
-                ${renderLikertScale('int_after_probable', 'intentionAfterWebsiteProbable', t('unlikely'), t('likely'), 1, 7, surveyData.intentionAfterWebsiteProbable)}
-                ${renderLikertScale('int_after_possible', 'intentionAfterWebsitePossible', t('impossible'), t('possible'), 1, 7, surveyData.intentionAfterWebsitePossible)}
-                ${renderLikertScale('int_after_definitely', 'intentionAfterWebsiteDefinitelyUse', t('definitelyNotUse'), t('definitelyUse'), 1, 7, surveyData.intentionAfterWebsiteDefinitelyUse)}
-                ${renderLikertScale('int_after_frequent', 'intentionAfterWebsiteFrequent', t('notFrequent'), t('veryFrequent'), 1, 7, surveyData.intentionAfterWebsiteFrequent)}
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ1')}</p>
+                    ${renderLikertScale('int_after_probable', 'intentionAfterWebsiteProbable', t('unlikely'), t('likely'), 1, 7, surveyData.intentionAfterWebsiteProbable)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ2')}</p>
+                    ${renderLikertScale('int_after_possible', 'intentionAfterWebsitePossible', t('impossible'), t('possible'), 1, 7, surveyData.intentionAfterWebsitePossible)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ3')}</p>
+                    ${renderLikertScale('int_after_definitely', 'intentionAfterWebsiteDefinitelyUse', t('definitelyNotUse'), t('definitelyUse'), 1, 7, surveyData.intentionAfterWebsiteDefinitelyUse)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">${t('intentionQ4')}</p>
+                    ${renderLikertScale('int_after_frequent', 'intentionAfterWebsiteFrequent', t('notFrequent'), t('veryFrequent'), 1, 7, surveyData.intentionAfterWebsiteFrequent)}
+                </div>
             </div>
             
-            <button onclick="validateLikertScreen('intention_after_website', ['intentionAfterWebsiteProbable', 'intentionAfterWebsitePossible', 'intentionAfterWebsiteDefinitelyUse', 'intentionAfterWebsiteFrequent'], 'emotions_1')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('intention_after_website', ['intentionAfterWebsiteProbable', 'intentionAfterWebsitePossible', 'intentionAfterWebsiteDefinitelyUse', 'intentionAfterWebsiteFrequent'], 'emotions_1')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1706,26 +1718,20 @@ function renderIntentionAfterWebsiteScreen() {
 function renderEmotionsScreen1() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-600 mb-4">${t('evaluateStatements')}</p>
+            <p class="text-center text-gray-600 mb-6">${t('evaluateStatements')}</p>
             
-            <div class="space-y-4">
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('easeQ1')}</p>
-                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
-                            ${renderLikertScale('ease_difficult', 'easeDifficult', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeDifficult)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('easeQ2')}</p>
-                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
-                            ${renderLikertScale('ease_easy', 'easeEasy', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeEasy)}
-                        </div>
-                    </div>
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">1. ${t('easeQ1')}</p>
+                    ${renderLikertScale('ease_difficult', 'easeDifficult', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeDifficult)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">2. ${t('easeQ2')}</p>
+                    ${renderLikertScale('ease_easy', 'easeEasy', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.easeEasy)}
                 </div>
             </div>
             
-            <button onclick="validateLikertScreen('emotions_1', ['easeDifficult', 'easeEasy'], 'emotions_2')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('emotions_1', ['easeDifficult', 'easeEasy'], 'emotions_2')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1735,56 +1741,40 @@ function renderEmotionsScreen1() {
 function renderEmotionsScreen2() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-600 mb-4">${t('evaluateStatementsShort')}</p>
+            <p class="text-center text-gray-600 mb-6">${t('evaluateStatementsShort')}</p>
             
-            <div class="space-y-4">
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('clarityQ1')}</p>
-                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
-                            ${renderLikertScale('clarity_steps', 'clarityStepsClear', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityStepsClear)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">1. ${t('clarityQ2')}</p>
-                            <p class="text-sm text-gray-600 mb-3">${t('disagreeTotally')}, ${t('disagree')}, ${t('disagreeSlightly')}, ${t('neitherAgreeNorDisagree')}, ${t('agreeSlightly')}, ${t('agree')}, ${t('agreeTotally')}</p>
-                            ${renderLikertScale('clarity_secure', 'clarityFeelSecure', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityFeelSecure)}
-                        </div>
-                    </div>
+            <div class="space-y-6 bg-gray-50 p-6 rounded-2xl">
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">1. ${t('clarityQ1')}</p>
+                    ${renderLikertScale('clarity_steps', 'clarityStepsClear', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityStepsClear)}
                 </div>
-                
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('advantageQ1')}</p>
-                            ${renderLikertScale('advantage_more', 'advantageMoreAdvantageous', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.advantageMoreAdvantageous)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('advantageQ2')}</p>
-                            ${renderLikertScale('advantage_better', 'advantageBetterPosition', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.advantageBetterPosition)}
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">2. ${t('clarityQ2')}</p>
+                    ${renderLikertScale('clarity_secure', 'clarityFeelSecure', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.clarityFeelSecure)}
                 </div>
-                
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('willingnessQ1')}</p>
-                            ${renderLikertScale('willingness_interest', 'willingnessInterest', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessInterest)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('willingnessQ2')}</p>
-                            ${renderLikertScale('willingness_likely', 'willingnessLikelyUse', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessLikelyUse)}
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-800 mb-4">${t('willingnessQ3')}</p>
-                            ${renderLikertScale('willingness_future', 'willingnessIntendFuture', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessIntendFuture)}
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">3. ${t('advantageQ1')}</p>
+                    ${renderLikertScale('advantage_more', 'advantageMoreAdvantageous', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.advantageMoreAdvantageous)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">4. ${t('advantageQ2')}</p>
+                    ${renderLikertScale('advantage_better', 'advantageBetterPosition', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.advantageBetterPosition)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">5. ${t('willingnessQ1')}</p>
+                    ${renderLikertScale('willingness_interest', 'willingnessInterest', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessInterest)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">6. ${t('willingnessQ2')}</p>
+                    ${renderLikertScale('willingness_likely', 'willingnessLikelyUse', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessLikelyUse)}
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-800 mb-4">7. ${t('willingnessQ3')}</p>
+                    ${renderLikertScale('willingness_future', 'willingnessIntendFuture', t('disagreeTotally'), t('agreeTotally'), 1, 7, surveyData.willingnessIntendFuture)}
                 </div>
             </div>
             
-            <button onclick="validateLikertScreen('emotions_2', ['clarityStepsClear', 'clarityFeelSecure', 'advantageMoreAdvantageous', 'advantageBetterPosition', 'willingnessInterest', 'willingnessLikelyUse', 'willingnessIntendFuture'], 'concerns')" class="btn-primary mt-6 w-full">
+            <button onclick="validateLikertScreen('emotions_2', ['clarityStepsClear', 'clarityFeelSecure', 'advantageMoreAdvantageous', 'advantageBetterPosition', 'willingnessInterest', 'willingnessLikelyUse', 'willingnessIntendFuture'], 'concerns')" class="btn-primary mt-8 w-full">
                 ${t('continue')}
             </button>
         </div>
@@ -1815,7 +1805,7 @@ function renderConcernsScreen() {
                 <p class="text-sm text-gray-500 mt-2">${t('minimumCharacters')}</p>
             </div>
             
-            <button onclick="validateConcernsAndSubmit()" class="btn-primary mt-4 w-full">
+            <button onclick="validateConcernsAndSubmit()" class="btn-primary mt-8 w-full">
                 ${t('submit')}
             </button>
         </div>
@@ -1908,12 +1898,17 @@ function renderLikertScale(questionId, fieldName, leftLabel, rightLabel, min = 1
     
     const gridCols = max === 9 ? 'grid-cols-9' : max === 7 ? 'grid-cols-7' : `grid-cols-${max}`;
     
+    // Only show labels if they are provided and not empty
+    const showLabels = leftLabel && rightLabel && leftLabel.trim() !== '' && rightLabel.trim() !== '';
+    
     return `
         <div class="likert-question">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-gray-600 text-left">${leftLabel}</span>
-                <span class="text-sm font-medium text-gray-600 text-right">${rightLabel}</span>
+            ${showLabels ? `
+            <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-sm font-semibold text-gray-700 text-left">${leftLabel}</span>
+                <span class="text-sm font-semibold text-gray-700 text-right">${rightLabel}</span>
             </div>
+            ` : ''}
             <div class="grid ${gridCols} gap-2 mb-2" id="${questionId}-options">
                 ${options.join('')}
             </div>

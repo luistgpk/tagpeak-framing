@@ -504,6 +504,7 @@ input:focus, select:focus, textarea:focus {
 .likert-option-btn {
     min-height: 50px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 .brand-btn {
@@ -512,14 +513,24 @@ input:focus, select:focus, textarea:focus {
 
 .likert-option-btn:hover {
     transform: translateY(-2px);
+    border-color: var(--primary-color) !important;
 }
 
 .likert-option-btn:active {
     transform: scale(0.95);
 }
 
+.likert-option-btn.border-blue-500 {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1), var(--shadow-md) !important;
+}
+
 .likert-question {
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+}
+
+.likert-question + .likert-question {
+    margin-top: 2rem;
 }
 
 /* === RESPONSIVE GRID FOR LIKERT === */
