@@ -118,8 +118,7 @@ const translations = {
         no: "No",
         
         // Manipulation check - open text
-        manipulationThoughtsPrompt: "After reading this message, what thoughts came to your mind?",
-        manipulationThoughtsInstruction: "List everything you remember",
+        manipulationThoughtsPrompt: "After reading the email, what thoughts came to your mind about the benefit?",
         manipulationThoughtsPlaceholder: "Write your thoughts here...",
         manipulationThoughtsError: "Please write at least 30 characters about your thoughts.",
         
@@ -356,8 +355,7 @@ const translations = {
         no: "No",
         
         // Manipulation check - open text
-        manipulationThoughtsPrompt: "Después de leer este mensaje, ¿qué pensamientos le vinieron a la cabeza?",
-        manipulationThoughtsInstruction: "Enumere todo lo que recuerde",
+        manipulationThoughtsPrompt: "Después de leer el correo, ¿qué pensamientos le vinieron a la cabeza sobre el beneficio?",
         manipulationThoughtsPlaceholder: "Escriba sus pensamientos aquí...",
         manipulationThoughtsError: "Por favor, escriba al menos 30 caracteres sobre sus pensamientos.",
         
@@ -594,8 +592,7 @@ const translations = {
         no: "Não",
         
         // Manipulation check - open text
-        manipulationThoughtsPrompt: "Depois de ler esta mensagem, que pensamentos lhe vieram à cabeça?",
-        manipulationThoughtsInstruction: "Liste tudo o que se lembrar",
+        manipulationThoughtsPrompt: "Depois de ler o email, que pensamentos lhe vieram à cabeça acerca do benefício?",
         manipulationThoughtsPlaceholder: "Escreva os seus pensamentos aqui...",
         manipulationThoughtsError: "Por favor, escreva pelo menos 30 caracteres sobre os seus pensamentos.",
         
@@ -1276,7 +1273,6 @@ function renderInvestmentInvolvementScreen() {
         <div class="space-y-5">
             <p class="text-center text-gray-700 mb-2">${t('investmentInvolvementPrompt')}</p>
             <p class="text-center text-gray-800 font-semibold mb-4">${t('investmentInvolvementStatement')}</p>
-            <p class="text-center text-xs text-gray-500 mb-4">${t('reversedItems')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
                 ${renderLikertScale('inv_inv_important', 'investmentInvolvementImportant', t('important'), t('notImportant'), 1, 7, surveyData.investmentInvolvementImportant)}
@@ -1297,7 +1293,6 @@ function renderInitialInvolvementScreen() {
         <div class="space-y-5">
             <p class="text-center text-gray-700 mb-2">${t('initialInvolvementPrompt')}</p>
             <p class="text-center text-gray-800 font-semibold mb-4">${t('initialInvolvementStatement')}</p>
-            <p class="text-center text-xs text-gray-500 mb-4">${t('reversedItems')}</p>
             
             <div class="space-y-5 bg-gray-50 p-4 rounded-2xl">
                 ${renderLikertScale('inv_important', 'initialInvolvementImportant', t('important'), t('notImportant'), 1, 7, surveyData.initialInvolvementImportant)}
@@ -1511,8 +1506,7 @@ function renderExclusionScreen() {
 function renderManipulationCheckScreen() {
     return `
         <div class="space-y-5">
-            <p class="text-center text-gray-700 mb-2">${t('manipulationThoughtsPrompt')}</p>
-            <p class="text-center text-gray-600 mb-4">${t('manipulationThoughtsInstruction')}</p>
+            <p class="text-center text-gray-700 mb-4">${t('manipulationThoughtsPrompt')}</p>
             
             <div class="bg-gray-50 p-6 rounded-2xl">
                 <label for="manipulation_thoughts" class="block text-base font-semibold text-gray-800 mb-3">${t('yourConcerns')}</label>
@@ -1542,6 +1536,9 @@ function validateManipulationThoughts() {
     }
     renderScreen('message_involvement');
 }
+
+// Make function globally accessible
+window.validateManipulationThoughts = validateManipulationThoughts;
 
 function renderMessageInvolvementScreen() {
     return `
