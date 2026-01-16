@@ -1,15 +1,36 @@
 // Password protection
-const CORRECT_PASSWORD = 'tagpeak2024'; // Change this to your desired password
+const CORRECT_PASSWORD = 'tagpeak2026!'; // Change this to your desired password
 
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const password = document.getElementById('password').value;
-    if (password === CORRECT_PASSWORD) {
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('dashboard').classList.add('active');
-        loadData();
-    } else {
-        document.getElementById('errorMessage').style.display = 'block';
+// Wait for DOM and scripts to be ready
+window.addEventListener('load', () => {
+    configureChartDefaults();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginContainer = document.getElementById('loginContainer');
+            const dashboard = document.getElementById('dashboard');
+            
+            if (passwordInput && errorMessage && loginContainer && dashboard) {
+                const password = passwordInput.value;
+                if (password === CORRECT_PASSWORD) {
+                    loginContainer.style.display = 'none';
+                    dashboard.classList.add('active');
+                    loadData();
+                } else {
+                    errorMessage.style.display = 'block';
+                    passwordInput.value = ''; // Clear password field
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 3000);
+                }
+            }
+        });
     }
 });
 
@@ -18,9 +39,13 @@ let demographicsData = [];
 let framingData = [];
 let processedData = null;
 
-// Chart.js default configuration
-Chart.defaults.font.family = 'Inter';
-Chart.defaults.color = '#666';
+// Chart.js default configuration (set after Chart.js loads)
+function configureChartDefaults() {
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.color = '#666';
+    }
+}
 
 // Load and parse CSV files
 async function loadData() {
@@ -47,6 +72,9 @@ async function loadData() {
         renderManipulationCheck();
         renderConcerns();
         renderConclusions();
+        
+        // Setup event listeners after rendering
+        setupEventListeners();
     } catch (error) {
         console.error('Error loading data:', error);
         document.getElementById('dashboard').innerHTML = '<div class="loading">Error loading data files. Please ensure CSV files are in the same directory.</div>';
@@ -780,13 +808,13 @@ function renderModeration() {
     document.getElementById('moderationCharts').innerHTML = moderationHTML;
 }
 
-// Add event listener for moderator filter
-document.addEventListener('DOMContentLoaded', () => {
+// Add event listener for moderator filter (moved to loadData completion)
+function setupEventListeners() {
     const moderatorFilter = document.getElementById('moderatorFilter');
     if (moderatorFilter) {
         moderatorFilter.addEventListener('change', renderModeration);
     }
-});
+}
 
 // Render Manipulation Check
 function renderManipulationCheck() {

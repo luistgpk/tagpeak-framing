@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self';">
     <title>TagPeak Framing Study - Analytics Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -304,7 +305,7 @@
     <div class="login-container" id="loginContainer">
         <h1>🔒 Analytics Dashboard</h1>
         <form class="login-form" id="loginForm">
-            <input type="password" id="password" placeholder="Enter password" required>
+            <input type="password" id="password" placeholder="Enter password" autocomplete="new-password" required>
             <button type="submit">Access Dashboard</button>
             <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
         </form>
