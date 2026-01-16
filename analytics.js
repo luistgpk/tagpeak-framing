@@ -1459,12 +1459,33 @@ function renderModeration() {
             </div>
         `;
     } else if (moderator === 'literacy') {
-        // Financial Literacy Moderation
+        // Financial Literacy Moderation with interaction test
         const highLit = validData.filter(r => r.financial_literacy === 3);
         const medLit = validData.filter(r => r.financial_literacy === 2);
         const lowLit = validData.filter(r => r.financial_literacy <= 1);
         
         const outcome = 'intention_after';
+        
+        // Prepare data for analysis (simplified 2-way for high vs low)
+        const highLowData = {
+            groups: {
+                'A': {
+                    'High': highLit.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowLit.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'B': {
+                    'High': highLit.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowLit.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'C': {
+                    'High': highLit.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowLit.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null)
+                }
+            }
+        };
+        
+        const interactionResult = twoWayAnova(highLowData);
+        
         const highA = highLit.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
         const highB = highLit.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
         const highC = highLit.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
@@ -1640,13 +1661,25 @@ function renderModeration() {
         canvasElement = document.createElement('div');
         canvasElement.appendChild(chartWrapper);
         canvasElement.appendChild(interactionPlotWrapper);
+        const highMeans = { 'A': meanHighA, 'B': meanHighB, 'C': meanHighC };
+        const lowMeans = { 'A': meanLowA, 'B': meanLowB, 'C': meanLowC };
+        const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        
         moderationHTML = `
             <div class="conclusion-box">
-                <h4>Financial Literacy Moderation</h4>
+                <h4>Financial Literacy Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
                 <p><strong>High Literacy (3 correct):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Medium Literacy (2 correct):</strong> A: ${meanMedA !== null ? meanMedA.toFixed(2) : 'N/A'}, B: ${meanMedB !== null ? meanMedB.toFixed(2) : 'N/A'}, C: ${meanMedC !== null ? meanMedC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Low Literacy (0-1 correct):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
-                <p>${meanHighA !== null && meanHighB !== null && meanHighC !== null && meanHighA > meanHighB && meanHighA > meanHighC ? 'High financial literacy participants respond best to Financial frame (A)' : 'Financial literacy moderates framing effects'}</p>
+                ${interactionResult.hasInteraction ? `
+                    <p><strong>Simple Effects:</strong></p>
+                    <ul>
+                        <li><strong>High Literacy:</strong> Best frame is ${highBest} (${highBest ? highMeans[highBest].toFixed(2) : 'N/A'})</li>
+                        <li><strong>Low Literacy:</strong> Best frame is ${lowBest} (${lowBest ? lowMeans[lowBest].toFixed(2) : 'N/A'})</li>
+                    </ul>
+                    <p><em>Framing effects differ significantly between high and low financial literacy groups.</em></p>
+                ` : '<p><em>Framing effects are similar across financial literacy levels.</em></p>'}
             </div>
         `;
     } else if (moderator === 'age') {
@@ -1832,12 +1865,502 @@ function renderModeration() {
         canvasElement.appendChild(chartWrapper);
         canvasElement.appendChild(interactionPlotWrapper);
         moderationHTML = '';
-    } else if (moderator === 'promotional' || moderator === 'income' || moderator === 'gender') {
-        // Placeholder for future moderation analyses
+    } else if (moderator === 'promotional') {
+        // Promotional Benefit Involvement Moderation
+        const highProm = validData.filter(r => r.promotional_involvement !== null && r.promotional_involvement >= 4);
+        const lowProm = validData.filter(r => r.promotional_involvement !== null && r.promotional_involvement < 4);
+        
+        const outcome = 'intention_after';
+        
+        // Prepare data for 2-way ANOVA
+        const twoWayData = {
+            groups: {
+                'A': {
+                    'High': highProm.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowProm.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'B': {
+                    'High': highProm.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowProm.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'C': {
+                    'High': highProm.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowProm.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null)
+                }
+            }
+        };
+        
+        const interactionResult = twoWayAnova(twoWayData);
+        
+        const highA = twoWayData.groups['A']['High'];
+        const highB = twoWayData.groups['B']['High'];
+        const highC = twoWayData.groups['C']['High'];
+        const lowA = twoWayData.groups['A']['Low'];
+        const lowB = twoWayData.groups['B']['Low'];
+        const lowC = twoWayData.groups['C']['Low'];
+        
+        const meanHighA = mean(highA);
+        const meanHighB = mean(highB);
+        const meanHighC = mean(highC);
+        const meanLowA = mean(lowA);
+        const meanLowB = mean(lowB);
+        const meanLowC = mean(lowC);
+        
+        // Bar chart
+        chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        chartWrapper.appendChild(canvas);
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Condition A', 'Condition B', 'Condition C'],
+                datasets: [
+                    {
+                        label: 'High Promotional Involvement',
+                        data: [
+                            meanHighA !== null ? meanHighA : 0,
+                            meanHighB !== null ? meanHighB : 0,
+                            meanHighC !== null ? meanHighC : 0
+                        ],
+                        backgroundColor: '#667eea'
+                    },
+                    {
+                        label: 'Low Promotional Involvement',
+                        data: [
+                            meanLowA !== null ? meanLowA : 0,
+                            meanLowB !== null ? meanLowB : 0,
+                            meanLowC !== null ? meanLowC : 0
+                        ],
+                        backgroundColor: '#9ca3af'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Intention by Framing Condition × Promotional Benefit Involvement', font: { size: 16 } }
+                },
+                scales: { y: { beginAtZero: true, max: 7 } }
+            }
+        });
+        
+        // Interaction plot
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Condition A', 'Condition B', 'Condition C'],
+                datasets: [
+                    {
+                        label: 'High Promotional Involvement',
+                        data: [
+                            meanHighA !== null ? meanHighA : null,
+                            meanHighB !== null ? meanHighB : null,
+                            meanHighC !== null ? meanHighC : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Low Promotional Involvement',
+                        data: [
+                            meanLowA !== null ? meanLowA : null,
+                            meanLowB !== null ? meanLowB : null,
+                            meanLowC !== null ? meanLowC : null
+                        ],
+                        borderColor: '#9ca3af',
+                        backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#9ca3af',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Interaction Plot: Framing × Promotional Benefit Involvement', font: { size: 16 } },
+                    legend: { display: true, position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: { 
+                    y: { beginAtZero: true, max: 7, title: { display: true, text: 'Intention to Use' } },
+                    x: { title: { display: true, text: 'Framing Condition' } }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
+        
+        const highMeans = { 'A': meanHighA, 'B': meanHighB, 'C': meanHighC };
+        const lowMeans = { 'A': meanLowA, 'B': meanLowB, 'C': meanLowC };
+        const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        
         moderationHTML = `
             <div class="conclusion-box">
-                <h4>${moderator === 'promotional' ? 'Promotional Benefit Involvement' : moderator === 'income' ? 'Income Level' : 'Gender'} Moderation</h4>
-                <p>This moderation analysis is not yet implemented. Coming soon!</p>
+                <h4>Promotional Benefit Involvement Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
+                <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Low Involvement (<4):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                ${interactionResult.hasInteraction ? `
+                    <p><strong>Simple Effects:</strong></p>
+                    <ul>
+                        <li><strong>High Involvement:</strong> Best frame is ${highBest} (${highBest ? highMeans[highBest].toFixed(2) : 'N/A'})</li>
+                        <li><strong>Low Involvement:</strong> Best frame is ${lowBest} (${lowBest ? lowMeans[lowBest].toFixed(2) : 'N/A'})</li>
+                    </ul>
+                    <p><em>Framing effects differ significantly between high and low promotional involvement groups.</em></p>
+                ` : '<p><em>Framing effects are similar across promotional involvement levels.</em></p>'}
+            </div>
+        `;
+    } else if (moderator === 'income') {
+        // Income Level Moderation
+        const lowIncome = validData.filter(r => r.monthly_income === 'less_1500' || r.monthly_income === '1500_2500');
+        const midIncome = validData.filter(r => r.monthly_income === '2500_4000' || r.monthly_income === '4000_6000');
+        const highIncome = validData.filter(r => r.monthly_income === 'more_6000');
+        
+        const outcome = 'intention_after';
+        const lowA = lowIncome.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const lowB = lowIncome.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const lowC = lowIncome.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        const midA = midIncome.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const midB = midIncome.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const midC = midIncome.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        const highA = highIncome.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const highB = highIncome.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const highC = highIncome.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        
+        const meanLowA = mean(lowA);
+        const meanLowB = mean(lowB);
+        const meanLowC = mean(lowC);
+        const meanMidA = mean(midA);
+        const meanMidB = mean(midB);
+        const meanMidC = mean(midC);
+        const meanHighA = mean(highA);
+        const meanHighB = mean(highB);
+        const meanHighC = mean(highC);
+        
+        // Bar chart
+        chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        chartWrapper.appendChild(canvas);
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Low Income (≤€2500)', 'Mid Income (€2500-€6000)', 'High Income (>€6000)'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanLowA !== null ? meanLowA : 0,
+                            meanMidA !== null ? meanMidA : 0,
+                            meanHighA !== null ? meanHighA : 0
+                        ],
+                        backgroundColor: '#667eea'
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanLowB !== null ? meanLowB : 0,
+                            meanMidB !== null ? meanMidB : 0,
+                            meanHighB !== null ? meanHighB : 0
+                        ],
+                        backgroundColor: '#764ba2'
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanLowC !== null ? meanLowC : 0,
+                            meanMidC !== null ? meanMidC : 0,
+                            meanHighC !== null ? meanHighC : 0
+                        ],
+                        backgroundColor: '#f093fb'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Intention by Framing Condition × Income Level', font: { size: 16 } }
+                },
+                scales: { y: { beginAtZero: true, max: 7 } }
+            }
+        });
+        
+        // Interaction plot
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Low Income', 'Mid Income', 'High Income'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanLowA !== null ? meanLowA : null,
+                            meanMidA !== null ? meanMidA : null,
+                            meanHighA !== null ? meanHighA : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanLowB !== null ? meanLowB : null,
+                            meanMidB !== null ? meanMidB : null,
+                            meanHighB !== null ? meanHighB : null
+                        ],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanLowC !== null ? meanLowC : null,
+                            meanMidC !== null ? meanMidC : null,
+                            meanHighC !== null ? meanHighC : null
+                        ],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#f093fb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Interaction Plot: Framing × Income Level', font: { size: 16 } },
+                    legend: { display: true, position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: { 
+                    y: { beginAtZero: true, max: 7, title: { display: true, text: 'Intention to Use' } },
+                    x: { title: { display: true, text: 'Income Level' } }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
+        
+        moderationHTML = `
+            <div class="conclusion-box">
+                <h4>Income Level Moderation</h4>
+                <p><strong>Low Income (≤€2500):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Mid Income (€2500-€6000):</strong> A: ${meanMidA !== null ? meanMidA.toFixed(2) : 'N/A'}, B: ${meanMidB !== null ? meanMidB.toFixed(2) : 'N/A'}, C: ${meanMidC !== null ? meanMidC.toFixed(2) : 'N/A'}</p>
+                <p><strong>High Income (>€6000):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
+                <p><em>Income level may moderate framing effects. Higher income participants may respond differently to financial framing.</em></p>
+            </div>
+        `;
+    } else if (moderator === 'gender') {
+        // Gender Moderation
+        const women = validData.filter(r => r.gender_code === '2');
+        const men = validData.filter(r => r.gender_code === '9');
+        const other = validData.filter(r => r.gender_code !== '2' && r.gender_code !== '9');
+        
+        const outcome = 'intention_after';
+        const womenA = women.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const womenB = women.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const womenC = women.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        const menA = men.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const menB = men.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const menC = men.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        const otherA = other.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const otherB = other.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const otherC = other.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        
+        const meanWomenA = mean(womenA);
+        const meanWomenB = mean(womenB);
+        const meanWomenC = mean(womenC);
+        const meanMenA = mean(menA);
+        const meanMenB = mean(menB);
+        const meanMenC = mean(menC);
+        const meanOtherA = mean(otherA);
+        const meanOtherB = mean(otherB);
+        const meanOtherC = mean(otherC);
+        
+        // Bar chart
+        chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        chartWrapper.appendChild(canvas);
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Women', 'Men', 'Other'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanWomenA !== null ? meanWomenA : 0,
+                            meanMenA !== null ? meanMenA : 0,
+                            meanOtherA !== null ? meanOtherA : 0
+                        ],
+                        backgroundColor: '#667eea'
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanWomenB !== null ? meanWomenB : 0,
+                            meanMenB !== null ? meanMenB : 0,
+                            meanOtherB !== null ? meanOtherB : 0
+                        ],
+                        backgroundColor: '#764ba2'
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanWomenC !== null ? meanWomenC : 0,
+                            meanMenC !== null ? meanMenC : 0,
+                            meanOtherC !== null ? meanOtherC : 0
+                        ],
+                        backgroundColor: '#f093fb'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Intention by Framing Condition × Gender', font: { size: 16 } }
+                },
+                scales: { y: { beginAtZero: true, max: 7 } }
+            }
+        });
+        
+        // Interaction plot
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Women', 'Men', 'Other'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanWomenA !== null ? meanWomenA : null,
+                            meanMenA !== null ? meanMenA : null,
+                            meanOtherA !== null ? meanOtherA : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanWomenB !== null ? meanWomenB : null,
+                            meanMenB !== null ? meanMenB : null,
+                            meanOtherB !== null ? meanOtherB : null
+                        ],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanWomenC !== null ? meanWomenC : null,
+                            meanMenC !== null ? meanMenC : null,
+                            meanOtherC !== null ? meanOtherC : null
+                        ],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#f093fb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Interaction Plot: Framing × Gender', font: { size: 16 } },
+                    legend: { display: true, position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: { 
+                    y: { beginAtZero: true, max: 7, title: { display: true, text: 'Intention to Use' } },
+                    x: { title: { display: true, text: 'Gender' } }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
+        
+        moderationHTML = `
+            <div class="conclusion-box">
+                <h4>Gender Moderation</h4>
+                <p><strong>Women:</strong> A: ${meanWomenA !== null ? meanWomenA.toFixed(2) : 'N/A'}, B: ${meanWomenB !== null ? meanWomenB.toFixed(2) : 'N/A'}, C: ${meanWomenC !== null ? meanWomenC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Men:</strong> A: ${meanMenA !== null ? meanMenA.toFixed(2) : 'N/A'}, B: ${meanMenB !== null ? meanMenB.toFixed(2) : 'N/A'}, C: ${meanMenC !== null ? meanMenC.toFixed(2) : 'N/A'}</p>
+                ${other.length > 5 ? `<p><strong>Other:</strong> A: ${meanOtherA !== null ? meanOtherA.toFixed(2) : 'N/A'}, B: ${meanOtherB !== null ? meanOtherB.toFixed(2) : 'N/A'}, C: ${meanOtherC !== null ? meanOtherC.toFixed(2) : 'N/A'}</p>` : ''}
+                <p><em>Gender may moderate framing effects. Research suggests men and women may respond differently to financial messaging.</em></p>
             </div>
         `;
     } else {
