@@ -306,7 +306,8 @@
     <div class="login-container" id="loginContainer">
         <h1>🔒 Analytics Dashboard</h1>
         <form class="login-form" id="loginForm">
-            <input type="password" id="password" placeholder="Enter password" autocomplete="new-password" required>
+            <input type="text" name="username" autocomplete="username" style="display: none;" tabindex="-1" aria-hidden="true">
+            <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" required>
             <button type="submit">Access Dashboard</button>
             <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
         </form>

@@ -111,9 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     loginContainer.style.display = 'none';
                     dashboard.classList.add('active');
                     
-                    // Show loading message
-                    const dashboardContent = dashboard.innerHTML;
-                    dashboard.innerHTML = '<div class="section"><div class="loading">Loading data and initializing dashboard...</div></div>';
+                    // Store original dashboard content for restoration (ONLY ONCE, before any modifications)
+                    if (!window.originalDashboardHTML) {
+                        window.originalDashboardHTML = dashboard.innerHTML;
+                    }
+                    
+                    // Show loading message - insert at top but keep structure
+                    const loadingSection = document.createElement('div');
+                    loadingSection.className = 'section';
+                    loadingSection.innerHTML = '<div class="loading"><h2>⏳ Loading Data...</h2><p>Please wait while we load and process your survey data...</p></div>';
+                    // Insert at the beginning, keeping all other sections
+                    dashboard.insertBefore(loadingSection, dashboard.firstChild);
+                    window.loadingSection = loadingSection;
                     
                     // Wait a bit for scripts, then load data
                     setTimeout(() => {
@@ -144,6 +153,17 @@ function configureChartDefaults() {
     }
 }
 
+// Helper function to safely set innerHTML
+function safeSetHTML(elementId, html) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.error(`Element with id '${elementId}' not found`);
+        return false;
+    }
+    element.innerHTML = html;
+    return true;
+}
+
 // Load and parse CSV files
 async function loadData() {
     try {
@@ -160,28 +180,33 @@ async function loadData() {
             throw new Error('Chart.js library not loaded. The script may be blocked by Content Security Policy (CSP). Try using a local server instead of opening the file directly.');
         }
 
-        // Try to find CSV files (check common date formats)
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+        // Try to find CSV files (check actual file dates first, then today)
+        // Get list of possible dates - try actual file dates first
         const possibleDates = [
-            dateStr,
-            '2026-01-15',
+            '2026-01-15',  // Actual file date
             '2025-01-15',
-            '2024-01-15'
+            '2024-01-15',
+            new Date().toISOString().split('T')[0]  // Today's date as fallback
         ];
 
         let demoFile = null;
         let framingFile = null;
         let demoText = null;
         let framingText = null;
+        
+        // Store these in outer scope for error display
+        window.lastDemoText = null;
+        window.lastFramingText = null;
 
         // Try to load demographics file
         for (const date of possibleDates) {
             try {
                 const response = await fetch(`demographics-${date}.csv`);
-                if (response.ok) {
+                if (response.ok && response.status === 200) {
                     demoFile = `demographics-${date}.csv`;
                     demoText = await response.text();
+                    window.lastDemoText = demoText;
+                    console.log(`✅ Loaded: demographics-${date}.csv`);
                     break;
                 }
             } catch (e) {
@@ -193,9 +218,11 @@ async function loadData() {
         for (const date of possibleDates) {
             try {
                 const response = await fetch(`framing_study_results-${date}.csv`);
-                if (response.ok) {
+                if (response.ok && response.status === 200) {
                     framingFile = `framing_study_results-${date}.csv`;
                     framingText = await response.text();
+                    window.lastFramingText = framingText;
+                    console.log(`✅ Loaded: framing_study_results-${date}.csv`);
                     break;
                 }
             } catch (e) {
@@ -223,7 +250,8 @@ async function loadData() {
         }
 
         if (!demoText || !framingText) {
-            throw new Error(`CSV files not found. Tried: demographics-*.csv and framing_study_results-*.csv. Please ensure files are in the same directory as analytics.html`);
+            const triedDates = possibleDates.join(', ');
+            throw new Error(`CSV files not found. Tried dates: ${triedDates}. Also tried: demographics.csv and framing_study_results.csv. Please ensure CSV files are in the same directory as analytics.html and have the correct date format (YYYY-MM-DD).`);
         }
 
         // Parse CSV data
@@ -234,6 +262,32 @@ async function loadData() {
             throw new Error('CSV files are empty or could not be parsed.');
         }
 
+        // Remove loading section if it exists
+        if (window.loadingSection && window.loadingSection.parentNode) {
+            window.loadingSection.parentNode.removeChild(window.loadingSection);
+            window.loadingSection = null;
+        }
+        
+        // Ensure dashboard structure is intact
+        const dashboard = document.getElementById('dashboard');
+        if (!dashboard) {
+            throw new Error('Dashboard element not found in DOM');
+        }
+        
+        // Verify critical elements exist - if not, restore from stored HTML
+        let overviewStats = document.getElementById('overviewStats');
+        if (!overviewStats && window.originalDashboardHTML) {
+            console.log('Restoring dashboard structure...');
+            dashboard.innerHTML = window.originalDashboardHTML;
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            overviewStats = document.getElementById('overviewStats');
+        }
+        
+        if (!overviewStats) {
+            throw new Error('Dashboard structure is missing. Element overviewStats not found. Please refresh the page.');
+        }
+        
         // Process and merge data
         processData();
         
@@ -253,23 +307,42 @@ async function loadData() {
         console.error('Error loading data:', error);
         const dashboard = document.getElementById('dashboard');
         if (dashboard) {
-            dashboard.innerHTML = `
-                <div class="section">
-                    <h2>⚠️ Error Loading Data</h2>
-                    <div class="conclusion-box">
-                        <h4>Error Details:</h4>
-                        <p>${error.message}</p>
-                        <h4 style="margin-top: 20px;">Troubleshooting:</h4>
-                        <ul style="margin-left: 20px; margin-top: 10px;">
-                            <li>Ensure CSV files are in the same directory as analytics.html</li>
-                            <li>Check file names: demographics-YYYY-MM-DD.csv and framing_study_results-YYYY-MM-DD.csv</li>
-                            <li>If using a local server, make sure it's running (e.g., python -m http.server 8000)</li>
-                            <li>Check browser console for CORS errors</li>
-                            <li>Verify that PapaParse and Chart.js libraries loaded (check Network tab)</li>
-                        </ul>
-                    </div>
+            // Restore original structure first
+            if (window.originalDashboardHTML) {
+                dashboard.innerHTML = window.originalDashboardHTML;
+            }
+            
+            // Show error in a section
+            const errorSection = document.createElement('div');
+            errorSection.className = 'section';
+            errorSection.innerHTML = `
+                <h2>⚠️ Error Loading Data</h2>
+                <div class="conclusion-box">
+                    <h4>Error Details:</h4>
+                    <p><strong>${error.message}</strong></p>
+                    <h4 style="margin-top: 20px;">Troubleshooting:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>File Location:</strong> Ensure CSV files are in the same directory as analytics.html</li>
+                        <li><strong>File Names:</strong> Check that files are named correctly:
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li><code>demographics-2026-01-15.csv</code></li>
+                                <li><code>framing_study_results-2026-01-15.csv</code></li>
+                            </ul>
+                        </li>
+                        <li><strong>Local Server:</strong> If testing locally, use a server:
+                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-top: 5px; overflow-x: auto;">python -m http.server 8000</pre>
+                        </li>
+                        <li><strong>Vercel Deployment:</strong> If on Vercel, ensure CSV files are committed and deployed</li>
+                        <li><strong>Check Console:</strong> Open browser console (F12) for detailed error messages</li>
+                    </ul>
+                    <p style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+                        <strong>Current File Status:</strong><br>
+                        Demographics file: ${window.lastDemoText ? '✅ Found' : '❌ Not found'}<br>
+                        Framing results file: ${window.lastFramingText ? '✅ Found' : '❌ Not found'}
+                    </p>
                 </div>
             `;
+            dashboard.insertBefore(errorSection, dashboard.firstChild);
         }
     }
 }
@@ -481,7 +554,12 @@ function renderOverview() {
         </div>
     `).join('');
 
-    document.getElementById('overviewStats').innerHTML = statsHTML;
+    const overviewStatsEl = document.getElementById('overviewStats');
+    if (!overviewStatsEl) {
+        console.error('overviewStats element not found');
+        return;
+    }
+    overviewStatsEl.innerHTML = statsHTML;
 
     // Demographics charts
     renderDemographicsCharts();
@@ -547,7 +625,8 @@ function renderDemographicsCharts() {
         }
     });
 
-    document.getElementById('demographicsCharts').innerHTML = '';
+    const demoChartsEl = document.getElementById('demographicsCharts');
+    if (demoChartsEl) demoChartsEl.innerHTML = '';
     document.getElementById('demographicsCharts').appendChild(ageCanvas);
     document.getElementById('demographicsCharts').appendChild(genderCanvas);
 }
@@ -573,7 +652,12 @@ function renderDataQuality() {
         }
     };
 
-    document.getElementById('qualityStats').innerHTML = `
+    const qualityStatsEl = document.getElementById('qualityStats');
+    if (!qualityStatsEl) {
+        console.error('qualityStats element not found');
+        return;
+    }
+    qualityStatsEl.innerHTML = `
         <div class="stats-grid">
             <div class="stat-card">
                 <h4>Total Responses</h4>
@@ -631,7 +715,8 @@ function renderDataQuality() {
         }
     });
 
-    document.getElementById('exclusionCharts').innerHTML = '';
+    const exclusionChartsEl = document.getElementById('exclusionCharts');
+    if (exclusionChartsEl) exclusionChartsEl.innerHTML = '';
     document.getElementById('exclusionCharts').appendChild(exclusionCanvas);
 }
 
@@ -745,8 +830,10 @@ function renderMainEffects() {
         `);
     });
 
-    document.getElementById('mainEffectsCharts').innerHTML = chartsHTML.join('');
-    document.getElementById('mainEffectsTables').innerHTML = tablesHTML.join('');
+    const mainEffectsChartsEl = document.getElementById('mainEffectsCharts');
+    const mainEffectsTablesEl = document.getElementById('mainEffectsTables');
+    if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = chartsHTML.join('');
+    if (mainEffectsTablesEl) mainEffectsTablesEl.innerHTML = tablesHTML.join('');
 }
 
 // Render Website Impact
@@ -801,10 +888,15 @@ function renderWebsiteImpact() {
         'C': mean(afterC) - mean(beforeC)
     };
 
-    document.getElementById('websiteCharts').innerHTML = '';
-    document.getElementById('websiteCharts').appendChild(canvas);
-
-    document.getElementById('websiteAnalysis').innerHTML = `
+    const websiteChartsEl = document.getElementById('websiteCharts');
+    const websiteAnalysisEl = document.getElementById('websiteAnalysis');
+    if (!websiteChartsEl || !websiteAnalysisEl) {
+        console.error('websiteCharts or websiteAnalysis element not found');
+        return;
+    }
+    websiteChartsEl.innerHTML = '';
+    websiteChartsEl.appendChild(canvas);
+    websiteAnalysisEl.innerHTML = `
         <div class="conclusion-box">
             <h4>Website Exposure Impact</h4>
             <p><strong>Change in Intention:</strong></p>
@@ -998,7 +1090,12 @@ function renderModeration() {
         `;
     }
     
-    document.getElementById('moderationCharts').innerHTML = moderationHTML;
+    const moderationChartsEl = document.getElementById('moderationCharts');
+    if (!moderationChartsEl) {
+        console.error('moderationCharts element not found');
+        return;
+    }
+    moderationChartsEl.innerHTML = moderationHTML;
 }
 
 // Add event listener for moderator filter (moved to loadData completion)
@@ -1029,7 +1126,12 @@ function renderManipulationCheck() {
         'C': validData.filter(r => r.framing_condition_text === 'C' && r.manipulation_thoughts)
     };
 
-    document.getElementById('manipulationAnalysis').innerHTML = `
+    const manipulationAnalysisEl = document.getElementById('manipulationAnalysis');
+    if (!manipulationAnalysisEl) {
+        console.error('manipulationAnalysis element not found');
+        return;
+    }
+    manipulationAnalysisEl.innerHTML = `
         <h3>Manipulation Check Summary</h3>
         <p>Total responses with manipulation thoughts: ${validData.length}</p>
         <p>By condition: A (${byCondition.A.length}), B (${byCondition.B.length}), C (${byCondition.C.length})</p>
@@ -1053,7 +1155,12 @@ function renderConcerns() {
         'C': validData.filter(r => r.framing_condition_text === 'C' && r.concerns_text).length
     };
 
-    document.getElementById('concernsAnalysis').innerHTML = `
+    const concernsAnalysisEl = document.getElementById('concernsAnalysis');
+    if (!concernsAnalysisEl) {
+        console.error('concernsAnalysis element not found');
+        return;
+    }
+    concernsAnalysisEl.innerHTML = `
         <h3>Concerns & Barriers</h3>
         <p>Total responses with concerns: ${validData.length}</p>
         <p>By condition: A (${concernsByCondition.A}), B (${concernsByCondition.B}), C (${concernsByCondition.C})</p>
@@ -1096,7 +1203,12 @@ function renderConclusions() {
     const bestCondition = Object.entries(conditionScores).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     const conditionNames = { 'A': 'Financial Frame', 'B': 'Cashback Frame', 'C': 'Generic Reward Frame' };
 
-    document.getElementById('conclusions').innerHTML = `
+    const conclusionsEl = document.getElementById('conclusions');
+    if (!conclusionsEl) {
+        console.error('conclusions element not found');
+        return;
+    }
+    conclusionsEl.innerHTML = `
         <div class="conclusion-box">
             <h4>Key Findings</h4>
             <ul>
