@@ -508,15 +508,27 @@ function anova(groups) {
 
     const dfB = k - 1;
     const dfW = n - k;
+    
+    // Handle edge cases: division by zero
+    if (dfB <= 0 || dfW <= 0 || n === 0 || grandMean === null) {
+        return { F: 0, pValue: 1, etaSquared: 0, dfB, dfW };
+    }
+    
     const MSB = SSB / dfB;
     const MSW = SSW / dfW;
+    
+    // Handle division by zero for F
+    if (MSW === 0) {
+        return { F: Infinity, pValue: 0, etaSquared: SSB / (SSB + SSW) || 0, dfB, dfW };
+    }
+    
     const F = MSB / MSW;
 
     // Calculate p-value (simplified F-distribution approximation)
     const pValue = F > 10 ? 0.001 : F > 5 ? 0.01 : F > 3 ? 0.05 : 0.1;
 
     // Effect size (eta squared)
-    const etaSquared = SSB / (SSB + SSW);
+    const etaSquared = (SSB + SSW) > 0 ? SSB / (SSB + SSW) : 0;
 
     return { F, pValue, etaSquared, dfB, dfW };
 }
@@ -544,7 +556,10 @@ function renderOverview() {
         'Condition B (Cashback)': validData.filter(r => r.framing_condition_text === 'B').length,
         'Condition C (Generic)': validData.filter(r => r.framing_condition_text === 'C').length,
         'Completion Rate': '100%',
-        'Avg. Website Time': Math.round(mean(validData.map(r => parseFloat(r.website_view_time) || 0))) + 's'
+        'Avg. Website Time': (() => {
+            const avgTime = mean(validData.map(r => parseFloat(r.website_view_time) || 0));
+            return avgTime !== null ? Math.round(avgTime) + 's' : 'N/A';
+        })()
     };
 
     const statsHTML = Object.entries(stats).map(([key, value]) => `
@@ -908,13 +923,6 @@ function renderWebsiteImpact() {
         }
     });
 
-    const meanAfterA = mean(afterA);
-    const meanBeforeA = mean(beforeA);
-    const meanAfterB = mean(afterB);
-    const meanBeforeB = mean(beforeB);
-    const meanAfterC = mean(afterC);
-    const meanBeforeC = mean(beforeC);
-    
     const changes = {
         'A': (meanAfterA !== null && meanBeforeA !== null) ? meanAfterA - meanBeforeA : null,
         'B': (meanAfterB !== null && meanBeforeB !== null) ? meanAfterB - meanBeforeB : null,
@@ -1093,16 +1101,6 @@ function renderModeration() {
                 scales: { y: { beginAtZero: true, max: 7 } }
             }
         });
-        
-        const meanHighA = mean(highA);
-        const meanHighB = mean(highB);
-        const meanHighC = mean(highC);
-        const meanMedA = mean(medA);
-        const meanMedB = mean(medB);
-        const meanMedC = mean(medC);
-        const meanLowA = mean(lowA);
-        const meanLowB = mean(lowB);
-        const meanLowC = mean(lowC);
         
         moderationHTML = canvas.outerHTML + `
             <div class="conclusion-box">
