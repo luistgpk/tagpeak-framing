@@ -24,6 +24,15 @@ function waitForScripts() {
             } else if (attempts >= maxAttempts) {
                 clearInterval(checkInterval);
                 console.error('Scripts failed to load after 5 seconds.');
+                console.error('Chart.js available:', typeof Chart !== 'undefined');
+                console.error('PapaParse available:', typeof Papa !== 'undefined');
+                
+                // Check if scripts are in DOM
+                const chartScript = document.querySelector('script[src*="chart.js"]');
+                const papaScript = document.querySelector('script[src*="papaparse"]');
+                console.error('Chart.js script tag found:', !!chartScript);
+                console.error('PapaParse script tag found:', !!papaScript);
+                
                 // Show helpful error message
                 showScriptLoadError();
                 resolve(); // Resolve anyway to show error message
@@ -36,34 +45,45 @@ function waitForScripts() {
 function showScriptLoadError() {
     const dashboard = document.getElementById('dashboard');
     if (dashboard && dashboard.classList.contains('active')) {
+        const chartScript = document.querySelector('script[src*="chart.js"]');
+        const papaScript = document.querySelector('script[src*="papaparse"]');
+        const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+        
         dashboard.innerHTML = `
             <div class="section">
                 <h2>⚠️ Scripts Failed to Load</h2>
                 <div class="conclusion-box">
                     <h4>Problem:</h4>
-                    <p>Chart.js and/or PapaParse libraries could not be loaded. This is usually caused by:</p>
+                    <p>Chart.js and/or PapaParse libraries could not be loaded. This is usually caused by Content Security Policy (CSP) blocking CDN scripts.</p>
+                    
+                    <h4 style="margin-top: 20px;">Diagnostic Information:</h4>
                     <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li><strong>Content Security Policy (CSP) blocking CDN scripts</strong></li>
-                        <li>Opening the file directly (file://) instead of using a local server</li>
-                        <li>Network/firewall blocking cdn.jsdelivr.net</li>
+                        <li>Chart.js script tag: ${chartScript ? '✅ Found' : '❌ Not found'}</li>
+                        <li>PapaParse script tag: ${papaScript ? '✅ Found' : '❌ Not found'}</li>
+                        <li>Chart.js loaded: ${typeof Chart !== 'undefined' ? '✅ Yes' : '❌ No'}</li>
+                        <li>PapaParse loaded: ${typeof Papa !== 'undefined' ? '✅ Yes' : '❌ No'}</li>
+                        <li>CSP meta tag: ${cspMeta ? '✅ Found' : '❌ Not found'}</li>
                     </ul>
+                    
                     <h4 style="margin-top: 20px;">Solutions:</h4>
                     <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>If deployed on Vercel:</strong> Redeploy to apply vercel.json changes</li>
                         <li><strong>Use a local server:</strong>
-                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">
 # In your project folder, run:
 python -m http.server 8000
 
 # Then open: http://localhost:8000/analytics.html</pre>
                         </li>
-                        <li><strong>Check browser console</strong> for CSP errors and adjust server settings if needed</li>
-                        <li><strong>Disable browser extensions</strong> that might block scripts (ad blockers, privacy extensions)</li>
+                        <li><strong>Check browser console</strong> (F12) for CSP violation errors</li>
+                        <li><strong>Disable browser extensions</strong> that might block scripts</li>
+                        <li><strong>Hard refresh</strong> the page (Ctrl+F5 or Cmd+Shift+R) to clear cache</li>
                     </ol>
-                    <p style="margin-top: 20px;"><strong>Current Status:</strong></p>
-                    <ul style="margin-left: 20px;">
-                        <li>Chart.js: ${typeof Chart !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}</li>
-                        <li>PapaParse: ${typeof Papa !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}</li>
-                    </ul>
+                    
+                    <p style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px;">
+                        <strong>Note:</strong> The CSP has been updated in both vercel.json and analytics.html. 
+                        If you're on Vercel, you need to redeploy for the changes to take effect.
+                    </p>
                 </div>
             </div>
         `;
