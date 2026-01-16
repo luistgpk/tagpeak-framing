@@ -1,9 +1,35 @@
 // Password protection
 const CORRECT_PASSWORD = 'tagpeak2026!'; // Change this to your desired password
 
+// Wait for scripts to load
+function waitForScripts() {
+    return new Promise((resolve) => {
+        if (typeof Chart !== 'undefined' && typeof Papa !== 'undefined') {
+            configureChartDefaults();
+            resolve();
+        } else {
+            // Check every 100ms
+            const checkInterval = setInterval(() => {
+                if (typeof Chart !== 'undefined' && typeof Papa !== 'undefined') {
+                    clearInterval(checkInterval);
+                    configureChartDefaults();
+                    resolve();
+                }
+            }, 100);
+            
+            // Timeout after 5 seconds
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                console.error('Scripts failed to load. Chart.js or PapaParse may be blocked by CSP.');
+                resolve(); // Resolve anyway to show error message
+            }, 5000);
+        }
+    });
+}
+
 // Wait for DOM and scripts to be ready
-window.addEventListener('load', () => {
-    configureChartDefaults();
+window.addEventListener('load', async () => {
+    await waitForScripts();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,7 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (password === CORRECT_PASSWORD) {
                     loginContainer.style.display = 'none';
                     dashboard.classList.add('active');
-                    loadData();
+                    
+                    // Show loading message
+                    const dashboardContent = dashboard.innerHTML;
+                    dashboard.innerHTML = '<div class="section"><div class="loading">Loading data and initializing dashboard...</div></div>';
+                    
+                    // Wait a bit for scripts, then load data
+                    setTimeout(() => {
+                        loadData();
+                    }, 500);
                 } else {
                     errorMessage.style.display = 'block';
                     passwordInput.value = ''; // Clear password field
@@ -50,15 +84,92 @@ function configureChartDefaults() {
 // Load and parse CSV files
 async function loadData() {
     try {
-        // Load demographics CSV
-        const demoResponse = await fetch('demographics-2026-01-15.csv');
-        const demoText = await demoResponse.text();
-        demographicsData = Papa.parse(demoText, { header: true, skipEmptyLines: true }).data;
+        // Wait for scripts to be ready
+        await waitForScripts();
+        
+        // Check if Papa is loaded
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library not loaded. The script may be blocked by Content Security Policy (CSP). Try using a local server instead of opening the file directly.');
+        }
 
-        // Load framing results CSV
-        const framingResponse = await fetch('framing_study_results-2026-01-15.csv');
-        const framingText = await framingResponse.text();
+        // Check if Chart is loaded
+        if (typeof Chart === 'undefined') {
+            throw new Error('Chart.js library not loaded. The script may be blocked by Content Security Policy (CSP). Try using a local server instead of opening the file directly.');
+        }
+
+        // Try to find CSV files (check common date formats)
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+        const possibleDates = [
+            dateStr,
+            '2026-01-15',
+            '2025-01-15',
+            '2024-01-15'
+        ];
+
+        let demoFile = null;
+        let framingFile = null;
+        let demoText = null;
+        let framingText = null;
+
+        // Try to load demographics file
+        for (const date of possibleDates) {
+            try {
+                const response = await fetch(`demographics-${date}.csv`);
+                if (response.ok) {
+                    demoFile = `demographics-${date}.csv`;
+                    demoText = await response.text();
+                    break;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+
+        // Try to load framing results file
+        for (const date of possibleDates) {
+            try {
+                const response = await fetch(`framing_study_results-${date}.csv`);
+                if (response.ok) {
+                    framingFile = `framing_study_results-${date}.csv`;
+                    framingText = await response.text();
+                    break;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+
+        // If files not found, try without date
+        if (!demoText) {
+            try {
+                const response = await fetch('demographics.csv');
+                if (response.ok) {
+                    demoText = await response.text();
+                }
+            } catch (e) {}
+        }
+
+        if (!framingText) {
+            try {
+                const response = await fetch('framing_study_results.csv');
+                if (response.ok) {
+                    framingText = await response.text();
+                }
+            } catch (e) {}
+        }
+
+        if (!demoText || !framingText) {
+            throw new Error(`CSV files not found. Tried: demographics-*.csv and framing_study_results-*.csv. Please ensure files are in the same directory as analytics.html`);
+        }
+
+        // Parse CSV data
+        demographicsData = Papa.parse(demoText, { header: true, skipEmptyLines: true }).data;
         framingData = Papa.parse(framingText, { header: true, skipEmptyLines: true }).data;
+
+        if (demographicsData.length === 0 || framingData.length === 0) {
+            throw new Error('CSV files are empty or could not be parsed.');
+        }
 
         // Process and merge data
         processData();
@@ -77,7 +188,26 @@ async function loadData() {
         setupEventListeners();
     } catch (error) {
         console.error('Error loading data:', error);
-        document.getElementById('dashboard').innerHTML = '<div class="loading">Error loading data files. Please ensure CSV files are in the same directory.</div>';
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard) {
+            dashboard.innerHTML = `
+                <div class="section">
+                    <h2>⚠️ Error Loading Data</h2>
+                    <div class="conclusion-box">
+                        <h4>Error Details:</h4>
+                        <p>${error.message}</p>
+                        <h4 style="margin-top: 20px;">Troubleshooting:</h4>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Ensure CSV files are in the same directory as analytics.html</li>
+                            <li>Check file names: demographics-YYYY-MM-DD.csv and framing_study_results-YYYY-MM-DD.csv</li>
+                            <li>If using a local server, make sure it's running (e.g., python -m http.server 8000)</li>
+                            <li>Check browser console for CORS errors</li>
+                            <li>Verify that PapaParse and Chart.js libraries loaded (check Network tab)</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
     }
 }
 
