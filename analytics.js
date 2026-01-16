@@ -164,35 +164,50 @@ function safeSetHTML(elementId, html) {
     return true;
 }
 
-// Hide sections that are empty or have no meaningful content
+// Hide sections that are truly empty (only hide if explicitly empty, don't hide if has charts)
 function hideEmptySections() {
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        const contentDivs = section.querySelectorAll('div[id]');
-        let hasContent = false;
-        
-        contentDivs.forEach(div => {
-            // Check if div has actual content (not just whitespace or empty canvas)
-            const text = div.textContent || div.innerText || '';
-            const hasText = text.trim().length > 0;
-            const hasCanvas = div.querySelector('canvas');
-            const hasHTML = div.innerHTML.trim().length > 0 && !div.innerHTML.match(/^<canvas[^>]*><\/canvas>$/);
+    // Wait a bit for charts to render
+    setTimeout(() => {
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            // Check for canvas elements (charts)
+            const hasCanvas = section.querySelector('canvas');
             
-            if (hasText || (hasCanvas && hasHTML)) {
-                hasContent = true;
+            // Check for content divs with actual content
+            const contentDivs = section.querySelectorAll('div[id]');
+            let hasContent = false;
+            
+            contentDivs.forEach(div => {
+                const innerHTML = div.innerHTML.trim();
+                const text = (div.textContent || div.innerText || '').trim();
+                
+                // Has canvas (chart)
+                if (div.querySelector('canvas')) {
+                    hasContent = true;
+                }
+                // Has meaningful HTML content (more than just empty tags)
+                else if (innerHTML.length > 50 && !innerHTML.match(/^<div[^>]*><\/div>$/)) {
+                    hasContent = true;
+                }
+                // Has text content
+                else if (text.length > 10) {
+                    hasContent = true;
+                }
+            });
+            
+            // Check for stats grids, conclusion boxes, or other content
+            const hasStats = section.querySelector('.stats-grid, .stat-card, .conclusion-box, table');
+            const sectionText = (section.textContent || section.innerText || '').trim();
+            const hasDirectText = sectionText.length > 100; // Meaningful text content
+            
+            // Only hide if truly empty - has no canvas, no content divs, no stats, no meaningful text
+            if (!hasCanvas && !hasContent && !hasStats && !hasDirectText) {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
             }
         });
-        
-        // Also check if section has direct text content
-        const sectionText = section.textContent || section.innerText || '';
-        const hasDirectContent = sectionText.trim().length > 50; // At least some meaningful text
-        
-        if (!hasContent && !hasDirectContent) {
-            section.style.display = 'none';
-        } else {
-            section.style.display = 'block';
-        }
-    });
+    }, 500); // Wait 500ms for charts to render
 }
 
 // Load and parse CSV files
@@ -854,7 +869,8 @@ function renderMainEffects() {
         'Willingness': 'willingness'
     };
 
-    const chartsHTML = [];
+    const chartsContainer = document.createElement('div');
+    chartsContainer.className = 'charts-wrapper';
     const tablesHTML = [];
 
     Object.entries(outcomes).forEach(([name, key]) => {
@@ -916,7 +932,8 @@ function renderMainEffects() {
             return; // Skip this outcome if chart creation fails
         }
 
-        chartsHTML.push(canvas.outerHTML);
+        // Append canvas directly to container (don't use outerHTML - it breaks Chart.js)
+        chartsContainer.appendChild(canvas);
 
         // Table
         const dAB = cohensD(groupA, groupB);
@@ -970,11 +987,18 @@ function renderMainEffects() {
     const mainEffectsTablesEl = document.getElementById('mainEffectsTables');
     const mainEffectsSection = document.getElementById('mainEffectsSection');
     
-    if (chartsHTML.length === 0) {
-        if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No data available for main effects analysis.</p>';
+    if (!mainEffectsChartsEl || !mainEffectsTablesEl) {
+        console.error('Main effects elements not found');
+        return;
+    }
+    
+    // Clear and append charts container
+    mainEffectsChartsEl.innerHTML = '';
+    if (chartsContainer.children.length === 0) {
+        mainEffectsChartsEl.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No data available for main effects analysis.</p>';
         if (mainEffectsSection) mainEffectsSection.style.display = 'none';
     } else {
-        if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = chartsHTML.join('');
+        mainEffectsChartsEl.appendChild(chartsContainer);
         if (mainEffectsSection) mainEffectsSection.style.display = 'block';
     }
     
@@ -1106,7 +1130,17 @@ function renderModeration() {
     }
     const moderator = moderatorFilter.value;
     
+    const moderationChartsEl = document.getElementById('moderationCharts');
+    if (!moderationChartsEl) {
+        console.error('moderationCharts element not found');
+        return;
+    }
+    
+    // Clear previous content
+    moderationChartsEl.innerHTML = '';
+    
     let moderationHTML = '';
+    let canvasElement = null;
     
     if (moderator === 'involvement') {
         // Investment Involvement Moderation
@@ -1165,7 +1199,8 @@ function renderModeration() {
             }
         });
         
-        moderationHTML = canvas.outerHTML + `
+        canvasElement = canvas;
+        moderationHTML = `
             <div class="conclusion-box">
                 <h4>Investment Involvement Moderation</h4>
                 <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
@@ -1246,7 +1281,8 @@ function renderModeration() {
             }
         });
         
-        moderationHTML = canvas.outerHTML + `
+        canvasElement = canvas;
+        moderationHTML = `
             <div class="conclusion-box">
                 <h4>Financial Literacy Moderation</h4>
                 <p><strong>High Literacy (3 correct):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
@@ -1328,7 +1364,8 @@ function renderModeration() {
             }
         });
         
-        moderationHTML = canvas.outerHTML;
+        canvasElement = canvas;
+        moderationHTML = '';
     } else {
         moderationHTML = `
             <div class="conclusion-box">
@@ -1339,18 +1376,24 @@ function renderModeration() {
         `;
     }
     
-    const moderationChartsEl = document.getElementById('moderationCharts');
     const moderationSection = document.getElementById('moderationSection');
-    if (!moderationChartsEl) {
-        console.error('moderationCharts element not found');
-        return;
-    }
     
-    if (!moderationHTML || moderationHTML.trim() === '') {
+    if (!canvasElement && (!moderationHTML || moderationHTML.trim() === '')) {
         moderationChartsEl.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No moderation data available.</p>';
         if (moderationSection) moderationSection.style.display = 'none';
     } else {
-        moderationChartsEl.innerHTML = moderationHTML;
+        // Append canvas directly (don't use innerHTML - it breaks Chart.js)
+        if (canvasElement) {
+            moderationChartsEl.appendChild(canvasElement);
+        }
+        // Append HTML content
+        if (moderationHTML && moderationHTML.trim() !== '') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = moderationHTML;
+            while (tempDiv.firstChild) {
+                moderationChartsEl.appendChild(tempDiv.firstChild);
+            }
+        }
         if (moderationSection) moderationSection.style.display = 'block';
     }
 }
