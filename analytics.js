@@ -689,8 +689,10 @@ function renderDemographicsCharts() {
         '66+': validData.filter(r => r.age === '66_plus').length
     };
 
+    const ageWrapper = document.createElement('div');
+    ageWrapper.className = 'chart-container';
     const ageCanvas = document.createElement('canvas');
-    ageCanvas.className = 'chart-container';
+    ageWrapper.appendChild(ageCanvas);
     try {
         new Chart(ageCanvas, {
         type: 'bar',
@@ -722,8 +724,10 @@ function renderDemographicsCharts() {
         'Other': validData.filter(r => r.gender_code !== '2' && r.gender_code !== '9').length
     };
 
+    const genderWrapper = document.createElement('div');
+    genderWrapper.className = 'chart-container small';
     const genderCanvas = document.createElement('canvas');
-    genderCanvas.className = 'chart-container small';
+    genderWrapper.appendChild(genderCanvas);
     try {
         new Chart(genderCanvas, {
         type: 'doughnut',
@@ -753,8 +757,8 @@ function renderDemographicsCharts() {
         return;
     }
     demoChartsEl.innerHTML = '';
-    demoChartsEl.appendChild(ageCanvas);
-    demoChartsEl.appendChild(genderCanvas);
+    demoChartsEl.appendChild(ageWrapper);
+    demoChartsEl.appendChild(genderWrapper);
 }
 
 // Render Data Quality Section
@@ -804,8 +808,10 @@ function renderDataQuality() {
         </div>
     `;
 
+    const exclusionWrapper = document.createElement('div');
+    exclusionWrapper.className = 'chart-container';
     const exclusionCanvas = document.createElement('canvas');
-    exclusionCanvas.className = 'chart-container';
+    exclusionWrapper.appendChild(exclusionCanvas);
     new Chart(exclusionCanvas, {
         type: 'bar',
         data: {
@@ -899,8 +905,10 @@ function renderMainEffects() {
 
         // Chart - replace null values with 0 for Chart.js
         const chartData = Object.values(means).map(v => v !== null ? v : 0);
+        const chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
-        canvas.className = 'chart-container';
+        chartWrapper.appendChild(canvas);
         try {
             new Chart(canvas, {
             type: 'bar',
@@ -932,8 +940,8 @@ function renderMainEffects() {
             return; // Skip this outcome if chart creation fails
         }
 
-        // Append canvas directly to container (don't use outerHTML - it breaks Chart.js)
-        chartsContainer.appendChild(canvas);
+        // Append chart wrapper (with canvas inside) directly to container
+        chartsContainer.appendChild(chartWrapper);
 
         // Table
         const dAB = cohensD(groupA, groupB);
@@ -1042,8 +1050,10 @@ function renderWebsiteImpact() {
     const meanAfterB = mean(afterB);
     const meanAfterC = mean(afterC);
     
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = 'chart-container';
     const canvas = document.createElement('canvas');
-    canvas.className = 'chart-container';
+    chartWrapper.appendChild(canvas);
     new Chart(canvas, {
         type: 'bar',
         data: {
@@ -1094,7 +1104,7 @@ function renderWebsiteImpact() {
         return;
     }
     websiteChartsEl.innerHTML = '';
-    websiteChartsEl.appendChild(canvas);
+    websiteChartsEl.appendChild(chartWrapper);
     
     const changeA = changes.A !== null ? (changes.A > 0 ? '+' : '') + changes.A.toFixed(2) : 'N/A';
     const changeB = changes.B !== null ? (changes.B > 0 ? '+' : '') + changes.B.toFixed(2) : 'N/A';
@@ -1162,8 +1172,10 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
+        const chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
-        canvas.className = 'chart-container';
+        chartWrapper.appendChild(canvas);
         new Chart(canvas, {
             type: 'bar',
             data: {
@@ -1199,7 +1211,7 @@ function renderModeration() {
             }
         });
         
-        canvasElement = canvas;
+        canvasElement = chartWrapper; // Store wrapper, not canvas
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Investment Involvement Moderation</h4>
@@ -1235,8 +1247,10 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
+        const chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
-        canvas.className = 'chart-container';
+        chartWrapper.appendChild(canvas);
         new Chart(canvas, {
             type: 'bar',
             data: {
@@ -1281,7 +1295,7 @@ function renderModeration() {
             }
         });
         
-        canvasElement = canvas;
+        canvasElement = chartWrapper; // Store wrapper, not canvas
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Financial Literacy Moderation</h4>
@@ -1364,7 +1378,7 @@ function renderModeration() {
             }
         });
         
-        canvasElement = canvas;
+        canvasElement = chartWrapper; // Store wrapper, not canvas
         moderationHTML = '';
     } else {
         moderationHTML = `
