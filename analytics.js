@@ -291,18 +291,61 @@ async function loadData() {
         // Process and merge data
         processData();
         
-        // Render all sections
-        renderOverview();
-        renderDataQuality();
-        renderMainEffects();
-        renderWebsiteImpact();
-        renderModeration();
-        renderManipulationCheck();
-        renderConcerns();
-        renderConclusions();
+        // Render all sections with error handling
+        try {
+            renderOverview();
+        } catch (error) {
+            console.error('Error rendering overview:', error);
+        }
+        
+        try {
+            renderDataQuality();
+        } catch (error) {
+            console.error('Error rendering data quality:', error);
+        }
+        
+        try {
+            renderMainEffects();
+        } catch (error) {
+            console.error('Error rendering main effects:', error);
+        }
+        
+        try {
+            renderWebsiteImpact();
+        } catch (error) {
+            console.error('Error rendering website impact:', error);
+        }
+        
+        try {
+            renderModeration();
+        } catch (error) {
+            console.error('Error rendering moderation:', error);
+        }
+        
+        try {
+            renderManipulationCheck();
+        } catch (error) {
+            console.error('Error rendering manipulation check:', error);
+        }
+        
+        try {
+            renderConcerns();
+        } catch (error) {
+            console.error('Error rendering concerns:', error);
+        }
+        
+        try {
+            renderConclusions();
+        } catch (error) {
+            console.error('Error rendering conclusions:', error);
+        }
         
         // Setup event listeners after rendering
-        setupEventListeners();
+        try {
+            setupEventListeners();
+        } catch (error) {
+            console.error('Error setting up event listeners:', error);
+        }
     } catch (error) {
         console.error('Error loading data:', error);
         const dashboard = document.getElementById('dashboard');
@@ -581,6 +624,11 @@ function renderOverview() {
 }
 
 function renderDemographicsCharts() {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded, skipping demographics charts');
+        return;
+    }
+    
     const validData = processedData.filter(r => !r.excluded);
     
     // Age distribution
@@ -594,7 +642,8 @@ function renderDemographicsCharts() {
 
     const ageCanvas = document.createElement('canvas');
     ageCanvas.className = 'chart-container';
-    new Chart(ageCanvas, {
+    try {
+        new Chart(ageCanvas, {
         type: 'bar',
         data: {
             labels: Object.keys(ageData),
@@ -611,7 +660,11 @@ function renderDemographicsCharts() {
                 title: { display: true, text: 'Age Distribution', font: { size: 16 } }
             }
         }
-    });
+        });
+    } catch (error) {
+        console.error('Error creating age chart:', error);
+        return;
+    }
 
     // Gender distribution
     const genderData = {
@@ -622,7 +675,8 @@ function renderDemographicsCharts() {
 
     const genderCanvas = document.createElement('canvas');
     genderCanvas.className = 'chart-container small';
-    new Chart(genderCanvas, {
+    try {
+        new Chart(genderCanvas, {
         type: 'doughnut',
         data: {
             labels: Object.keys(genderData),
@@ -638,12 +692,20 @@ function renderDemographicsCharts() {
                 title: { display: true, text: 'Gender Distribution', font: { size: 16 } }
             }
         }
-    });
+        });
+    } catch (error) {
+        console.error('Error creating gender chart:', error);
+        return;
+    }
 
     const demoChartsEl = document.getElementById('demographicsCharts');
-    if (demoChartsEl) demoChartsEl.innerHTML = '';
-    document.getElementById('demographicsCharts').appendChild(ageCanvas);
-    document.getElementById('demographicsCharts').appendChild(genderCanvas);
+    if (!demoChartsEl) {
+        console.error('demographicsCharts element not found');
+        return;
+    }
+    demoChartsEl.innerHTML = '';
+    demoChartsEl.appendChild(ageCanvas);
+    demoChartsEl.appendChild(genderCanvas);
 }
 
 // Render Data Quality Section
@@ -731,12 +793,21 @@ function renderDataQuality() {
     });
 
     const exclusionChartsEl = document.getElementById('exclusionCharts');
-    if (exclusionChartsEl) exclusionChartsEl.innerHTML = '';
-    document.getElementById('exclusionCharts').appendChild(exclusionCanvas);
+    if (!exclusionChartsEl) {
+        console.error('exclusionCharts element not found');
+        return;
+    }
+    exclusionChartsEl.innerHTML = '';
+    exclusionChartsEl.appendChild(exclusionCanvas);
 }
 
 // Render Main Effects
 function renderMainEffects() {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded, skipping main effects');
+        return;
+    }
+    
     const validData = processedData.filter(r => !r.excluded);
     
     const outcomes = {
@@ -780,7 +851,8 @@ function renderMainEffects() {
         const chartData = Object.values(means).map(v => v !== null ? v : 0);
         const canvas = document.createElement('canvas');
         canvas.className = 'chart-container';
-        new Chart(canvas, {
+        try {
+            new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: Object.keys(means),
@@ -804,7 +876,11 @@ function renderMainEffects() {
                     y: { beginAtZero: true, max: 9 }
                 }
             }
-        });
+            });
+        } catch (error) {
+            console.error(`Error creating chart for ${name}:`, error);
+            return; // Skip this outcome if chart creation fails
+        }
 
         chartsHTML.push(canvas.outerHTML);
 
@@ -814,8 +890,8 @@ function renderMainEffects() {
         const dBC = cohensD(groupB, groupC);
 
         tablesHTML.push(`
-            <h3>${name}</h3>
-            <div class="table-container">
+            <h3>${name} <button class="toggle-table-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.textContent = this.nextElementSibling.style.display === 'none' ? 'Show Details' : 'Hide Details';">Show Details</button></h3>
+            <div class="table-container" style="display: none;">
                 <table>
                     <thead>
                         <tr>
