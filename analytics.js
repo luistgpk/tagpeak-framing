@@ -742,16 +742,27 @@ function renderMainEffects() {
         const groupB = validData.filter(r => r.framing_condition_text === 'B').map(r => r[key]).filter(v => v !== null);
         const groupC = validData.filter(r => r.framing_condition_text === 'C').map(r => r[key]).filter(v => v !== null);
 
+        const meanA = mean(groupA);
+        const meanB = mean(groupB);
+        const meanC = mean(groupC);
+        
+        // Skip if no valid data for any group
+        if (meanA === null && meanB === null && meanC === null) {
+            console.warn(`Skipping ${name}: No valid data for any condition`);
+            return;
+        }
+
         const means = {
-            'A (Financial)': mean(groupA),
-            'B (Cashback)': mean(groupB),
-            'C (Generic)': mean(groupC)
+            'A (Financial)': meanA,
+            'B (Cashback)': meanB,
+            'C (Generic)': meanC
         };
 
         const anovaResult = anova([groupA, groupB, groupC]);
         const isSig = anovaResult.pValue < 0.05;
 
-        // Chart
+        // Chart - replace null values with 0 for Chart.js
+        const chartData = Object.values(means).map(v => v !== null ? v : 0);
         const canvas = document.createElement('canvas');
         canvas.className = 'chart-container';
         new Chart(canvas, {
@@ -760,7 +771,7 @@ function renderMainEffects() {
                 labels: Object.keys(means),
                 datasets: [{
                     label: name,
-                    data: Object.values(means),
+                    data: chartData,
                     backgroundColor: ['#667eea', '#764ba2', '#f093fb']
                 }]
             },
@@ -802,20 +813,20 @@ function renderMainEffects() {
                     <tbody>
                         <tr>
                             <td>A (Financial)</td>
-                            <td>${means['A (Financial)'].toFixed(2)}</td>
-                            <td>${stdDev(groupA).toFixed(2)}</td>
+                            <td>${means['A (Financial)'] !== null ? means['A (Financial)'].toFixed(2) : 'N/A'}</td>
+                            <td>${stdDev(groupA) !== null ? stdDev(groupA).toFixed(2) : 'N/A'}</td>
                             <td>${groupA.length}</td>
                         </tr>
                         <tr>
                             <td>B (Cashback)</td>
-                            <td>${means['B (Cashback)'].toFixed(2)}</td>
-                            <td>${stdDev(groupB).toFixed(2)}</td>
+                            <td>${means['B (Cashback)'] !== null ? means['B (Cashback)'].toFixed(2) : 'N/A'}</td>
+                            <td>${stdDev(groupB) !== null ? stdDev(groupB).toFixed(2) : 'N/A'}</td>
                             <td>${groupB.length}</td>
                         </tr>
                         <tr>
                             <td>C (Generic)</td>
-                            <td>${means['C (Generic)'].toFixed(2)}</td>
-                            <td>${stdDev(groupC).toFixed(2)}</td>
+                            <td>${means['C (Generic)'] !== null ? means['C (Generic)'].toFixed(2) : 'N/A'}</td>
+                            <td>${stdDev(groupC) !== null ? stdDev(groupC).toFixed(2) : 'N/A'}</td>
                             <td>${groupC.length}</td>
                         </tr>
                     </tbody>
@@ -851,6 +862,13 @@ function renderWebsiteImpact() {
     const beforeC = groupC.map(r => r.intention_before);
     const afterC = groupC.map(r => r.intention_after);
 
+    const meanBeforeA = mean(beforeA);
+    const meanBeforeB = mean(beforeB);
+    const meanBeforeC = mean(beforeC);
+    const meanAfterA = mean(afterA);
+    const meanAfterB = mean(afterB);
+    const meanAfterC = mean(afterC);
+    
     const canvas = document.createElement('canvas');
     canvas.className = 'chart-container';
     new Chart(canvas, {
@@ -860,12 +878,20 @@ function renderWebsiteImpact() {
             datasets: [
                 {
                     label: 'Before Website',
-                    data: [mean(beforeA), mean(beforeB), mean(beforeC)],
+                    data: [
+                        meanBeforeA !== null ? meanBeforeA : 0,
+                        meanBeforeB !== null ? meanBeforeB : 0,
+                        meanBeforeC !== null ? meanBeforeC : 0
+                    ],
                     backgroundColor: '#9ca3af'
                 },
                 {
                     label: 'After Website',
-                    data: [mean(afterA), mean(afterB), mean(afterC)],
+                    data: [
+                        meanAfterA !== null ? meanAfterA : 0,
+                        meanAfterB !== null ? meanAfterB : 0,
+                        meanAfterC !== null ? meanAfterC : 0
+                    ],
                     backgroundColor: '#667eea'
                 }
             ]
@@ -882,10 +908,17 @@ function renderWebsiteImpact() {
         }
     });
 
+    const meanAfterA = mean(afterA);
+    const meanBeforeA = mean(beforeA);
+    const meanAfterB = mean(afterB);
+    const meanBeforeB = mean(beforeB);
+    const meanAfterC = mean(afterC);
+    const meanBeforeC = mean(beforeC);
+    
     const changes = {
-        'A': mean(afterA) - mean(beforeA),
-        'B': mean(afterB) - mean(beforeB),
-        'C': mean(afterC) - mean(beforeC)
+        'A': (meanAfterA !== null && meanBeforeA !== null) ? meanAfterA - meanBeforeA : null,
+        'B': (meanAfterB !== null && meanBeforeB !== null) ? meanAfterB - meanBeforeB : null,
+        'C': (meanAfterC !== null && meanBeforeC !== null) ? meanAfterC - meanBeforeC : null
     };
 
     const websiteChartsEl = document.getElementById('websiteCharts');
@@ -896,16 +929,21 @@ function renderWebsiteImpact() {
     }
     websiteChartsEl.innerHTML = '';
     websiteChartsEl.appendChild(canvas);
+    
+    const changeA = changes.A !== null ? (changes.A > 0 ? '+' : '') + changes.A.toFixed(2) : 'N/A';
+    const changeB = changes.B !== null ? (changes.B > 0 ? '+' : '') + changes.B.toFixed(2) : 'N/A';
+    const changeC = changes.C !== null ? (changes.C > 0 ? '+' : '') + changes.C.toFixed(2) : 'N/A';
+    
     websiteAnalysisEl.innerHTML = `
         <div class="conclusion-box">
             <h4>Website Exposure Impact</h4>
             <p><strong>Change in Intention:</strong></p>
             <ul>
-                <li>Condition A (Financial): ${changes.A > 0 ? '+' : ''}${changes.A.toFixed(2)} points</li>
-                <li>Condition B (Cashback): ${changes.B > 0 ? '+' : ''}${changes.B.toFixed(2)} points</li>
-                <li>Condition C (Generic): ${changes.C > 0 ? '+' : ''}${changes.C.toFixed(2)} points</li>
+                <li>Condition A (Financial): ${changeA} points</li>
+                <li>Condition B (Cashback): ${changeB} points</li>
+                <li>Condition C (Generic): ${changeC} points</li>
             </ul>
-            <p>The website exposure ${Object.values(changes).some(c => c > 0) ? 'increased' : 'decreased'} intention scores across all conditions, 
+            <p>The website exposure ${Object.values(changes).filter(c => c !== null).some(c => c > 0) ? 'increased' : 'decreased'} intention scores across all conditions, 
             suggesting that additional information helps participants understand the benefit better.</p>
         </div>
     `;
@@ -931,6 +969,13 @@ function renderModeration() {
         const lowB = lowInv.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
         const lowC = lowInv.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
         
+        const meanHighA = mean(highA);
+        const meanHighB = mean(highB);
+        const meanHighC = mean(highC);
+        const meanLowA = mean(lowA);
+        const meanLowB = mean(lowB);
+        const meanLowC = mean(lowC);
+        
         const canvas = document.createElement('canvas');
         canvas.className = 'chart-container';
         new Chart(canvas, {
@@ -940,12 +985,20 @@ function renderModeration() {
                 datasets: [
                     {
                         label: 'High Investment Involvement',
-                        data: [mean(highA), mean(highB), mean(highC)],
+                        data: [
+                            meanHighA !== null ? meanHighA : 0,
+                            meanHighB !== null ? meanHighB : 0,
+                            meanHighC !== null ? meanHighC : 0
+                        ],
                         backgroundColor: '#667eea'
                     },
                     {
                         label: 'Low Investment Involvement',
-                        data: [mean(lowA), mean(lowB), mean(lowC)],
+                        data: [
+                            meanLowA !== null ? meanLowA : 0,
+                            meanLowB !== null ? meanLowB : 0,
+                            meanLowC !== null ? meanLowC : 0
+                        ],
                         backgroundColor: '#9ca3af'
                     }
                 ]
@@ -963,9 +1016,9 @@ function renderModeration() {
         moderationHTML = canvas.outerHTML + `
             <div class="conclusion-box">
                 <h4>Investment Involvement Moderation</h4>
-                <p><strong>High Involvement (≥4):</strong> A: ${mean(highA).toFixed(2)}, B: ${mean(highB).toFixed(2)}, C: ${mean(highC).toFixed(2)}</p>
-                <p><strong>Low Involvement (<4):</strong> A: ${mean(lowA).toFixed(2)}, B: ${mean(lowB).toFixed(2)}, C: ${mean(lowC).toFixed(2)}</p>
-                <p>${mean(highA) > mean(lowA) ? 'High involvement participants respond better to Financial frame (A)' : 'Low involvement participants respond better to Financial frame (A)'}</p>
+                <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Low Involvement (<4):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <p>${meanHighA !== null && meanLowA !== null && meanHighA > meanLowA ? 'High involvement participants respond better to Financial frame (A)' : 'Low involvement participants respond better to Financial frame (A)'}</p>
             </div>
         `;
     } else if (moderator === 'literacy') {
@@ -985,6 +1038,16 @@ function renderModeration() {
         const lowB = lowLit.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
         const lowC = lowLit.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
         
+        const meanHighA = mean(highA);
+        const meanHighB = mean(highB);
+        const meanHighC = mean(highC);
+        const meanMedA = mean(medA);
+        const meanMedB = mean(medB);
+        const meanMedC = mean(medC);
+        const meanLowA = mean(lowA);
+        const meanLowB = mean(lowB);
+        const meanLowC = mean(lowC);
+        
         const canvas = document.createElement('canvas');
         canvas.className = 'chart-container';
         new Chart(canvas, {
@@ -994,17 +1057,29 @@ function renderModeration() {
                 datasets: [
                     {
                         label: 'Condition A (Financial)',
-                        data: [mean(highA), mean(medA), mean(lowA)],
+                        data: [
+                            meanHighA !== null ? meanHighA : 0,
+                            meanMedA !== null ? meanMedA : 0,
+                            meanLowA !== null ? meanLowA : 0
+                        ],
                         backgroundColor: '#667eea'
                     },
                     {
                         label: 'Condition B (Cashback)',
-                        data: [mean(highB), mean(medB), mean(lowB)],
+                        data: [
+                            meanHighB !== null ? meanHighB : 0,
+                            meanMedB !== null ? meanMedB : 0,
+                            meanLowB !== null ? meanLowB : 0
+                        ],
                         backgroundColor: '#764ba2'
                     },
                     {
                         label: 'Condition C (Generic)',
-                        data: [mean(highC), mean(medC), mean(lowC)],
+                        data: [
+                            meanHighC !== null ? meanHighC : 0,
+                            meanMedC !== null ? meanMedC : 0,
+                            meanLowC !== null ? meanLowC : 0
+                        ],
                         backgroundColor: '#f093fb'
                     }
                 ]
@@ -1019,13 +1094,23 @@ function renderModeration() {
             }
         });
         
+        const meanHighA = mean(highA);
+        const meanHighB = mean(highB);
+        const meanHighC = mean(highC);
+        const meanMedA = mean(medA);
+        const meanMedB = mean(medB);
+        const meanMedC = mean(medC);
+        const meanLowA = mean(lowA);
+        const meanLowB = mean(lowB);
+        const meanLowC = mean(lowC);
+        
         moderationHTML = canvas.outerHTML + `
             <div class="conclusion-box">
                 <h4>Financial Literacy Moderation</h4>
-                <p><strong>High Literacy (3 correct):</strong> A: ${mean(highA).toFixed(2)}, B: ${mean(highB).toFixed(2)}, C: ${mean(highC).toFixed(2)}</p>
-                <p><strong>Medium Literacy (2 correct):</strong> A: ${mean(medA).toFixed(2)}, B: ${mean(medB).toFixed(2)}, C: ${mean(medC).toFixed(2)}</p>
-                <p><strong>Low Literacy (0-1 correct):</strong> A: ${mean(lowA).toFixed(2)}, B: ${mean(lowB).toFixed(2)}, C: ${mean(lowC).toFixed(2)}</p>
-                <p>${mean(highA) > mean(highB) && mean(highA) > mean(highC) ? 'High financial literacy participants respond best to Financial frame (A)' : 'Financial literacy moderates framing effects'}</p>
+                <p><strong>High Literacy (3 correct):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Medium Literacy (2 correct):</strong> A: ${meanMedA !== null ? meanMedA.toFixed(2) : 'N/A'}, B: ${meanMedB !== null ? meanMedB.toFixed(2) : 'N/A'}, C: ${meanMedC !== null ? meanMedC.toFixed(2) : 'N/A'}</p>
+                <p><strong>Low Literacy (0-1 correct):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <p>${meanHighA !== null && meanHighB !== null && meanHighC !== null && meanHighA > meanHighB && meanHighA > meanHighC ? 'High financial literacy participants respond best to Financial frame (A)' : 'Financial literacy moderates framing effects'}</p>
             </div>
         `;
     } else if (moderator === 'age') {
@@ -1045,6 +1130,16 @@ function renderModeration() {
         const olderB = older.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
         const olderC = older.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
         
+        const meanYoungA = mean(youngA);
+        const meanYoungB = mean(youngB);
+        const meanYoungC = mean(youngC);
+        const meanMiddleA = mean(middleA);
+        const meanMiddleB = mean(middleB);
+        const meanMiddleC = mean(middleC);
+        const meanOlderA = mean(olderA);
+        const meanOlderB = mean(olderB);
+        const meanOlderC = mean(olderC);
+        
         const canvas = document.createElement('canvas');
         canvas.className = 'chart-container';
         new Chart(canvas, {
@@ -1054,17 +1149,29 @@ function renderModeration() {
                 datasets: [
                     {
                         label: 'Condition A',
-                        data: [mean(youngA), mean(middleA), mean(olderA)],
+                        data: [
+                            meanYoungA !== null ? meanYoungA : 0,
+                            meanMiddleA !== null ? meanMiddleA : 0,
+                            meanOlderA !== null ? meanOlderA : 0
+                        ],
                         backgroundColor: '#667eea'
                     },
                     {
                         label: 'Condition B',
-                        data: [mean(youngB), mean(middleB), mean(olderB)],
+                        data: [
+                            meanYoungB !== null ? meanYoungB : 0,
+                            meanMiddleB !== null ? meanMiddleB : 0,
+                            meanOlderB !== null ? meanOlderB : 0
+                        ],
                         backgroundColor: '#764ba2'
                     },
                     {
                         label: 'Condition C',
-                        data: [mean(youngC), mean(middleC), mean(olderC)],
+                        data: [
+                            meanYoungC !== null ? meanYoungC : 0,
+                            meanMiddleC !== null ? meanMiddleC : 0,
+                            meanOlderC !== null ? meanOlderC : 0
+                        ],
                         backgroundColor: '#f093fb'
                     }
                 ]
