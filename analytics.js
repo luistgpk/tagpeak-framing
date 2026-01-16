@@ -164,6 +164,37 @@ function safeSetHTML(elementId, html) {
     return true;
 }
 
+// Hide sections that are empty or have no meaningful content
+function hideEmptySections() {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        const contentDivs = section.querySelectorAll('div[id]');
+        let hasContent = false;
+        
+        contentDivs.forEach(div => {
+            // Check if div has actual content (not just whitespace or empty canvas)
+            const text = div.textContent || div.innerText || '';
+            const hasText = text.trim().length > 0;
+            const hasCanvas = div.querySelector('canvas');
+            const hasHTML = div.innerHTML.trim().length > 0 && !div.innerHTML.match(/^<canvas[^>]*><\/canvas>$/);
+            
+            if (hasText || (hasCanvas && hasHTML)) {
+                hasContent = true;
+            }
+        });
+        
+        // Also check if section has direct text content
+        const sectionText = section.textContent || section.innerText || '';
+        const hasDirectContent = sectionText.trim().length > 50; // At least some meaningful text
+        
+        if (!hasContent && !hasDirectContent) {
+            section.style.display = 'none';
+        } else {
+            section.style.display = 'block';
+        }
+    });
+}
+
 // Load and parse CSV files
 async function loadData() {
     try {
@@ -346,6 +377,9 @@ async function loadData() {
         } catch (error) {
             console.error('Error setting up event listeners:', error);
         }
+        
+        // Hide empty sections to reduce blank space
+        hideEmptySections();
     } catch (error) {
         console.error('Error loading data:', error);
         const dashboard = document.getElementById('dashboard');
@@ -934,13 +968,37 @@ function renderMainEffects() {
 
     const mainEffectsChartsEl = document.getElementById('mainEffectsCharts');
     const mainEffectsTablesEl = document.getElementById('mainEffectsTables');
-    if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = chartsHTML.join('');
-    if (mainEffectsTablesEl) mainEffectsTablesEl.innerHTML = tablesHTML.join('');
+    const mainEffectsSection = document.getElementById('mainEffectsSection');
+    
+    if (chartsHTML.length === 0) {
+        if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No data available for main effects analysis.</p>';
+        if (mainEffectsSection) mainEffectsSection.style.display = 'none';
+    } else {
+        if (mainEffectsChartsEl) mainEffectsChartsEl.innerHTML = chartsHTML.join('');
+        if (mainEffectsSection) mainEffectsSection.style.display = 'block';
+    }
+    
+    if (tablesHTML.length === 0) {
+        if (mainEffectsTablesEl) mainEffectsTablesEl.innerHTML = '';
+    } else {
+        if (mainEffectsTablesEl) mainEffectsTablesEl.innerHTML = tablesHTML.join('');
+    }
 }
 
 // Render Website Impact
 function renderWebsiteImpact() {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded, skipping website impact');
+        return;
+    }
+    
     const validData = processedData.filter(r => !r.excluded && r.intention_before !== null && r.intention_after !== null);
+    
+    if (validData.length === 0) {
+        const websiteSection = document.getElementById('websiteSection');
+        if (websiteSection) websiteSection.style.display = 'none';
+        return;
+    }
     
     const groupA = validData.filter(r => r.framing_condition_text === 'A');
     const groupB = validData.filter(r => r.framing_condition_text === 'B');
@@ -1035,8 +1093,18 @@ function renderWebsiteImpact() {
 
 // Render Moderation Analyses
 function renderModeration() {
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded, skipping moderation');
+        return;
+    }
+    
     const validData = processedData.filter(r => !r.excluded);
-    const moderator = document.getElementById('moderatorFilter').value;
+    const moderatorFilter = document.getElementById('moderatorFilter');
+    if (!moderatorFilter) {
+        console.error('moderatorFilter element not found');
+        return;
+    }
+    const moderator = moderatorFilter.value;
     
     let moderationHTML = '';
     
@@ -1272,11 +1340,19 @@ function renderModeration() {
     }
     
     const moderationChartsEl = document.getElementById('moderationCharts');
+    const moderationSection = document.getElementById('moderationSection');
     if (!moderationChartsEl) {
         console.error('moderationCharts element not found');
         return;
     }
-    moderationChartsEl.innerHTML = moderationHTML;
+    
+    if (!moderationHTML || moderationHTML.trim() === '') {
+        moderationChartsEl.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No moderation data available.</p>';
+        if (moderationSection) moderationSection.style.display = 'none';
+    } else {
+        moderationChartsEl.innerHTML = moderationHTML;
+        if (moderationSection) moderationSection.style.display = 'block';
+    }
 }
 
 // Add event listener for moderator filter (moved to loadData completion)

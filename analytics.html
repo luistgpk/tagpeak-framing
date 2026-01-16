@@ -107,6 +107,11 @@
             font-size: 16px;
         }
 
+        .section:empty,
+        .section:has(> div:empty:not(.chart-container)) {
+            display: none !important;
+        }
+        
         .section {
             background: white;
             padding: 30px;
