@@ -387,9 +387,27 @@ async function loadData() {
         }
         
         try {
+            renderUserScoringTool();
+        } catch (error) {
+            console.error('Error rendering user scoring tool:', error);
+        }
+        
+        try {
             renderCommunicationEffectiveness();
         } catch (error) {
             console.error('Error rendering communication effectiveness:', error);
+        }
+        
+        try {
+            renderWebsiteAlignment();
+        } catch (error) {
+            console.error('Error rendering website alignment:', error);
+        }
+        
+        try {
+            renderMessageRecommendations();
+        } catch (error) {
+            console.error('Error rendering message recommendations:', error);
         }
         
         try {
@@ -402,6 +420,13 @@ async function loadData() {
             renderConclusions();
         } catch (error) {
             console.error('Error rendering conclusions:', error);
+        }
+        
+        // Add export buttons to charts after rendering
+        try {
+            addExportButtons();
+        } catch (error) {
+            console.error('Error adding export buttons:', error);
         }
         
         // Setup event listeners after rendering
@@ -1443,11 +1468,28 @@ function renderModeration() {
         const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         
+        // Calculate effect sizes within segments
+        const dHighAB = cohensD(highA, highB);
+        const dHighAC = cohensD(highA, highC);
+        const dHighBC = cohensD(highB, highC);
+        const dLowAB = cohensD(lowA, lowB);
+        const dLowAC = cohensD(lowA, lowC);
+        const dLowBC = cohensD(lowB, lowC);
+        
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Investment Involvement Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
                 <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Low Involvement (<4):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <strong>Effect Sizes (Cohen's d) Within Segments:</strong>
+                    <div style="margin-top: 10px;">
+                        <strong>High Involvement:</strong> A vs B: ${dHighAB !== null ? dHighAB.toFixed(2) : 'N/A'}, A vs C: ${dHighAC !== null ? dHighAC.toFixed(2) : 'N/A'}, B vs C: ${dHighBC !== null ? dHighBC.toFixed(2) : 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Low Involvement:</strong> A vs B: ${dLowAB !== null ? dLowAB.toFixed(2) : 'N/A'}, A vs C: ${dLowAC !== null ? dLowAC.toFixed(2) : 'N/A'}, B vs C: ${dLowBC !== null ? dLowBC.toFixed(2) : 'N/A'}
+                    </div>
+                </div>
                 ${interactionResult.hasInteraction ? `
                     <p><strong>Simple Effects:</strong></p>
                     <ul>
@@ -1666,12 +1708,29 @@ function renderModeration() {
         const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         
+        // Calculate effect sizes within segments
+        const dHighAB = cohensD(highA, highB);
+        const dHighAC = cohensD(highA, highC);
+        const dHighBC = cohensD(highB, highC);
+        const dLowAB = cohensD(lowA, lowB);
+        const dLowAC = cohensD(lowA, lowC);
+        const dLowBC = cohensD(lowB, lowC);
+        
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Financial Literacy Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
                 <p><strong>High Literacy (3 correct):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Medium Literacy (2 correct):</strong> A: ${meanMedA !== null ? meanMedA.toFixed(2) : 'N/A'}, B: ${meanMedB !== null ? meanMedB.toFixed(2) : 'N/A'}, C: ${meanMedC !== null ? meanMedC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Low Literacy (0-1 correct):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <strong>Effect Sizes (Cohen's d) Within Segments:</strong>
+                    <div style="margin-top: 10px;">
+                        <strong>High Literacy:</strong> A vs B: ${dHighAB !== null ? dHighAB.toFixed(2) : 'N/A'}, A vs C: ${dHighAC !== null ? dHighAC.toFixed(2) : 'N/A'}, B vs C: ${dHighBC !== null ? dHighBC.toFixed(2) : 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Low Literacy:</strong> A vs B: ${dLowAB !== null ? dLowAB.toFixed(2) : 'N/A'}, A vs C: ${dLowAC !== null ? dLowAC.toFixed(2) : 'N/A'}, B vs C: ${dLowBC !== null ? dLowBC.toFixed(2) : 'N/A'}
+                    </div>
+                </div>
                 ${interactionResult.hasInteraction ? `
                     <p><strong>Simple Effects:</strong></p>
                     <ul>
@@ -2016,11 +2075,28 @@ function renderModeration() {
         const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
         
+        // Calculate effect sizes within segments
+        const dHighAB = cohensD(highA, highB);
+        const dHighAC = cohensD(highA, highC);
+        const dHighBC = cohensD(highB, highC);
+        const dLowAB = cohensD(lowA, lowB);
+        const dLowAC = cohensD(lowA, lowC);
+        const dLowBC = cohensD(lowB, lowC);
+        
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Promotional Benefit Involvement Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
                 <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Low Involvement (<4):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <strong>Effect Sizes (Cohen's d) Within Segments:</strong>
+                    <div style="margin-top: 10px;">
+                        <strong>High Involvement:</strong> A vs B: ${dHighAB !== null ? dHighAB.toFixed(2) : 'N/A'}, A vs C: ${dHighAC !== null ? dHighAC.toFixed(2) : 'N/A'}, B vs C: ${dHighBC !== null ? dHighBC.toFixed(2) : 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Low Involvement:</strong> A vs B: ${dLowAB !== null ? dLowAB.toFixed(2) : 'N/A'}, A vs C: ${dLowAC !== null ? dLowAC.toFixed(2) : 'N/A'}, B vs C: ${dLowBC !== null ? dLowBC.toFixed(2) : 'N/A'}
+                    </div>
+                </div>
                 ${interactionResult.hasInteraction ? `
                     <p><strong>Simple Effects:</strong></p>
                     <ul>
@@ -3069,4 +3145,545 @@ function renderConclusions() {
             </ul>
         </div>
     `;
+}
+
+// Interactive User Scoring Tool
+function renderUserScoringTool() {
+    const userScoringEl = document.getElementById('userScoringContent');
+    if (!userScoringEl) {
+        console.error('userScoringContent element not found');
+        return;
+    }
+    
+    userScoringEl.innerHTML = `
+        <div class="user-scoring-form">
+            <h3 style="margin-bottom: 20px; color: #667eea;">Enter User Characteristics</h3>
+            <form id="userScoringForm">
+                <div class="form-group">
+                    <label>Financial Literacy Score (0-3 correct answers)</label>
+                    <select id="scoringFL" required>
+                        <option value="">Select...</option>
+                        <option value="0">0 correct (Low)</option>
+                        <option value="1">1 correct (Low)</option>
+                        <option value="2">2 correct (Medium)</option>
+                        <option value="3">3 correct (High)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Investment Involvement (1-7 scale, average)</label>
+                    <input type="number" id="scoringInv" min="1" max="7" step="0.1" placeholder="e.g., 4.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Promotional Benefit Involvement (1-7 scale, average)</label>
+                    <input type="number" id="scoringProm" min="1" max="7" step="0.1" placeholder="e.g., 5.0" required>
+                </div>
+                <div class="form-group">
+                    <label>Age Group</label>
+                    <select id="scoringAge" required>
+                        <option value="">Select...</option>
+                        <option value="less_25">Less than 25</option>
+                        <option value="26_35">26-35</option>
+                        <option value="36_50">36-50</option>
+                        <option value="51_65">51-65</option>
+                        <option value="66_plus">66+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Monthly Income</label>
+                    <select id="scoringIncome" required>
+                        <option value="">Select...</option>
+                        <option value="less_1500">Less than €1500</option>
+                        <option value="1500_2500">€1500 - €2500</option>
+                        <option value="2500_4000">€2500 - €4000</option>
+                        <option value="4000_6000">€4000 - €6000</option>
+                        <option value="more_6000">More than €6000</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="scoringGender" required>
+                        <option value="">Select...</option>
+                        <option value="2">Woman</option>
+                        <option value="9">Man</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="export-btn" style="width: 100%; margin-top: 10px;">Get Frame Recommendation</button>
+            </form>
+            <div id="scoringResult" class="scoring-result"></div>
+        </div>
+    `;
+    
+    // Add form submit handler
+    const form = document.getElementById('userScoringForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            calculateUserScore();
+        });
+    }
+}
+
+// Calculate user score and recommendation
+function calculateUserScore() {
+    const validData = processedData.filter(r => !r.excluded);
+    const fl = parseInt(document.getElementById('scoringFL').value);
+    const inv = parseFloat(document.getElementById('scoringInv').value);
+    const prom = parseFloat(document.getElementById('scoringProm').value);
+    const age = document.getElementById('scoringAge').value;
+    const income = document.getElementById('scoringIncome').value;
+    const gender = document.getElementById('scoringGender').value;
+    
+    // Find matching segment
+    const highFL = fl === 3;
+    const lowFL = fl <= 1;
+    const highInv = inv >= 4;
+    const lowInv = inv < 4;
+    
+    // Get segment data
+    let segment = validData;
+    
+    // Filter by characteristics
+    if (highFL) segment = segment.filter(r => r.financial_literacy === 3);
+    else if (lowFL) segment = segment.filter(r => r.financial_literacy <= 1);
+    else segment = segment.filter(r => r.financial_literacy === 2);
+    
+    if (highInv) segment = segment.filter(r => r.investment_involvement !== null && r.investment_involvement >= 4);
+    else segment = segment.filter(r => r.investment_involvement !== null && r.investment_involvement < 4);
+    
+    if (age) segment = segment.filter(r => r.age === age);
+    if (income) segment = segment.filter(r => r.monthly_income === income);
+    if (gender === '2' || gender === '9') segment = segment.filter(r => r.gender_code === gender);
+    else if (gender === 'other') segment = segment.filter(r => r.gender_code !== '2' && r.gender_code !== '9');
+    
+    // Calculate best frame for this segment
+    const outcome = 'intention_after';
+    const groupA = segment.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+    const groupB = segment.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+    const groupC = segment.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+    
+    const meanA = mean(groupA);
+    const meanB = mean(groupB);
+    const meanC = mean(groupC);
+    
+    const means = { 'A': meanA, 'B': meanB, 'C': meanC };
+    const validMeans = Object.entries(means).filter(([_, v]) => v !== null);
+    
+    if (validMeans.length === 0) {
+        document.getElementById('scoringResult').innerHTML = `
+            <h3>⚠️ Insufficient Data</h3>
+            <p>Not enough data for this specific user profile. Try a broader segment or collect more data.</p>
+        `;
+        document.getElementById('scoringResult').classList.add('active');
+        return;
+    }
+    
+    const best = validMeans.reduce((a, b) => a[1] > b[1] ? a : b)[0];
+    const bestMean = means[best];
+    const secondBest = validMeans.filter(([k]) => k !== best).reduce((a, b) => a[1] > b[1] ? a : b, validMeans[0]);
+    const secondBestMean = means[secondBest[0]];
+    
+    // Calculate confidence
+    const diff = bestMean - secondBestMean;
+    const sampleSize = segment.length;
+    let confidence = Math.min(95, 50 + (diff * 10) + (sampleSize > 20 ? 20 : sampleSize * 0.5));
+    if (sampleSize < 10) confidence = Math.max(confidence - 20, 30);
+    
+    const frameNames = { 
+        'A': 'Financial Frame (A)', 
+        'B': 'Cashback Frame (B)', 
+        'C': 'Generic Reward Frame (C)' 
+    };
+    const frameDescriptions = {
+        'A': 'Emphasizes connection to financial markets and investment-like benefits',
+        'B': 'Focuses on cashback and consumption rewards',
+        'C': 'Uses generic reward language with minimal financial terminology'
+    };
+    
+    const confidenceClass = confidence >= 70 ? 'high' : confidence >= 50 ? 'medium' : 'low';
+    
+    document.getElementById('scoringResult').innerHTML = `
+        <h3>📊 Recommendation</h3>
+        <div class="recommended-frame">${frameNames[best]}</div>
+        <p><span class="confidence-badge ${confidenceClass}">${Math.round(confidence)}% confidence</span></p>
+        <p style="margin-top: 15px;"><strong>Expected Intention Score:</strong> ${bestMean.toFixed(2)}/7</p>
+        <p><strong>Sample Size:</strong> ${sampleSize} similar users</p>
+        <p style="margin-top: 15px;"><strong>Frame Description:</strong> ${frameDescriptions[best]}</p>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <strong>All Frames for This Profile:</strong>
+            <ul style="margin-top: 10px;">
+                <li>Frame A: ${meanA !== null ? meanA.toFixed(2) : 'N/A'}</li>
+                <li>Frame B: ${meanB !== null ? meanB.toFixed(2) : 'N/A'}</li>
+                <li>Frame C: ${meanC !== null ? meanC.toFixed(2) : 'N/A'}</li>
+            </ul>
+        </div>
+        ${sampleSize < 15 ? '<p style="color: #f59e0b; margin-top: 15px;"><em>⚠️ Low sample size - recommendation should be interpreted with caution</em></p>' : ''}
+    `;
+    document.getElementById('scoringResult').classList.add('active');
+}
+
+// Website-Email Alignment Analysis
+function renderWebsiteAlignment() {
+    const validData = processedData.filter(r => !r.excluded);
+    const alignmentEl = document.getElementById('websiteAlignmentContent');
+    if (!alignmentEl) {
+        console.error('websiteAlignmentContent element not found');
+        return;
+    }
+    
+    // Journey funnel analysis
+    const totalEmail = validData.length;
+    const viewedWebsite = validData.filter(r => r.website_view_time && parseFloat(r.website_view_time) > 0).length;
+    const highIntention = validData.filter(r => r.intention_after !== null && r.intention_after >= 5).length;
+    
+    const emailToWebsite = (viewedWebsite / totalEmail * 100).toFixed(1);
+    const websiteToIntention = totalEmail > 0 ? (highIntention / totalEmail * 100).toFixed(1) : 0;
+    
+    // Content alignment by frame
+    const alignmentByFrame = { 'A': [], 'B': [], 'C': [] };
+    validData.forEach(row => {
+        if (row.manipulation_thoughts && row.intention_after !== null) {
+            const text = (row.manipulation_thoughts || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            
+            // Check if website reinforced email frame
+            const frameThemes = {
+                'A': ['financial', 'market', 'invest', 'investment'],
+                'B': ['cashback', 'reward', 'benefit', 'spend'],
+                'C': ['reward', 'benefit', 'free', 'gift']
+            };
+            
+            const themeMatches = frameThemes[condition].filter(theme => text.includes(theme)).length;
+            alignmentByFrame[condition].push({
+                matches: themeMatches,
+                intention: row.intention_after,
+                websiteTime: parseFloat(row.website_view_time) || 0
+            });
+        }
+    });
+    
+    // Calculate alignment scores
+    const alignmentScores = {};
+    Object.keys(alignmentByFrame).forEach(frame => {
+        const data = alignmentByFrame[frame];
+        if (data.length > 0) {
+            const avgMatches = mean(data.map(d => d.matches));
+            const avgIntention = mean(data.map(d => d.intention));
+            alignmentScores[frame] = {
+                alignment: avgMatches,
+                intention: avgIntention,
+                sampleSize: data.length
+            };
+        }
+    });
+    
+    // Website content recommendations
+    const recommendations = {
+        'A': [
+            'Emphasize financial market connection and investment terminology',
+            'Highlight risk-free nature for consumers',
+            'Explain ESG investment approach',
+            'Show potential returns (0.5% to 100%)'
+        ],
+        'B': [
+            'Focus on cashback and consumption benefits',
+            'Emphasize variable value that can grow',
+            'Compare to traditional fixed cashback',
+            'Show real examples of cashback amounts'
+        ],
+        'C': [
+            'Keep messaging simple and accessible',
+            'Emphasize free reward with no cost',
+            'Highlight ease of use',
+            'Focus on additional benefit without complexity'
+        ]
+    };
+    
+    alignmentEl.innerHTML = `
+        <div class="conclusion-box">
+            <h4>📊 Journey Funnel Analysis</h4>
+            <p>Understanding how users move from email to website to intention.</p>
+        </div>
+        <div class="funnel-container">
+            <div class="funnel-stage">
+                <h4>Email Exposure</h4>
+                <div class="metric-value">${totalEmail}</div>
+                <div class="metric-label">Total Participants</div>
+            </div>
+            <div class="funnel-arrow">→</div>
+            <div class="funnel-stage">
+                <h4>Website View</h4>
+                <div class="metric-value">${viewedWebsite}</div>
+                <div class="metric-label">${emailToWebsite}% conversion</div>
+            </div>
+            <div class="funnel-arrow">→</div>
+            <div class="funnel-stage">
+                <h4>High Intention</h4>
+                <div class="metric-value">${highIntention}</div>
+                <div class="metric-label">${websiteToIntention}% of total</div>
+            </div>
+        </div>
+        <div class="conclusion-box" style="margin-top: 30px;">
+            <h4>🔗 Content Alignment by Frame</h4>
+            <p>How well does website content align with email frame themes?</p>
+            ${Object.entries(alignmentScores).map(([frame, score]) => `
+                <div class="alignment-check ${score.alignment >= 2 ? '' : score.alignment >= 1 ? 'warning' : 'error'}">
+                    <strong>Frame ${frame}:</strong> Alignment Score: ${score.alignment.toFixed(2)}/4 
+                    (${score.alignment >= 2 ? '✅ Good alignment' : score.alignment >= 1 ? '⚠️ Moderate alignment' : '❌ Poor alignment'})
+                    <br>Average Intention: ${score.intention.toFixed(2)} | Sample: ${score.sampleSize}
+                </div>
+            `).join('')}
+        </div>
+        <div class="recommendation-box" style="margin-top: 30px;">
+            <h4>💡 Website Content Recommendations by Email Frame</h4>
+            ${Object.entries(recommendations).map(([frame, recs]) => `
+                <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 10px;">
+                    <h4 style="color: #667eea; margin-bottom: 15px;">Frame ${frame} Recommendations:</h4>
+                    <ul>
+                        ${recs.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('')}
+        </div>
+        <div class="conclusion-box" style="margin-top: 30px;">
+            <h4>🎯 Key Insights</h4>
+            <ul>
+                <li><strong>Email → Website:</strong> ${emailToWebsite}% of users viewed the website</li>
+                <li><strong>Website → Intention:</strong> ${websiteToIntention}% reached high intention (≥5/7)</li>
+                <li><strong>Alignment Matters:</strong> Frames with better content alignment show ${Object.entries(alignmentScores).length > 0 ? Object.entries(alignmentScores).reduce((a, b) => a[1].intention > b[1].intention ? a : b)[1].intention.toFixed(2) : 'N/A'} average intention</li>
+                <li><strong>Recommendation:</strong> Ensure website content reinforces email frame themes for better conversion</li>
+            </ul>
+        </div>
+    `;
+}
+
+// Message Recommendations with Email Copy Suggestions
+function renderMessageRecommendations() {
+    const validData = processedData.filter(r => !r.excluded);
+    const recommendationsEl = document.getElementById('messageRecommendationsContent');
+    if (!recommendationsEl) {
+        console.error('messageRecommendationsContent element not found');
+        return;
+    }
+    
+    // Get top concerns from concerns analysis
+    const concernThemes = {
+        'Security/Trust': ['trust', 'security', 'safe', 'secure', 'scam', 'fraud', 'legitimate'],
+        'Understanding': ['understand', 'confusing', 'complex', 'complicated', 'clear', 'explain'],
+        'Financial Risk': ['risk', 'risky', 'lose', 'money', 'volatile', 'uncertain'],
+        'Time Delay': ['time', 'wait', 'delay', 'months', 'long', 'slow'],
+        'Value Uncertainty': ['value', 'worth', 'amount', 'how much', 'uncertain', 'guarantee']
+    };
+    
+    const concernsByTheme = {};
+    validData.forEach(row => {
+        if (row.concerns_text) {
+            const text = (row.concerns_text || '').toLowerCase();
+            Object.entries(concernThemes).forEach(([theme, keywords]) => {
+                if (keywords.some(keyword => text.includes(keyword))) {
+                    if (!concernsByTheme[theme]) concernsByTheme[theme] = 0;
+                    concernsByTheme[theme]++;
+                }
+            });
+        }
+    });
+    
+    const topConcerns = Object.entries(concernsByTheme)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+    
+    // Email copy suggestions for each concern
+    const copySuggestions = {
+        'Security/Trust': {
+            frameA: 'Your cashback is managed by a specialized financial team with a proven track record. All investments are ESG-focused and your personal information is never at risk.',
+            frameB: 'TagPeak is a trusted partner used by leading brands. Your cashback is secure and managed by financial experts.',
+            frameC: 'This is a legitimate benefit from [Brand Name]. Your information is secure and the reward is completely free.'
+        },
+        'Understanding': {
+            frameA: 'Simply use code TAGPEAK at checkout. Your purchase amount is linked to financial markets, and after 4-6 months, you receive your reward based on market performance.',
+            frameB: 'Use code TAGPEAK when you shop. Your cashback amount can grow over time, giving you more value than traditional fixed cashback.',
+            frameC: 'Use code TAGPEAK at checkout to activate your free reward. The value can increase over 4-6 months - no action needed from you.'
+        },
+        'Financial Risk': {
+            frameA: 'This is completely risk-free for you. You don\'t invest any of your own money. TagPeak manages the investment, and you receive the benefits.',
+            frameB: 'There\'s no risk to you. You simply shop normally and receive cashback that can grow over time.',
+            frameC: 'This reward is free and risk-free. You don\'t pay anything or take any financial risk.'
+        },
+        'Time Delay': {
+            frameA: 'Your reward matures in 4-6 months, allowing time for potential market growth. This gives you the opportunity for higher returns than immediate cashback.',
+            frameB: 'Your cashback value is finalized after 4-6 months, giving it time to potentially increase. You\'ll receive at least 0.5% guaranteed.',
+            frameC: 'Your reward will be ready in 4-6 months. During this time, the value may increase, giving you more than a standard immediate reward.'
+        },
+        'Value Uncertainty': {
+            frameA: 'You\'re guaranteed a minimum of 0.5% cashback, with potential up to 100% of your purchase value. The exact amount depends on market performance over 4-6 months.',
+            frameB: 'You\'ll receive at least 0.5% cashback, with the potential for much more. The final amount depends on how the linked investment performs.',
+            frameC: 'Your reward starts at a minimum value and can grow significantly. You\'ll know the exact amount after 4-6 months.'
+        }
+    };
+    
+    recommendationsEl.innerHTML = `
+        <div class="conclusion-box">
+            <h4>✍️ Email Copy Recommendations</h4>
+            <p>Based on identified barriers, here are specific email copy suggestions for each framing condition.</p>
+        </div>
+        ${topConcerns.length > 0 ? topConcerns.map(([concern, frequency]) => `
+            <div class="email-copy-suggestion">
+                <h4>${concern} (${frequency} mentions)</h4>
+                <p><strong>How to address this concern in your email:</strong></p>
+                <div style="margin-top: 15px;">
+                    <strong style="color: #667eea;">Frame A (Financial):</strong>
+                    <div class="copy-text">${copySuggestions[concern]?.frameA || 'Address security and legitimacy concerns.'}</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <strong style="color: #764ba2;">Frame B (Cashback):</strong>
+                    <div class="copy-text">${copySuggestions[concern]?.frameB || 'Emphasize trust and simplicity.'}</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <strong style="color: #f093fb;">Frame C (Generic):</strong>
+                    <div class="copy-text">${copySuggestions[concern]?.frameC || 'Keep messaging simple and reassuring.'}</div>
+                </div>
+            </div>
+        `).join('') : '<p>No concerns data available for recommendations.</p>'}
+        <div class="recommendation-box" style="margin-top: 30px;">
+            <h4>📋 General Content Guidelines</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <h4 style="color: #667eea;">Frame A (Financial)</h4>
+                    <ul style="margin-top: 10px;">
+                        <li>Use investment terminology carefully</li>
+                        <li>Emphasize risk-free nature</li>
+                        <li>Explain ESG approach</li>
+                        <li>Provide clear examples</li>
+                    </ul>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <h4 style="color: #764ba2;">Frame B (Cashback)</h4>
+                    <ul style="margin-top: 10px;">
+                        <li>Focus on cashback benefits</li>
+                        <li>Compare to traditional cashback</li>
+                        <li>Emphasize variable value</li>
+                        <li>Show real examples</li>
+                    </ul>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <h4 style="color: #f093fb;">Frame C (Generic)</h4>
+                    <ul style="margin-top: 10px;">
+                        <li>Keep language simple</li>
+                        <li>Avoid financial jargon</li>
+                        <li>Emphasize ease of use</li>
+                        <li>Focus on free benefit</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Add Export Buttons to Charts
+function addExportButtons() {
+    // Add export buttons to main sections
+    const sections = [
+        { id: 'mainEffectsSection', title: 'Main Effects' },
+        { id: 'websiteSection', title: 'Website Impact' },
+        { id: 'moderationSection', title: 'Moderation Analyses' },
+        { id: 'textAnalysisSection', title: 'Text Analysis' },
+        { id: 'segmentationSection', title: 'Segmentation' }
+    ];
+    
+    sections.forEach(({ id, title }) => {
+        const section = document.getElementById(id);
+        if (section) {
+            const header = section.querySelector('h2');
+            if (header && !section.querySelector('.export-buttons')) {
+                const exportDiv = document.createElement('div');
+                exportDiv.className = 'export-buttons';
+                exportDiv.innerHTML = `
+                    <button class="export-btn" onclick="exportSectionCharts('${id}')">Export Charts</button>
+                    <button class="export-btn" onclick="exportSectionData('${id}')">Export Data</button>
+                `;
+                header.insertAdjacentElement('afterend', exportDiv);
+            }
+        }
+    });
+}
+
+// Make export functions globally accessible
+window.exportSectionCharts = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    
+    const canvases = section.querySelectorAll('canvas');
+    if (canvases.length === 0) {
+        alert('No charts found in this section.');
+        return;
+    }
+    
+    let exported = 0;
+    canvases.forEach((canvas, index) => {
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.download = `${sectionId}-chart-${index + 1}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            exported++;
+            if (exported === canvases.length) {
+                alert(`Exported ${exported} chart(s) from ${sectionId}`);
+            }
+        }, index * 200);
+    });
+}
+
+window.exportSectionData = function(sectionId) {
+    const validData = processedData.filter(r => !r.excluded);
+    
+    let csvContent = '';
+    let filename = '';
+    
+    if (sectionId === 'mainEffectsSection') {
+        // Export main effects data
+        const outcomes = {
+            'Message Involvement': 'message_involvement',
+            'Intention (Before Website)': 'intention_before',
+            'Intention (After Website)': 'intention_after',
+            'Ease of Use': 'ease_of_use',
+            'Clarity': 'clarity',
+            'Perceived Advantage': 'advantage',
+            'Willingness': 'willingness'
+        };
+        
+        csvContent = 'Outcome,Frame,Mean,SD,N\n';
+        Object.entries(outcomes).forEach(([name, key]) => {
+            ['A', 'B', 'C'].forEach(frame => {
+                const group = validData.filter(r => r.framing_condition_text === frame).map(r => r[key]).filter(v => v !== null);
+                const m = mean(group);
+                const sd = stdDev(group);
+                csvContent += `"${name}",${frame},${m !== null ? m.toFixed(2) : 'N/A'},${sd !== null ? sd.toFixed(2) : 'N/A'},${group.length}\n`;
+            });
+        });
+        filename = 'main-effects-data.csv';
+    } else if (sectionId === 'segmentationSection') {
+        // Export segmentation data
+        csvContent = 'Segment,Frame,Mean,SD,N\n';
+        // High FL + High Inv
+        const highFLHighInv = validData.filter(r => r.financial_literacy === 3 && r.investment_involvement !== null && r.investment_involvement >= 4);
+        ['A', 'B', 'C'].forEach(frame => {
+            const group = highFLHighInv.filter(r => r.framing_condition_text === frame).map(r => r.intention_after).filter(v => v !== null);
+            const m = mean(group);
+            const sd = stdDev(group);
+            csvContent += `"High FL + High Inv",${frame},${m !== null ? m.toFixed(2) : 'N/A'},${sd !== null ? sd.toFixed(2) : 'N/A'},${group.length}\n`;
+        });
+        filename = 'segmentation-data.csv';
+    } else {
+        csvContent = 'user_id,framing_condition,intention_after\n';
+        validData.forEach(row => {
+            csvContent += `${row.user_id || ''},${row.framing_condition_text || ''},${row.intention_after || ''}\n`;
+        });
+        filename = `${sectionId}-data.csv`;
+    }
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = URL.createObjectURL(blob);
+    link.click();
 }
