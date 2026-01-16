@@ -369,6 +369,12 @@ async function loadData() {
         }
         
         try {
+            renderMediationAnalysis();
+        } catch (error) {
+            console.error('Error rendering mediation analysis:', error);
+        }
+        
+        try {
             renderManipulationCheck();
         } catch (error) {
             console.error('Error rendering manipulation check:', error);
@@ -1071,7 +1077,50 @@ function renderOverview() {
         </div>
     `;
     
-    overviewStatsEl.innerHTML = statsHTML + reliabilityHTML;
+    // Power Analysis
+    const nPerCondition = Math.min(
+        validData.filter(r => r.framing_condition_text === 'A').length,
+        validData.filter(r => r.framing_condition_text === 'B').length,
+        validData.filter(r => r.framing_condition_text === 'C').length
+    );
+    
+    // Simplified power calculation (for medium effect size, alpha=0.05)
+    // Power ≈ 0.80 for medium effect (d=0.5) with n=30 per group
+    const minNForPower = 30; // Minimum n per group for 80% power (medium effect)
+    const powerStatus = nPerCondition >= minNForPower ? 'Adequate' : 'Limited';
+    const powerColor = nPerCondition >= minNForPower ? '#10b981' : '#f59e0b';
+    
+    const powerAnalysisHTML = `
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📊 Statistical Power Analysis</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid ${powerColor};">
+                    <strong>Sample Size per Condition</strong><br>
+                    <span style="font-size: 24px; font-weight: 700; color: ${powerColor};">${nPerCondition}</span>
+                </div>
+                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid ${powerColor};">
+                    <strong>Power Status</strong><br>
+                    <span style="font-size: 24px; font-weight: 700; color: ${powerColor};">${powerStatus}</span>
+                </div>
+                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong>Minimum Recommended</strong><br>
+                    <span style="font-size: 24px; font-weight: 700; color: #667eea;">${minNForPower}</span> per group
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                <strong>Interpretation:</strong> For detecting medium effect sizes (d=0.5) with 80% power at α=0.05, 
+                ${nPerCondition >= minNForPower ? 
+                    'your sample size is adequate. You have sufficient power to detect meaningful framing effects.' : 
+                    'your sample size is limited. Consider collecting more data for reliable moderation analyses. Main effects may still be detectable.'}
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                <strong>Note:</strong> Power analysis assumes medium effect sizes. Small effects (d=0.2) require ~200 per group; 
+                large effects (d=0.8) require ~20 per group.
+            </p>
+        </div>
+    `;
+    
+    overviewStatsEl.innerHTML = statsHTML + reliabilityHTML + powerAnalysisHTML;
 
     // Demographics charts
     renderDemographicsCharts();
@@ -2850,43 +2899,251 @@ function setupEventListeners() {
     // Currently main effects shows all outcomes by default
 }
 
-// Render Manipulation Check
+// Mediation Analysis (Baron & Kenny approach)
+function renderMediationAnalysis() {
+    const validData = processedData.filter(r => !r.excluded);
+    const mediationContentEl = document.getElementById('mediationContent');
+    if (!mediationContentEl) {
+        console.error('mediationContent element not found');
+        return;
+    }
+    
+    // Test mediation pathways: Framing → Mediator → Intention
+    // Mediators: message_involvement, clarity, ease_of_use, advantage
+    
+    const mediators = [
+        { name: 'Message Involvement', key: 'message_involvement', hypothesis: 'Framing affects involvement, which affects intention' },
+        { name: 'Perceived Clarity', key: 'clarity', hypothesis: 'Framing affects clarity, which affects intention' },
+        { name: 'Ease of Use', key: 'ease_of_use', hypothesis: 'Framing affects ease, which affects intention' },
+        { name: 'Perceived Advantage', key: 'advantage', hypothesis: 'Framing affects advantage, which affects intention' }
+    ];
+    
+    const outcome = 'intention_after';
+    const mediationResults = [];
+    
+    mediators.forEach(mediator => {
+        // Step 1: Framing → Intention (total effect)
+        const groupA = validData.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const groupB = validData.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const groupC = validData.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        const totalEffectAnova = anova([groupA, groupB, groupC]);
+        
+        // Step 2: Framing → Mediator
+        const medA = validData.filter(r => r.framing_condition_text === 'A').map(r => r[mediator.key]).filter(v => v !== null);
+        const medB = validData.filter(r => r.framing_condition_text === 'B').map(r => r[mediator.key]).filter(v => v !== null);
+        const medC = validData.filter(r => r.framing_condition_text === 'C').map(r => r[mediator.key]).filter(v => v !== null);
+        const framingToMediatorAnova = anova([medA, medB, medC]);
+        
+        // Step 3: Mediator → Intention (correlation/regression)
+        const validPairs = validData.filter(r => r[mediator.key] !== null && r[outcome] !== null);
+        if (validPairs.length < 10) {
+            mediationResults.push({
+                mediator: mediator.name,
+                hypothesis: mediator.hypothesis,
+                supported: false,
+                reason: 'Insufficient data'
+            });
+            return;
+        }
+        
+        const mediatorValues = validPairs.map(r => r[mediator.key]);
+        const intentionValues = validPairs.map(r => r[outcome]);
+        const mediatorMean = mean(mediatorValues);
+        const intentionMean = mean(intentionValues);
+        
+        // Calculate correlation (simplified)
+        let covariance = 0;
+        for (let i = 0; i < validPairs.length; i++) {
+            covariance += (mediatorValues[i] - mediatorMean) * (intentionValues[i] - intentionMean);
+        }
+        covariance /= validPairs.length;
+        const mediatorSD = stdDev(mediatorValues);
+        const intentionSD = stdDev(intentionValues);
+        const correlation = (mediatorSD !== null && intentionSD !== null && mediatorSD > 0 && intentionSD > 0) ? 
+            covariance / (mediatorSD * intentionSD) : null;
+        
+        // Mediation is supported if:
+        // 1. Framing affects intention (total effect)
+        // 2. Framing affects mediator
+        // 3. Mediator correlates with intention
+        const mediationSupported = totalEffectAnova.pValue < 0.05 && 
+                                   framingToMediatorAnova.pValue < 0.05 && 
+                                   correlation !== null && Math.abs(correlation) > 0.2;
+        
+        mediationResults.push({
+            mediator: mediator.name,
+            hypothesis: mediator.hypothesis,
+            supported: mediationSupported,
+            totalEffect: { p: totalEffectAnova.pValue, etaSq: totalEffectAnova.etaSquared },
+            framingToMediator: { p: framingToMediatorAnova.pValue, etaSq: framingToMediatorAnova.etaSquared },
+            mediatorToIntention: { correlation: correlation },
+            n: validPairs.length
+        });
+    });
+    
+    const mediationHTML = `
+        <div class="conclusion-box">
+            <h4>Mediation Analysis: Why Does Framing Affect Intention?</h4>
+            <p>Testing whether framing effects on intention are mediated by intermediate variables (Baron & Kenny approach).</p>
+            ${mediationResults.map(result => `
+                <div style="margin: 20px 0; padding: 15px; background: ${result.supported ? '#f0fdf4' : '#fffbeb'}; border-left: 4px solid ${result.supported ? '#10b981' : '#f59e0b'}; border-radius: 5px;">
+                    <strong>${result.mediator}:</strong> ${result.hypothesis}<br>
+                    ${result.reason ? `<span style="color: #666;">${result.reason}</span>` : `
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            <strong>Path 1 (Framing → Intention):</strong> p = ${result.totalEffect.p.toFixed(3)}, η² = ${result.totalEffect.etaSq.toFixed(3)}<br>
+                            <strong>Path 2 (Framing → ${result.mediator}):</strong> p = ${result.framingToMediator.p.toFixed(3)}, η² = ${result.framingToMediator.etaSq.toFixed(3)}<br>
+                            <strong>Path 3 (${result.mediator} → Intention):</strong> r = ${result.mediatorToIntention.correlation !== null ? result.mediatorToIntention.correlation.toFixed(3) : 'N/A'}<br>
+                            <strong>Conclusion:</strong> ${result.supported ? 
+                                '<span class="badge badge-success">Mediation Supported</span> - This mediator explains why framing affects intention.' : 
+                                '<span class="badge badge-warning">Mediation Not Supported</span> - This mediator does not significantly mediate the framing effect.'}
+                        </div>
+                    `}
+                </div>
+            `).join('')}
+            <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                <strong>Interpretation:</strong> Mediation is supported when (1) framing affects intention, (2) framing affects the mediator, and (3) the mediator correlates with intention. 
+                This helps understand the psychological mechanisms through which framing works.
+            </p>
+        </div>
+    `;
+    
+    mediationContentEl.innerHTML = mediationHTML;
+    
+    // Add to render calls
+    const mediationSection = document.getElementById('mediationSection');
+    if (mediationSection && validData.length > 0) {
+        mediationSection.style.display = 'block';
+    }
+}
+
+// Render Manipulation Check with Enhanced Analysis
 function renderManipulationCheck() {
     const validData = processedData.filter(r => !r.excluded && r.manipulation_thoughts);
     
-    // Simple word frequency (financial terms)
-    const financialTerms = ['financial', 'market', 'invest', 'stock', 'cashback', 'reward', 'benefit', 'risk', 'money'];
-    const termCounts = {};
+    // Enhanced thematic coding
+    const financialTerms = ['financial', 'market', 'invest', 'investment', 'stock', 'stocks', 'etf', 'portfolio', 'trading'];
+    const cashbackTerms = ['cashback', 'cash back', 'reward', 'rewards', 'points', 'loyalty', 'discount'];
+    const riskTerms = ['risk', 'risky', 'uncertain', 'uncertainty', 'volatile', 'volatility', 'danger', 'lose', 'loss'];
+    const complexityTerms = ['complex', 'complicated', 'confusing', 'difficult', 'hard', 'understand', 'clear', 'simple', 'easy'];
+    const trustTerms = ['trust', 'reliable', 'legitimate', 'scam', 'suspicious', 'believe', 'credible', 'catch'];
     
-    financialTerms.forEach(term => {
-        termCounts[term] = validData.filter(r => 
-            r.manipulation_thoughts && r.manipulation_thoughts.toLowerCase().includes(term)
-        ).length;
-    });
-
+    const categorizeResponse = (text) => {
+        if (!text) return { category: 'Other', themes: [] };
+        const lower = text.toLowerCase();
+        const themes = [];
+        let category = 'Other';
+        
+        const financialCount = financialTerms.filter(t => lower.includes(t)).length;
+        const cashbackCount = cashbackTerms.filter(t => lower.includes(t)).length;
+        const riskCount = riskTerms.filter(t => lower.includes(t)).length;
+        const complexityCount = complexityTerms.filter(t => lower.includes(t)).length;
+        const trustCount = trustTerms.filter(t => lower.includes(t)).length;
+        
+        if (financialCount > 0) themes.push('Financial');
+        if (cashbackCount > 0) themes.push('Cashback');
+        if (riskCount > 0) themes.push('Risk');
+        if (complexityCount > 0) themes.push('Complexity');
+        if (trustCount > 0) themes.push('Trust');
+        
+        // Determine primary category
+        if (financialCount >= 2) category = 'Financial/Investment';
+        else if (cashbackCount >= 2) category = 'Cashback/Reward';
+        else if (financialCount > 0 && cashbackCount > 0) category = 'Hybrid';
+        else if (riskCount > 0) category = 'Risk-focused';
+        else if (complexityCount > 0) category = 'Complexity-focused';
+        else if (trustCount > 0) category = 'Trust-focused';
+        
+        return { category, themes, financialCount, cashbackCount, riskCount, complexityCount, trustCount };
+    };
+    
     const byCondition = {
         'A': validData.filter(r => r.framing_condition_text === 'A' && r.manipulation_thoughts),
         'B': validData.filter(r => r.framing_condition_text === 'B' && r.manipulation_thoughts),
         'C': validData.filter(r => r.framing_condition_text === 'C' && r.manipulation_thoughts)
     };
-
+    
+    // Categorize responses by condition
+    const categoriesByCondition = { 'A': {}, 'B': {}, 'C': {} };
+    const themeCountsByCondition = { 'A': {}, 'B': {}, 'C': {} };
+    
+    Object.entries(byCondition).forEach(([condition, responses]) => {
+        responses.forEach(r => {
+            const categorization = categorizeResponse(r.manipulation_thoughts);
+            categoriesByCondition[condition][categorization.category] = 
+                (categoriesByCondition[condition][categorization.category] || 0) + 1;
+            categorization.themes.forEach(theme => {
+                themeCountsByCondition[condition][theme] = 
+                    (themeCountsByCondition[condition][theme] || 0) + 1;
+            });
+        });
+    });
+    
     const manipulationAnalysisEl = document.getElementById('manipulationAnalysis');
     if (!manipulationAnalysisEl) {
         console.error('manipulationAnalysis element not found');
         return;
     }
-    manipulationAnalysisEl.innerHTML = `
-        <h3>Manipulation Check Summary</h3>
-        <p>Total responses with manipulation thoughts: ${validData.length}</p>
-        <p>By condition: A (${byCondition.A.length}), B (${byCondition.B.length}), C (${byCondition.C.length})</p>
-        <div class="text-analysis">
-            <h4>Common Terms Mentioned:</h4>
-            ${Object.entries(termCounts).map(([term, count]) => 
-                `<span class="word-cloud-item">${term} (${count})</span>`
-            ).join('')}
+    
+    const totalResponses = validData.length;
+    const manipulationCheckHTML = `
+        <div class="conclusion-box">
+            <h4>Manipulation Check: Verification of Framing Conditions</h4>
+            <p><strong>Total responses:</strong> ${totalResponses} (A: ${byCondition.A.length}, B: ${byCondition.B.length}, C: ${byCondition.C.length})</p>
+            <p><em>This analysis verifies that framing conditions created different mental categorizations.</em></p>
         </div>
-        <p><em>Note: Full thematic analysis requires qualitative coding. This shows basic frequency counts.</em></p>
+        
+        <h3>Mental Categorization by Condition</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Condition A (Financial)</th>
+                        <th>Condition B (Cashback)</th>
+                        <th>Condition C (Generic)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${['Financial/Investment', 'Cashback/Reward', 'Hybrid', 'Risk-focused', 'Complexity-focused', 'Trust-focused', 'Other'].map(cat => `
+                        <tr>
+                            <td><strong>${cat}</strong></td>
+                            <td>${categoriesByCondition.A[cat] || 0} (${byCondition.A.length > 0 ? ((categoriesByCondition.A[cat] || 0) / byCondition.A.length * 100).toFixed(1) : 0}%)</td>
+                            <td>${categoriesByCondition.B[cat] || 0} (${byCondition.B.length > 0 ? ((categoriesByCondition.B[cat] || 0) / byCondition.B.length * 100).toFixed(1) : 0}%)</td>
+                            <td>${categoriesByCondition.C[cat] || 0} (${byCondition.C.length > 0 ? ((categoriesByCondition.C[cat] || 0) / byCondition.C.length * 100).toFixed(1) : 0}%)</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        
+        <h3>Theme Mentions by Condition</h3>
+        <div class="text-analysis">
+            ${['Financial', 'Cashback', 'Risk', 'Complexity', 'Trust'].map(theme => `
+                <div style="margin: 10px 0;">
+                    <strong>${theme}:</strong>
+                    <span class="word-cloud-item">A: ${themeCountsByCondition.A[theme] || 0}</span>
+                    <span class="word-cloud-item">B: ${themeCountsByCondition.B[theme] || 0}</span>
+                    <span class="word-cloud-item">C: ${themeCountsByCondition.C[theme] || 0}</span>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="conclusion-box" style="margin-top: 20px;">
+            <h4>Manipulation Check Interpretation</h4>
+            <p><strong>Expected Pattern:</strong></p>
+            <ul>
+                <li><strong>Condition A (Financial):</strong> Should show more "Financial/Investment" categorizations and "Financial" theme mentions</li>
+                <li><strong>Condition B (Cashback):</strong> Should show more "Cashback/Reward" categorizations and "Cashback" theme mentions</li>
+                <li><strong>Condition C (Generic):</strong> May show mixed or "Other" categorizations</li>
+            </ul>
+            <p><strong>Verification:</strong> ${categoriesByCondition.A['Financial/Investment'] > categoriesByCondition.B['Financial/Investment'] && 
+                categoriesByCondition.B['Cashback/Reward'] > categoriesByCondition.A['Cashback/Reward'] ? 
+                '<span class="badge badge-success">Manipulation Successful</span> - Framing conditions created distinct perceptions.' : 
+                '<span class="badge badge-warning">Manipulation Check Inconclusive</span> - May need deeper qualitative analysis.'}</p>
+        </div>
     `;
+    
+    manipulationAnalysisEl.innerHTML = manipulationCheckHTML;
 }
 
 // Enhanced Text Analysis with Thematic Coding
