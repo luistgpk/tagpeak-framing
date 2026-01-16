@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TagPeak Framing Study - Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-form button:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .dashboard {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section h3 {
+            color: #555;
+            font-size: 20px;
+            margin: 25px 0 15px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+        }
+
+        .chart-container.small {
+            height: 300px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .badge-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .badge-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .conclusion-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .conclusion-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-controls select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .text-analysis {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .word-cloud-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .significance-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+
+        .significance-indicator.sig {
+            background: #10b981;
+        }
+
+        .significance-indicator.ns {
+            background: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <h1>🔒 Analytics Dashboard</h1>
+        <form class="login-form" id="loginForm">
+            <input type="password" id="password" placeholder="Enter password" required>
+            <button type="submit">Access Dashboard</button>
+            <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <div class="header">
+            <h1>📊 TagPeak Framing Study - Analytics Dashboard</h1>
+            <p>Comprehensive analysis of email framing effects on consumer behavior</p>
+        </div>
+
+        <!-- Overview Section -->
+        <div class="section" id="overviewSection">
+            <h2>📈 Overview & Sample Characteristics</h2>
+            <div class="stats-grid" id="overviewStats"></div>
+            <div id="demographicsCharts"></div>
+        </div>
+
+        <!-- Data Quality Section -->
+        <div class="section" id="qualitySection">
+            <h2>✅ Data Quality & Exclusion Criteria</h2>
+            <div id="qualityStats"></div>
+            <div id="exclusionCharts"></div>
+        </div>
+
+        <!-- Main Effects Section -->
+        <div class="section" id="mainEffectsSection">
+            <h2>🎯 Main Effects: Framing Condition Comparisons</h2>
+            <div class="filter-controls">
+                <select id="outcomeFilter">
+                    <option value="all">All Outcomes</option>
+                    <option value="involvement">Message Involvement</option>
+                    <option value="intention">Intention to Use</option>
+                    <option value="ease">Ease of Use</option>
+                    <option value="clarity">Clarity</option>
+                    <option value="advantage">Perceived Advantage</option>
+                    <option value="willingness">Willingness</option>
+                </select>
+            </div>
+            <div id="mainEffectsCharts"></div>
+            <div id="mainEffectsTables"></div>
+        </div>
+
+        <!-- Website Impact Section -->
+        <div class="section" id="websiteSection">
+            <h2>🌐 Website Exposure Impact</h2>
+            <div id="websiteCharts"></div>
+            <div id="websiteAnalysis"></div>
+        </div>
+
+        <!-- Moderation Section -->
+        <div class="section" id="moderationSection">
+            <h2>🔍 Moderation Analyses</h2>
+            <div class="filter-controls">
+                <select id="moderatorFilter">
+                    <option value="involvement">Investment Involvement</option>
+                    <option value="promotional">Promotional Benefit Involvement</option>
+                    <option value="literacy">Financial Literacy</option>
+                    <option value="age">Age</option>
+                    <option value="income">Income</option>
+                    <option value="gender">Gender</option>
+                </select>
+            </div>
+            <div id="moderationCharts"></div>
+        </div>
+
+        <!-- Manipulation Check Section -->
+        <div class="section" id="manipulationSection">
+            <h2>🔬 Manipulation Check</h2>
+            <div id="manipulationAnalysis"></div>
+        </div>
+
+        <!-- Concerns Section -->
+        <div class="section" id="concernsSection">
+            <h2>💭 Concerns & Barriers Analysis</h2>
+            <div id="concernsAnalysis"></div>
+        </div>
+
+        <!-- Conclusions Section -->
+        <div class="section" id="conclusionsSection">
+            <h2>📝 Conclusions & Recommendations</h2>
+            <div id="conclusions"></div>
+        </div>
+    </div>
+
+    <script src="analytics.js"></script>
+</body>
+</html>
