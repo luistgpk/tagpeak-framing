@@ -4,27 +4,70 @@ const CORRECT_PASSWORD = 'tagpeak2026!'; // Change this to your desired password
 // Wait for scripts to load
 function waitForScripts() {
     return new Promise((resolve) => {
+        // Check immediately
         if (typeof Chart !== 'undefined' && typeof Papa !== 'undefined') {
             configureChartDefaults();
             resolve();
-        } else {
-            // Check every 100ms
-            const checkInterval = setInterval(() => {
-                if (typeof Chart !== 'undefined' && typeof Papa !== 'undefined') {
-                    clearInterval(checkInterval);
-                    configureChartDefaults();
-                    resolve();
-                }
-            }, 100);
-            
-            // Timeout after 5 seconds
-            setTimeout(() => {
-                clearInterval(checkInterval);
-                console.error('Scripts failed to load. Chart.js or PapaParse may be blocked by CSP.');
-                resolve(); // Resolve anyway to show error message
-            }, 5000);
+            return;
         }
+        
+        // Check every 100ms
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds
+        
+        const checkInterval = setInterval(() => {
+            attempts++;
+            if (typeof Chart !== 'undefined' && typeof Papa !== 'undefined') {
+                clearInterval(checkInterval);
+                configureChartDefaults();
+                resolve();
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                console.error('Scripts failed to load after 5 seconds.');
+                // Show helpful error message
+                showScriptLoadError();
+                resolve(); // Resolve anyway to show error message
+            }
+        }, 100);
     });
+}
+
+// Show error if scripts don't load
+function showScriptLoadError() {
+    const dashboard = document.getElementById('dashboard');
+    if (dashboard && dashboard.classList.contains('active')) {
+        dashboard.innerHTML = `
+            <div class="section">
+                <h2>⚠️ Scripts Failed to Load</h2>
+                <div class="conclusion-box">
+                    <h4>Problem:</h4>
+                    <p>Chart.js and/or PapaParse libraries could not be loaded. This is usually caused by:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Content Security Policy (CSP) blocking CDN scripts</strong></li>
+                        <li>Opening the file directly (file://) instead of using a local server</li>
+                        <li>Network/firewall blocking cdn.jsdelivr.net</li>
+                    </ul>
+                    <h4 style="margin-top: 20px;">Solutions:</h4>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Use a local server:</strong>
+                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-top: 10px;">
+# In your project folder, run:
+python -m http.server 8000
+
+# Then open: http://localhost:8000/analytics.html</pre>
+                        </li>
+                        <li><strong>Check browser console</strong> for CSP errors and adjust server settings if needed</li>
+                        <li><strong>Disable browser extensions</strong> that might block scripts (ad blockers, privacy extensions)</li>
+                    </ol>
+                    <p style="margin-top: 20px;"><strong>Current Status:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Chart.js: ${typeof Chart !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}</li>
+                        <li>PapaParse: ${typeof Papa !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Wait for DOM and scripts to be ready
