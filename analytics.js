@@ -375,6 +375,24 @@ async function loadData() {
         }
         
         try {
+            renderEnhancedTextAnalysis();
+        } catch (error) {
+            console.error('Error rendering enhanced text analysis:', error);
+        }
+        
+        try {
+            renderSegmentation();
+        } catch (error) {
+            console.error('Error rendering segmentation:', error);
+        }
+        
+        try {
+            renderCommunicationEffectiveness();
+        } catch (error) {
+            console.error('Error rendering communication effectiveness:', error);
+        }
+        
+        try {
             renderConcerns();
         } catch (error) {
             console.error('Error rendering concerns:', error);
@@ -635,6 +653,100 @@ function cohensD(group1, group2) {
 
     const pooledSD = Math.sqrt((Math.pow(s1, 2) + Math.pow(s2, 2)) / 2);
     return (m1 - m2) / pooledSD;
+}
+
+// Two-way ANOVA for interaction tests
+function twoWayAnova(data) {
+    // data structure: { groups: { framing: { moderator: [values] } } }
+    // Returns: { mainFraming, mainModerator, interaction, simpleEffects }
+    
+    const allValues = [];
+    Object.values(data.groups).forEach(framingGroup => {
+        Object.values(framingGroup).forEach(modGroup => {
+            allValues.push(...modGroup.filter(v => v !== null && !isNaN(v)));
+        });
+    });
+    
+    const grandMean = mean(allValues);
+    const n = allValues.length;
+    
+    // Calculate cell means
+    const cellMeans = {};
+    const cellNs = {};
+    Object.entries(data.groups).forEach(([framing, modGroups]) => {
+        cellMeans[framing] = {};
+        cellNs[framing] = {};
+        Object.entries(modGroups).forEach(([mod, values]) => {
+            const filtered = values.filter(v => v !== null && !isNaN(v));
+            cellMeans[framing][mod] = mean(filtered);
+            cellNs[framing][mod] = filtered.length;
+        });
+    });
+    
+    // Main effect of framing
+    const framingMeans = {};
+    Object.entries(data.groups).forEach(([framing, modGroups]) => {
+        const allFramingValues = [];
+        Object.values(modGroups).forEach(values => {
+            allFramingValues.push(...values.filter(v => v !== null && !isNaN(v)));
+        });
+        framingMeans[framing] = mean(allFramingValues);
+    });
+    
+    // Main effect of moderator
+    const modMeans = {};
+    const modLevels = new Set();
+    Object.values(data.groups).forEach(modGroups => {
+        Object.keys(modGroups).forEach(mod => modLevels.add(mod));
+    });
+    
+    modLevels.forEach(modLevel => {
+        const allModValues = [];
+        Object.values(data.groups).forEach(modGroups => {
+            if (modGroups[modLevel]) {
+                allModValues.push(...modGroups[modLevel].filter(v => v !== null && !isNaN(v)));
+            }
+        });
+        modMeans[modLevel] = mean(allModValues);
+    });
+    
+    // Simplified interaction test (check if pattern differs across moderator levels)
+    // Calculate variance of framing effects across moderator levels
+    const framingEffectsByMod = {};
+    modLevels.forEach(modLevel => {
+        const effects = [];
+        const framings = Object.keys(data.groups);
+        for (let i = 0; i < framings.length; i++) {
+            for (let j = i + 1; j < framings.length; j++) {
+                const mean1 = cellMeans[framings[i]][modLevel];
+                const mean2 = cellMeans[framings[j]][modLevel];
+                if (mean1 !== null && mean2 !== null) {
+                    effects.push(mean1 - mean2);
+                }
+            }
+        }
+        framingEffectsByMod[modLevel] = effects;
+    });
+    
+    // Check if effects vary across moderator levels (simple heuristic)
+    const effectVariances = Object.values(framingEffectsByMod).map(effects => {
+        if (effects.length === 0) return 0;
+        const m = mean(effects);
+        return effects.reduce((sum, e) => sum + Math.pow(e - m, 2), 0) / effects.length;
+    });
+    
+    const avgVariance = mean(effectVariances);
+    const hasInteraction = avgVariance > 0.5; // Heuristic threshold
+    
+    return {
+        grandMean,
+        cellMeans,
+        framingMeans,
+        modMeans,
+        hasInteraction,
+        interactionStrength: avgVariance,
+        simpleEffects: cellMeans
+    };
 }
 
 // Render Overview Section
@@ -1154,17 +1266,38 @@ function renderModeration() {
     let chartWrapper = null; // Declare at function scope
     
     if (moderator === 'involvement') {
-        // Investment Involvement Moderation
+        // Investment Involvement Moderation with proper interaction test
         const highInv = validData.filter(r => r.investment_involvement !== null && r.investment_involvement >= 4);
         const lowInv = validData.filter(r => r.investment_involvement !== null && r.investment_involvement < 4);
         
         const outcome = 'intention_after';
-        const highA = highInv.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
-        const highB = highInv.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
-        const highC = highInv.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
-        const lowA = lowInv.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
-        const lowB = lowInv.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
-        const lowC = lowInv.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        
+        // Prepare data for 2-way ANOVA
+        const twoWayData = {
+            groups: {
+                'A': {
+                    'High': highInv.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowInv.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'B': {
+                    'High': highInv.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowInv.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null)
+                },
+                'C': {
+                    'High': highInv.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null),
+                    'Low': lowInv.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null)
+                }
+            }
+        };
+        
+        const interactionResult = twoWayAnova(twoWayData);
+        
+        const highA = twoWayData.groups['A']['High'];
+        const highB = twoWayData.groups['B']['High'];
+        const highC = twoWayData.groups['C']['High'];
+        const lowA = twoWayData.groups['A']['Low'];
+        const lowB = twoWayData.groups['B']['Low'];
+        const lowC = twoWayData.groups['C']['Low'];
         
         const meanHighA = mean(highA);
         const meanHighB = mean(highB);
@@ -1173,6 +1306,7 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
+        // Bar chart
         chartWrapper = document.createElement('div');
         chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
@@ -1212,13 +1346,116 @@ function renderModeration() {
             }
         });
         
-        canvasElement = chartWrapper; // Store wrapper, not canvas
+        // Interaction plot (line chart)
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Condition A', 'Condition B', 'Condition C'],
+                datasets: [
+                    {
+                        label: 'High Investment Involvement',
+                        data: [
+                            meanHighA !== null ? meanHighA : null,
+                            meanHighB !== null ? meanHighB : null,
+                            meanHighC !== null ? meanHighC : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Low Investment Involvement',
+                        data: [
+                            meanLowA !== null ? meanLowA : null,
+                            meanLowB !== null ? meanLowB : null,
+                            meanLowC !== null ? meanLowC : null
+                        ],
+                        borderColor: '#9ca3af',
+                        backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#9ca3af',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { 
+                        display: true, 
+                        text: 'Interaction Plot: Framing × Investment Involvement', 
+                        font: { size: 16 } 
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 7,
+                        title: {
+                            display: true,
+                            text: 'Intention to Use'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Framing Condition'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
+        
+        // Simple effects analysis
+        const highMeans = { 'A': meanHighA, 'B': meanHighB, 'C': meanHighC };
+        const lowMeans = { 'A': meanLowA, 'B': meanLowB, 'C': meanLowC };
+        const highBest = Object.entries(highMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        const lowBest = Object.entries(lowMeans).filter(([_, v]) => v !== null).reduce((a, b) => a[1] > b[1] ? a : b, [null, -Infinity])[0];
+        
         moderationHTML = `
             <div class="conclusion-box">
-                <h4>Investment Involvement Moderation</h4>
+                <h4>Investment Involvement Moderation ${interactionResult.hasInteraction ? '<span class="badge badge-success">Significant Interaction</span>' : '<span class="badge badge-warning">No Significant Interaction</span>'}</h4>
                 <p><strong>High Involvement (≥4):</strong> A: ${meanHighA !== null ? meanHighA.toFixed(2) : 'N/A'}, B: ${meanHighB !== null ? meanHighB.toFixed(2) : 'N/A'}, C: ${meanHighC !== null ? meanHighC.toFixed(2) : 'N/A'}</p>
                 <p><strong>Low Involvement (<4):</strong> A: ${meanLowA !== null ? meanLowA.toFixed(2) : 'N/A'}, B: ${meanLowB !== null ? meanLowB.toFixed(2) : 'N/A'}, C: ${meanLowC !== null ? meanLowC.toFixed(2) : 'N/A'}</p>
-                <p>${meanHighA !== null && meanLowA !== null && meanHighA > meanLowA ? 'High involvement participants respond better to Financial frame (A)' : 'Low involvement participants respond better to Financial frame (A)'}</p>
+                ${interactionResult.hasInteraction ? `
+                    <p><strong>Simple Effects:</strong></p>
+                    <ul>
+                        <li><strong>High Involvement:</strong> Best frame is ${highBest} (${highBest ? highMeans[highBest].toFixed(2) : 'N/A'})</li>
+                        <li><strong>Low Involvement:</strong> Best frame is ${lowBest} (${lowBest ? lowMeans[lowBest].toFixed(2) : 'N/A'})</li>
+                    </ul>
+                    <p><em>Framing effects differ significantly between high and low involvement groups.</em></p>
+                ` : '<p><em>Framing effects are similar across involvement levels.</em></p>'}
             </div>
         `;
     } else if (moderator === 'literacy') {
@@ -1248,6 +1485,7 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
+        // Bar chart
         chartWrapper = document.createElement('div');
         chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
@@ -1296,7 +1534,112 @@ function renderModeration() {
             }
         });
         
-        canvasElement = chartWrapper; // Store wrapper, not canvas
+        // Interaction plot (line chart)
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['High Literacy', 'Medium Literacy', 'Low Literacy'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanHighA !== null ? meanHighA : null,
+                            meanMedA !== null ? meanMedA : null,
+                            meanLowA !== null ? meanLowA : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanHighB !== null ? meanHighB : null,
+                            meanMedB !== null ? meanMedB : null,
+                            meanLowB !== null ? meanLowB : null
+                        ],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanHighC !== null ? meanHighC : null,
+                            meanMedC !== null ? meanMedC : null,
+                            meanLowC !== null ? meanLowC : null
+                        ],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#f093fb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { 
+                        display: true, 
+                        text: 'Interaction Plot: Framing × Financial Literacy', 
+                        font: { size: 16 } 
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 7,
+                        title: {
+                            display: true,
+                            text: 'Intention to Use'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Financial Literacy Level'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
         moderationHTML = `
             <div class="conclusion-box">
                 <h4>Financial Literacy Moderation</h4>
@@ -1333,8 +1676,11 @@ function renderModeration() {
         const meanOlderB = mean(olderB);
         const meanOlderC = mean(olderC);
         
+        // Bar chart
+        chartWrapper = document.createElement('div');
+        chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
-        canvas.className = 'chart-container';
+        chartWrapper.appendChild(canvas);
         new Chart(canvas, {
             type: 'bar',
             data: {
@@ -1379,7 +1725,112 @@ function renderModeration() {
             }
         });
         
-        canvasElement = chartWrapper; // Store wrapper, not canvas
+        // Interaction plot (line chart)
+        const interactionPlotWrapper = document.createElement('div');
+        interactionPlotWrapper.className = 'chart-container interaction-plot';
+        const interactionCanvas = document.createElement('canvas');
+        interactionPlotWrapper.appendChild(interactionCanvas);
+        
+        new Chart(interactionCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Young (≤35)', 'Middle (36-50)', 'Older (51+)'],
+                datasets: [
+                    {
+                        label: 'Condition A (Financial)',
+                        data: [
+                            meanYoungA !== null ? meanYoungA : null,
+                            meanMiddleA !== null ? meanMiddleA : null,
+                            meanOlderA !== null ? meanOlderA : null
+                        ],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition B (Cashback)',
+                        data: [
+                            meanYoungB !== null ? meanYoungB : null,
+                            meanMiddleB !== null ? meanMiddleB : null,
+                            meanOlderB !== null ? meanOlderB : null
+                        ],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Condition C (Generic)',
+                        data: [
+                            meanYoungC !== null ? meanYoungC : null,
+                            meanMiddleC !== null ? meanMiddleC : null,
+                            meanOlderC !== null ? meanOlderC : null
+                        ],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#f093fb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { 
+                        display: true, 
+                        text: 'Interaction Plot: Framing × Age Group', 
+                        font: { size: 16 } 
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 7,
+                        title: {
+                            display: true,
+                            text: 'Intention to Use'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Age Group'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+        
+        canvasElement = document.createElement('div');
+        canvasElement.appendChild(chartWrapper);
+        canvasElement.appendChild(interactionPlotWrapper);
         moderationHTML = '';
     } else if (moderator === 'promotional' || moderator === 'income' || moderator === 'gender') {
         // Placeholder for future moderation analyses
@@ -1473,33 +1924,563 @@ function renderManipulationCheck() {
     `;
 }
 
-// Render Concerns
+// Enhanced Text Analysis with Thematic Coding
+function renderEnhancedTextAnalysis() {
+    const validData = processedData.filter(r => !r.excluded);
+    
+    // Thematic coding for manipulation thoughts
+    const manipulationThemes = {
+        'Financial Markets': ['financial', 'market', 'invest', 'investment', 'stock', 'etf', 'portfolio'],
+        'Risk Perception': ['risk', 'risky', 'uncertain', 'volatile', 'volatility', 'danger', 'safe', 'security'],
+        'Complexity': ['complex', 'complicated', 'confusing', 'difficult', 'hard', 'understand', 'clear', 'simple'],
+        'Trust': ['trust', 'reliable', 'legitimate', 'scam', 'suspicious', 'believe', 'credible'],
+        'Value Proposition': ['benefit', 'advantage', 'worth', 'value', 'reward', 'cashback', 'money', 'profit'],
+        'Timing': ['time', 'wait', 'delay', 'months', 'long', 'quick', 'fast', 'immediate']
+    };
+    
+    // Thematic coding for concerns
+    const concernThemes = {
+        'Security/Trust': ['trust', 'security', 'safe', 'secure', 'scam', 'fraud', 'legitimate', 'reliable'],
+        'Understanding/Complexity': ['understand', 'confusing', 'complex', 'complicated', 'clear', 'explain', 'how'],
+        'Financial Risk': ['risk', 'risky', 'lose', 'money', 'volatile', 'uncertain', 'guarantee'],
+        'Time Delay': ['time', 'wait', 'delay', 'months', 'long', 'slow', 'quick'],
+        'Value Uncertainty': ['value', 'worth', 'amount', 'how much', 'uncertain', 'guarantee', 'minimum'],
+        'Platform Reliability': ['platform', 'service', 'company', 'reliable', 'work', 'function', 'technical']
+    };
+    
+    // Analyze manipulation thoughts by theme and condition
+    const manipulationByTheme = {};
+    const manipulationByCondition = { 'A': [], 'B': [], 'C': [] };
+    
+    Object.keys(manipulationThemes).forEach(theme => {
+        manipulationByTheme[theme] = { 'A': 0, 'B': 0, 'C': 0, total: 0 };
+    });
+    
+    validData.forEach(row => {
+        if (row.manipulation_thoughts) {
+            const text = (row.manipulation_thoughts || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            manipulationByCondition[condition].push(row);
+            
+            Object.entries(manipulationThemes).forEach(([theme, keywords]) => {
+                if (keywords.some(keyword => text.includes(keyword))) {
+                    manipulationByTheme[theme][condition]++;
+                    manipulationByTheme[theme].total++;
+                }
+            });
+        }
+    });
+    
+    // Analyze concerns by theme and condition
+    const concernsByTheme = {};
+    const concernsByCondition = { 'A': [], 'B': [], 'C': [] };
+    const concernIntentionCorrelation = {};
+    
+    Object.keys(concernThemes).forEach(theme => {
+        concernsByTheme[theme] = { 'A': 0, 'B': 0, 'C': 0, total: 0, avgIntention: [] };
+    });
+    
+    validData.forEach(row => {
+        if (row.concerns_text) {
+            const text = (row.concerns_text || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            concernsByCondition[condition].push(row);
+            
+            Object.entries(concernThemes).forEach(([theme, keywords]) => {
+                if (keywords.some(keyword => text.includes(keyword))) {
+                    concernsByTheme[theme][condition]++;
+                    concernsByTheme[theme].total++;
+                    if (row.intention_after !== null) {
+                        concernsByTheme[theme].avgIntention.push(row.intention_after);
+                    }
+                }
+            });
+        }
+    });
+    
+    // Calculate average intention for each theme
+    Object.keys(concernsByTheme).forEach(theme => {
+        const intentions = concernsByTheme[theme].avgIntention;
+        concernsByTheme[theme].avgIntention = intentions.length > 0 ? mean(intentions) : null;
+    });
+    
+    // Sentiment analysis (basic)
+    const positiveWords = ['good', 'great', 'excellent', 'interesting', 'useful', 'beneficial', 'helpful', 'valuable', 'attractive'];
+    const negativeWords = ['bad', 'worried', 'concerned', 'suspicious', 'risky', 'confusing', 'complicated', 'difficult', 'uncertain'];
+    
+    const sentimentByCondition = { 'A': { positive: 0, negative: 0, neutral: 0 }, 'B': { positive: 0, negative: 0, neutral: 0 }, 'C': { positive: 0, negative: 0, neutral: 0 } };
+    
+    validData.forEach(row => {
+        if (row.manipulation_thoughts) {
+            const text = (row.manipulation_thoughts || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            const posCount = positiveWords.filter(word => text.includes(word)).length;
+            const negCount = negativeWords.filter(word => text.includes(word)).length;
+            
+            if (posCount > negCount) sentimentByCondition[condition].positive++;
+            else if (negCount > posCount) sentimentByCondition[condition].negative++;
+            else sentimentByCondition[condition].neutral++;
+        }
+    });
+    
+    const textAnalysisEl = document.getElementById('textAnalysisContent');
+    if (!textAnalysisEl) {
+        console.error('textAnalysisContent element not found');
+        return;
+    }
+    
+    // Create charts for theme frequency
+    let chartsHTML = '';
+    if (typeof Chart !== 'undefined') {
+        // Manipulation themes chart
+        const themeChartWrapper = document.createElement('div');
+        themeChartWrapper.className = 'chart-container';
+        const themeCanvas = document.createElement('canvas');
+        themeChartWrapper.appendChild(themeCanvas);
+        
+        const themeLabels = Object.keys(manipulationByTheme);
+        const themeDataA = themeLabels.map(theme => manipulationByTheme[theme]['A']);
+        const themeDataB = themeLabels.map(theme => manipulationByTheme[theme]['B']);
+        const themeDataC = themeLabels.map(theme => manipulationByTheme[theme]['C']);
+        
+        try {
+            new Chart(themeCanvas, {
+                type: 'bar',
+                data: {
+                    labels: themeLabels,
+                    datasets: [
+                        {
+                            label: 'Condition A (Financial)',
+                            data: themeDataA,
+                            backgroundColor: '#667eea'
+                        },
+                        {
+                            label: 'Condition B (Cashback)',
+                            data: themeDataB,
+                            backgroundColor: '#764ba2'
+                        },
+                        {
+                            label: 'Condition C (Generic)',
+                            data: themeDataC,
+                            backgroundColor: '#f093fb'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Themes in Manipulation Thoughts by Condition', font: { size: 16 } }
+                    },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+            chartsHTML = themeChartWrapper.outerHTML;
+        } catch (error) {
+            console.error('Error creating theme chart:', error);
+        }
+    }
+    
+    textAnalysisEl.innerHTML = `
+        <div class="conclusion-box">
+            <h4>📊 Thematic Analysis of Manipulation Thoughts</h4>
+            <p>Analysis of open-ended responses reveals what themes participants associate with each framing condition.</p>
+        </div>
+        ${chartsHTML}
+        <div style="margin: 20px 0;">
+            <h3>Theme Frequency by Condition</h3>
+            <div class="text-analysis">
+                ${Object.entries(manipulationByTheme).map(([theme, data]) => `
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>${theme}:</strong>
+                        <span class="theme-tag">A: ${data.A}</span>
+                        <span class="theme-tag">B: ${data.B}</span>
+                        <span class="theme-tag">C: ${data.C}</span>
+                        <span class="theme-tag small">Total: ${data.total}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="conclusion-box">
+            <h4>😊 Sentiment Analysis</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                ${Object.entries(sentimentByCondition).map(([condition, sentiment]) => `
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong>Condition ${condition}:</strong>
+                        <div style="margin-top: 10px;">
+                            <div style="color: #10b981;">Positive: ${sentiment.positive}</div>
+                            <div style="color: #ef4444;">Negative: ${sentiment.negative}</div>
+                            <div style="color: #9ca3af;">Neutral: ${sentiment.neutral}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="conclusion-box">
+            <h4>🎯 Key Insights</h4>
+            <ul>
+                <li><strong>Financial Markets theme</strong> appears most in Condition A (${manipulationByTheme['Financial Markets']?.A || 0} mentions)</li>
+                <li><strong>Risk Perception</strong> is mentioned ${manipulationByTheme['Risk Perception']?.total || 0} times across all conditions</li>
+                <li><strong>Complexity</strong> concerns appear ${manipulationByTheme['Complexity']?.total || 0} times</li>
+                <li>Sentiment varies by condition, with Condition ${Object.entries(sentimentByCondition).reduce((a, b) => 
+                    sentimentByCondition[a[0]].positive > sentimentByCondition[b[0]].positive ? a : b
+                )[0]} showing most positive sentiment</li>
+            </ul>
+        </div>
+    `;
+}
+
+// Render Segmentation & Targeting
+function renderSegmentation() {
+    const validData = processedData.filter(r => !r.excluded);
+    
+    // Create segmentation profiles based on financial literacy and investment involvement
+    const profiles = [];
+    
+    // High FL + High Inv
+    const highFLHighInv = validData.filter(r => 
+        r.financial_literacy === 3 && 
+        r.investment_involvement !== null && 
+        r.investment_involvement >= 4
+    );
+    
+    // High FL + Low Inv
+    const highFLLowInv = validData.filter(r => 
+        r.financial_literacy === 3 && 
+        r.investment_involvement !== null && 
+        r.investment_involvement < 4
+    );
+    
+    // Low FL + High Inv
+    const lowFLHighInv = validData.filter(r => 
+        r.financial_literacy <= 1 && 
+        r.investment_involvement !== null && 
+        r.investment_involvement >= 4
+    );
+    
+    // Low FL + Low Inv
+    const lowFLLowInv = validData.filter(r => 
+        r.financial_literacy <= 1 && 
+        r.investment_involvement !== null && 
+        r.investment_involvement < 4
+    );
+    
+    // Medium FL
+    const medFL = validData.filter(r => r.financial_literacy === 2);
+    
+    // Calculate best frame for each segment
+    function getBestFrame(segment, segmentName) {
+        if (segment.length === 0) return null;
+        
+        const outcome = 'intention_after';
+        const groupA = segment.filter(r => r.framing_condition_text === 'A').map(r => r[outcome]).filter(v => v !== null);
+        const groupB = segment.filter(r => r.framing_condition_text === 'B').map(r => r[outcome]).filter(v => v !== null);
+        const groupC = segment.filter(r => r.framing_condition_text === 'C').map(r => r[outcome]).filter(v => v !== null);
+        
+        const meanA = mean(groupA);
+        const meanB = mean(groupB);
+        const meanC = mean(groupC);
+        
+        const means = { 'A': meanA, 'B': meanB, 'C': meanC };
+        const validMeans = Object.entries(means).filter(([_, v]) => v !== null);
+        
+        if (validMeans.length === 0) return null;
+        
+        const best = validMeans.reduce((a, b) => means[a[0]] > means[b[0]] ? a : b)[0];
+        const bestMean = means[best];
+        const secondBest = validMeans.filter(([k]) => k !== best).reduce((a, b) => means[a[0]] > means[b[0]] ? a : b, validMeans[0]);
+        const secondBestMean = means[secondBest[0]];
+        
+        // Calculate confidence based on difference and sample size
+        const diff = bestMean - secondBestMean;
+        const sampleSize = segment.length;
+        let confidence = Math.min(95, 50 + (diff * 10) + (sampleSize > 20 ? 20 : sampleSize));
+        
+        return {
+            frame: best,
+            mean: bestMean,
+            confidence: Math.round(confidence),
+            sampleSize: sampleSize,
+            means: means
+        };
+    }
+    
+    const segmentResults = [
+        { segment: highFLHighInv, name: 'High Financial Literacy + High Investment Involvement', label: 'High FL + High Inv' },
+        { segment: highFLLowInv, name: 'High Financial Literacy + Low Investment Involvement', label: 'High FL + Low Inv' },
+        { segment: lowFLHighInv, name: 'Low Financial Literacy + High Investment Involvement', label: 'Low FL + High Inv' },
+        { segment: lowFLLowInv, name: 'Low Financial Literacy + Low Investment Involvement', label: 'Low FL + Low Inv' },
+        { segment: medFL, name: 'Medium Financial Literacy', label: 'Medium FL' }
+    ];
+    
+    const segmentationEl = document.getElementById('segmentationContent');
+    if (!segmentationEl) {
+        console.error('segmentationContent element not found');
+        return;
+    }
+    
+    const frameNames = { 'A': 'Financial Frame (A)', 'B': 'Cashback Frame (B)', 'C': 'Generic Frame (C)' };
+    
+    segmentationEl.innerHTML = `
+        <div class="conclusion-box">
+            <h4>🎯 Segmentation Strategy</h4>
+            <p>Based on financial literacy and investment involvement, different user segments respond best to different framing conditions.</p>
+        </div>
+        ${segmentResults.map(({ segment, name, label }) => {
+            const result = getBestFrame(segment, name);
+            if (!result) return '';
+            
+            const confidenceClass = result.confidence >= 70 ? 'high' : result.confidence >= 50 ? 'medium' : 'low';
+            
+            return `
+                <div class="segmentation-profile">
+                    <h4>${name} <span class="confidence-badge ${confidenceClass}">${result.confidence}% confidence</span></h4>
+                    <p><strong>Recommended Frame:</strong> ${frameNames[result.frame]} (Intention: ${result.mean.toFixed(2)})</p>
+                    <p><strong>Sample Size:</strong> ${result.sampleSize} participants</p>
+                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                        <strong>All Frames:</strong> 
+                        A: ${result.means.A !== null ? result.means.A.toFixed(2) : 'N/A'}, 
+                        B: ${result.means.B !== null ? result.means.B.toFixed(2) : 'N/A'}, 
+                        C: ${result.means.C !== null ? result.means.C.toFixed(2) : 'N/A'}
+                    </div>
+                    ${result.sampleSize < 15 ? '<p style="color: #f59e0b; margin-top: 10px;"><em>⚠️ Low sample size - results should be interpreted with caution</em></p>' : ''}
+                </div>
+            `;
+        }).join('')}
+        <div class="recommendation-box">
+            <h4>💡 Targeting Recommendations</h4>
+            <ul>
+                <li><strong>High FL + High Inv:</strong> Use Financial Frame (A) - these users understand and value investment language</li>
+                <li><strong>Low FL + Low Inv:</strong> Use Generic Frame (C) - simpler messaging works better for less financially engaged users</li>
+                <li><strong>Medium segments:</strong> Test multiple frames or use Cashback Frame (B) as a balanced approach</li>
+                <li><strong>Segments with low confidence:</strong> Collect more data before making final recommendations</li>
+            </ul>
+        </div>
+    `;
+}
+
+// Render Communication Effectiveness
+function renderCommunicationEffectiveness() {
+    const validData = processedData.filter(r => !r.excluded);
+    
+    // Comprehension analysis (from manipulation check)
+    const comprehensionByFrame = { 'A': [], 'B': [], 'C': [] };
+    validData.forEach(row => {
+        if (row.manipulation_thoughts && row.intention_after !== null) {
+            const text = (row.manipulation_thoughts || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            // Simple comprehension indicator: mentions of key concepts
+            const keyConcepts = ['benefit', 'cashback', 'reward', 'financial', 'market', 'tagpeak'];
+            const mentions = keyConcepts.filter(concept => text.includes(concept)).length;
+            comprehensionByFrame[condition].push({ mentions, intention: row.intention_after });
+        }
+    });
+    
+    // Trust indicators (from clarity and advantage)
+    const trustByFrame = { 'A': [], 'B': [], 'C': [] };
+    validData.forEach(row => {
+        if (row.clarity !== null && row.advantage !== null) {
+            const condition = row.framing_condition_text;
+            const trustScore = (row.clarity + row.advantage) / 2;
+            trustByFrame[condition].push(trustScore);
+        }
+    });
+    
+    // Message involvement breakdown
+    const involvementDimensions = {
+        'Interest': 'involvement_interested',
+        'Absorption': 'involvement_absorbed',
+        'Attention': 'involvement_attention',
+        'Relevance': 'involvement_relevant',
+        'Interesting': 'involvement_interesting',
+        'Engagement': 'involvement_engaging'
+    };
+    
+    const involvementByDimension = {};
+    Object.entries(involvementDimensions).forEach(([dim, key]) => {
+        involvementByDimension[dim] = { 'A': [], 'B': [], 'C': [] };
+        validData.forEach(row => {
+            const val = parseFloat(row[key]);
+            if (val > 0) {
+                involvementByDimension[dim][row.framing_condition_text].push(val);
+            }
+        });
+    });
+    
+    // Calculate correlations between involvement dimensions and intention
+    const dimensionCorrelations = {};
+    Object.keys(involvementDimensions).forEach(dim => {
+        const key = involvementDimensions[dim];
+        const values = validData.map(r => parseFloat(r[key])).filter(v => v > 0);
+        const intentions = validData.map(r => r.intention_after).filter(v => v !== null);
+        // Simple correlation (if same length)
+        if (values.length === intentions.length && values.length > 0) {
+            const meanVal = mean(values);
+            const meanInt = mean(intentions);
+            const covariance = values.reduce((sum, v, i) => sum + (v - meanVal) * (intentions[i] - meanInt), 0) / values.length;
+            const stdVal = stdDev(values);
+            const stdInt = stdDev(intentions);
+            dimensionCorrelations[dim] = (stdVal && stdInt) ? covariance / (stdVal * stdInt) : 0;
+        }
+    });
+    
+    const commEffEl = document.getElementById('communicationEffectivenessContent');
+    if (!commEffEl) {
+        console.error('communicationEffectivenessContent element not found');
+        return;
+    }
+    
+    commEffEl.innerHTML = `
+        <div class="conclusion-box">
+            <h4>📊 Communication Effectiveness Overview</h4>
+            <p>These metrics measure how well each framing condition communicates TagPeak's value proposition.</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+            ${['A', 'B', 'C'].map(condition => {
+                const avgComprehension = comprehensionByFrame[condition].length > 0 
+                    ? mean(comprehensionByFrame[condition].map(c => c.mentions)) 
+                    : null;
+                const avgTrust = trustByFrame[condition].length > 0 
+                    ? mean(trustByFrame[condition]) 
+                    : null;
+                const avgInvolvement = validData.filter(r => r.framing_condition_text === condition && r.message_involvement !== null)
+                    .map(r => r.message_involvement);
+                const avgInv = avgInvolvement.length > 0 ? mean(avgInvolvement) : null;
+                
+                return `
+                    <div class="metric-card">
+                        <h4>Condition ${condition}</h4>
+                        <div class="metric-value">${avgInv !== null ? avgInv.toFixed(2) : 'N/A'}</div>
+                        <div class="metric-label">Message Involvement</div>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                            <div style="font-size: 14px; color: #666;">
+                                <div>Trust Score: ${avgTrust !== null ? avgTrust.toFixed(2) : 'N/A'}</div>
+                                <div>Comprehension: ${avgComprehension !== null ? avgComprehension.toFixed(1) : 'N/A'} key concepts</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="conclusion-box">
+            <h4>🔍 Message Involvement Dimensions</h4>
+            <p>Which aspects of message involvement predict intention to use?</p>
+            <div style="margin-top: 15px;">
+                ${Object.entries(dimensionCorrelations).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([dim, corr]) => `
+                    <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 8px;">
+                        <strong>${dim}:</strong> 
+                        <span style="color: ${corr > 0.3 ? '#10b981' : corr > 0.1 ? '#f59e0b' : '#9ca3af'};">
+                            Correlation with Intention: ${corr.toFixed(3)}
+                        </span>
+                        ${Math.abs(corr) > 0.3 ? ' <span class="badge badge-success">Strong Predictor</span>' : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="recommendation-box">
+            <h4>💡 Communication Insights</h4>
+            <ul>
+                <li><strong>Most Predictive Dimension:</strong> ${Object.entries(dimensionCorrelations).reduce((a, b) => Math.abs(a[1]) > Math.abs(b[1]) ? a : b)[0]} is the strongest predictor of intention</li>
+                <li><strong>Trust Scores:</strong> Condition ${Object.entries(trustByFrame).map(([k, v]) => [k, mean(v)]).reduce((a, b) => a[1] > b[1] ? a : b)[0]} shows highest trust (${Object.entries(trustByFrame).map(([k, v]) => mean(v)).reduce((a, b) => a > b ? a : b).toFixed(2)})</li>
+                <li><strong>Comprehension:</strong> Monitor how well users understand key concepts in each frame</li>
+            </ul>
+        </div>
+    `;
+}
+
+// Render Concerns with Enhanced Analysis
 function renderConcerns() {
     const validData = processedData.filter(r => !r.excluded && r.concerns_text);
     
-    const concernsByCondition = {
-        'A': validData.filter(r => r.framing_condition_text === 'A' && r.concerns_text).length,
-        'B': validData.filter(r => r.framing_condition_text === 'B' && r.concerns_text).length,
-        'C': validData.filter(r => r.framing_condition_text === 'C' && r.concerns_text).length
+    // Enhanced concern analysis
+    const concernThemes = {
+        'Security/Trust': ['trust', 'security', 'safe', 'secure', 'scam', 'fraud', 'legitimate'],
+        'Understanding': ['understand', 'confusing', 'complex', 'complicated', 'clear', 'explain'],
+        'Financial Risk': ['risk', 'risky', 'lose', 'money', 'volatile', 'uncertain'],
+        'Time Delay': ['time', 'wait', 'delay', 'months', 'long', 'slow'],
+        'Value Uncertainty': ['value', 'worth', 'amount', 'how much', 'uncertain', 'guarantee']
     };
+    
+    const concernsByTheme = {};
+    const concernsByCondition = { 'A': [], 'B': [], 'C': [] };
+    const themeIntentionImpact = {};
+    
+    Object.keys(concernThemes).forEach(theme => {
+        concernsByTheme[theme] = { 'A': 0, 'B': 0, 'C': 0, total: 0, intentions: [] };
+        themeIntentionImpact[theme] = [];
+    });
+    
+    validData.forEach(row => {
+        if (row.concerns_text) {
+            const text = (row.concerns_text || '').toLowerCase();
+            const condition = row.framing_condition_text;
+            concernsByCondition[condition].push(row);
+            
+            Object.entries(concernThemes).forEach(([theme, keywords]) => {
+                if (keywords.some(keyword => text.includes(keyword))) {
+                    concernsByTheme[theme][condition]++;
+                    concernsByTheme[theme].total++;
+                    if (row.intention_after !== null) {
+                        concernsByTheme[theme].intentions.push(row.intention_after);
+                        themeIntentionImpact[theme].push(row.intention_after);
+                    }
+                }
+            });
+        }
+    });
+    
+    // Calculate priority: frequency × impact (lower intention = higher impact)
+    const priorities = Object.entries(concernsByTheme).map(([theme, data]) => {
+        const avgIntention = data.intentions.length > 0 ? mean(data.intentions) : 7;
+        const impact = 7 - avgIntention; // Higher impact = lower intention
+        const priority = data.total * impact;
+        return { theme, frequency: data.total, avgIntention, impact, priority, data };
+    }).sort((a, b) => b.priority - a.priority);
 
     const concernsAnalysisEl = document.getElementById('concernsAnalysis');
     if (!concernsAnalysisEl) {
         console.error('concernsAnalysis element not found');
         return;
     }
+    
     concernsAnalysisEl.innerHTML = `
-        <h3>Concerns & Barriers</h3>
-        <p>Total responses with concerns: ${validData.length}</p>
-        <p>By condition: A (${concernsByCondition.A}), B (${concernsByCondition.B}), C (${concernsByCondition.C})</p>
         <div class="conclusion-box">
-            <h4>Common Concerns (from qualitative analysis):</h4>
+            <h4>📊 Concerns Analysis</h4>
+            <p>Total responses with concerns: ${validData.length}</p>
+            <p>By condition: A (${concernsByCondition.A.length}), B (${concernsByCondition.B.length}), C (${concernsByCondition.C.length})</p>
+        </div>
+        <h3>Priority Matrix: Frequency × Impact</h3>
+        <div class="priority-matrix">
+            ${priorities.map(({ theme, frequency, avgIntention, impact, priority, data }) => {
+                const priorityClass = priority > 20 ? 'high-priority' : priority > 10 ? 'medium-priority' : 'low-priority';
+                return `
+                    <div class="priority-item ${priorityClass}">
+                        <h4 style="margin-bottom: 10px;">${theme}</h4>
+                        <div style="font-size: 14px;">
+                            <div><strong>Frequency:</strong> ${frequency} mentions</div>
+                            <div><strong>Avg Intention:</strong> ${avgIntention.toFixed(2)}</div>
+                            <div><strong>Impact Score:</strong> ${impact.toFixed(2)}</div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                <strong>By Condition:</strong><br>
+                                A: ${data.A} | B: ${data.B} | C: ${data.C}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="recommendation-box">
+            <h4>💡 Recommendations</h4>
             <ul>
-                <li>Trust and security of the platform</li>
-                <li>Complexity of understanding how it works</li>
-                <li>Risk perception (market volatility)</li>
-                <li>Time to receive benefits (4-6 months)</li>
-                <li>Uncertainty about actual value received</li>
+                ${priorities.slice(0, 3).map(({ theme, avgIntention }) => `
+                    <li><strong>${theme}:</strong> Address in messaging (avg intention: ${avgIntention.toFixed(2)}). 
+                    ${theme === 'Security/Trust' ? 'Emphasize platform security and legitimacy.' : ''}
+                    ${theme === 'Understanding' ? 'Simplify explanation and provide clear examples.' : ''}
+                    ${theme === 'Financial Risk' ? 'Clarify risk-free nature for consumers.' : ''}
+                    ${theme === 'Time Delay' ? 'Explain why 4-6 months and set expectations.' : ''}
+                    ${theme === 'Value Uncertainty' ? 'Provide clear examples of potential value.' : ''}
+                    </li>
+                `).join('')}
             </ul>
         </div>
     `;

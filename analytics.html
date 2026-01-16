@@ -320,8 +320,186 @@
             background: #9ca3af;
         }
 
+        .theme-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .theme-tag.small {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .priority-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .priority-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .priority-item.high-priority {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .priority-item.medium-priority {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .priority-item.low-priority {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .priority-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .segmentation-profile {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .segmentation-profile h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .confidence-badge.high {
+            background: #10b981;
+            color: white;
+        }
+
+        .confidence-badge.medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .confidence-badge.low {
+            background: #ef4444;
+            color: white;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .metric-card h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .heatmap-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .heatmap {
+            display: grid;
+            gap: 2px;
+            min-width: 600px;
+        }
+
+        .heatmap-cell {
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .heatmap-cell:hover {
+            opacity: 0.8;
+        }
+
+        .heatmap-header {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .interaction-plot {
+            margin: 20px 0;
+        }
+
+        .interaction-plot .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #10b98115 0%, #05966915 100%);
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .recommendation-box h4 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .priority-matrix {
                 grid-template-columns: 1fr;
             }
         }
@@ -405,6 +583,24 @@
         <div class="section" id="manipulationSection">
             <h2>🔬 Manipulation Check</h2>
             <div id="manipulationAnalysis"></div>
+        </div>
+
+        <!-- Enhanced Text Analysis Section -->
+        <div class="section" id="textAnalysisSection">
+            <h2>📝 Message Themes & Sentiment Analysis</h2>
+            <div id="textAnalysisContent"></div>
+        </div>
+
+        <!-- Segmentation & Targeting Section -->
+        <div class="section" id="segmentationSection">
+            <h2>🎯 Segmentation & Targeting Recommendations</h2>
+            <div id="segmentationContent"></div>
+        </div>
+
+        <!-- Communication Effectiveness Section -->
+        <div class="section" id="communicationEffectivenessSection">
+            <h2>📊 Communication Effectiveness Metrics</h2>
+            <div id="communicationEffectivenessContent"></div>
         </div>
 
         <!-- Concerns Section -->
