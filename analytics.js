@@ -1151,6 +1151,7 @@ function renderModeration() {
     
     let moderationHTML = '';
     let canvasElement = null;
+    let chartWrapper = null; // Declare at function scope
     
     if (moderator === 'involvement') {
         // Investment Involvement Moderation
@@ -1172,7 +1173,7 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
-        const chartWrapper = document.createElement('div');
+        chartWrapper = document.createElement('div');
         chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
         chartWrapper.appendChild(canvas);
@@ -1247,7 +1248,7 @@ function renderModeration() {
         const meanLowB = mean(lowB);
         const meanLowC = mean(lowC);
         
-        const chartWrapper = document.createElement('div');
+        chartWrapper = document.createElement('div');
         chartWrapper.className = 'chart-container';
         const canvas = document.createElement('canvas');
         chartWrapper.appendChild(canvas);
@@ -1380,6 +1381,14 @@ function renderModeration() {
         
         canvasElement = chartWrapper; // Store wrapper, not canvas
         moderationHTML = '';
+    } else if (moderator === 'promotional' || moderator === 'income' || moderator === 'gender') {
+        // Placeholder for future moderation analyses
+        moderationHTML = `
+            <div class="conclusion-box">
+                <h4>${moderator === 'promotional' ? 'Promotional Benefit Involvement' : moderator === 'income' ? 'Income Level' : 'Gender'} Moderation</h4>
+                <p>This moderation analysis is not yet implemented. Coming soon!</p>
+            </div>
+        `;
     } else {
         moderationHTML = `
             <div class="conclusion-box">
@@ -1416,8 +1425,13 @@ function renderModeration() {
 function setupEventListeners() {
     const moderatorFilter = document.getElementById('moderatorFilter');
     if (moderatorFilter) {
+        // Remove existing listeners to avoid duplicates
+        moderatorFilter.removeEventListener('change', renderModeration);
         moderatorFilter.addEventListener('change', renderModeration);
     }
+    
+    // Note: outcomeFilter functionality can be added here if needed
+    // Currently main effects shows all outcomes by default
 }
 
 // Render Manipulation Check
